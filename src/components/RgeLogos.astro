@@ -1,0 +1,30 @@
+---
+import { Image } from 'astro:assets';
+import qualibois from '../assets/certifications/rge-qualibois.png';
+import qualipac from '../assets/certifications/rge-qualipac.png';
+
+/** Logos officiels Qualit'EnR (millésime 2026), source : qualit-enr.org. */
+const logos = {
+  qualibois: { src: qualibois, alt: 'RGE QualiBois' },
+  qualipac: { src: qualipac, alt: 'RGE QualiPAC' },
+};
+export type Certification = keyof typeof logos;
+
+interface Props {
+  certs?: Certification[];
+  /** Classes de taille de l’image, ex. « h-12 w-auto ». */
+  size?: string;
+  class?: string;
+}
+const { certs = ['qualibois', 'qualipac'], size = 'h-12 w-auto', class: className } = Astro.props;
+---
+
+<ul class:list={['flex flex-wrap items-center gap-x-4 gap-y-2', className]}>
+  {
+    certs.map((c) => (
+      <li>
+        <Image src={logos[c].src} alt={logos[c].alt} widths={[240, 480]} sizes="240px" class={size} />
+      </li>
+    ))
+  }
+</ul>

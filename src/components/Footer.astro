@@ -1,6 +1,7 @@
 ---
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
+import RgeLogos from './RgeLogos.astro';
 import { site, showrooms, productNav, serviceNav, openingHours, formatSlot } from '../data/site';
 const year = new Date().getFullYear();
 ---
@@ -20,6 +21,9 @@ const year = new Date().getFullYear();
           <Icon name="facebook" class="size-5 text-ember-400" />
           Notre carnet de poses sur Facebook
         </a>
+      </div>
+      <div class="self-start rounded-2xl bg-white p-3">
+        <RgeLogos size="h-11 w-auto" class="!gap-3" />
       </div>
     </div>
 

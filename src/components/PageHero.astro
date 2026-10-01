@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import Icon from './Icon.astro';
+import RgeLogos, { type Certification } from './RgeLogos.astro';
 import type { Crumb } from '../lib/schema';
 import { site } from '../data/site';
 
@@ -17,10 +18,12 @@ interface Props {
   imageCaption?: string;
   cta?: boolean;
   imageAspect?: 'portrait' | 'landscape';
+  /** Logos RGE affichés sous l’accroche (ceux qui couvrent les travaux de la page). */
+  rge?: Certification[];
 }
 
 const nbsp = (t?: string) => t?.replace(/ ([:;!?»])/g, '\u202f$1').replace(/« /g, '«\u202f');
-const { eyebrow, title: rawTitle, lead: rawLead, crumbs = [], image, imageAlt = '', imageCaption, cta = true, imageAspect = 'portrait' } = Astro.props;
+const { eyebrow, title: rawTitle, lead: rawLead, crumbs = [], image, imageAlt = '', imageCaption, cta = true, imageAspect = 'portrait', rge } = Astro.props;
 const title = nbsp(rawTitle)!;
 const lead = nbsp(rawLead);
 ---
@@ -52,6 +55,22 @@ const lead = nbsp(rawLead);
       {eyebrow && <p class="eyebrow -rotate-1">{eyebrow}</p>}
       <h1 class="text-4xl leading-[1.04] sm:text-5xl lg:text-6xl">{title}</h1>
       {lead && <p class="max-w-2xl text-lg leading-relaxed text-ink-700 sm:text-xl">{lead}</p>}
+      {
+        rge && (
+          <div class="flex flex-wrap items-center gap-x-5 gap-y-3">
+            <RgeLogos certs={rge} size="h-14 w-auto sm:h-16" />
+            <p class="max-w-56 text-[15px] leading-snug text-ink-700">
+              Installateur certifié, la condition pour obtenir les{' '}
+              {Astro.url.pathname === '/aides-financieres/' ? (
+                'aides de l’État'
+              ) : (
+                <a href="/aides-financieres/" class="font-semibold text-ember-700 underline decoration-ember-300 underline-offset-2">aides de l’État</a>
+              )}
+              .
+            </p>
+          </div>
+        )
+      }
       <slot />
       {
         cta && (

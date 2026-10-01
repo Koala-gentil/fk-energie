@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import CtaBand from '../components/CtaBand.astro';
+import RgeLogos from '../components/RgeLogos.astro';
 import Icon, { type IconName } from '../components/Icon.astro';
 import { site, yearsOfExperience } from '../data/site';
 import hero from '../assets/images/showrooms/facade-aire-sur-la-lys.jpg';
@@ -82,9 +83,15 @@ const values: { icon: IconName; title: string; text: string }[] = [
         />
         <div class="rounded-3xl bg-ember-100 p-8">
           <p class="font-display text-2xl font-semibold">Nos certifications</p>
-          <ul class="mt-4 space-y-3">
-            <li class="flex gap-3"><Icon name="shield" class="size-6 shrink-0 text-ember-700" /><span><strong>RGE QualiBois</strong>, appareils de chauffage bois et granulés (air et eau)</span></li>
-            <li class="flex gap-3"><Icon name="shield" class="size-6 shrink-0 text-ember-700" /><span><strong>RGE QualiPAC</strong>, pompes à chaleur et chauffe-eau thermodynamiques</span></li>
+          <ul class="mt-5 space-y-5">
+            <li class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+              <RgeLogos certs={['qualibois']} size="h-16 w-auto" class="shrink-0" />
+              <span><strong>RGE QualiBois</strong>, appareils de chauffage bois et granulés (air et eau)</span>
+            </li>
+            <li class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+              <RgeLogos certs={['qualipac']} size="h-16 w-auto" class="shrink-0" />
+              <span><strong>RGE QualiPAC</strong>, pompes à chaleur et chauffe-eau thermodynamiques</span>
+            </li>
           </ul>
           <p class="mt-6 text-sm text-ink-700">
             Vérifiables sur l’annuaire officiel <a href="https://france-renov.gouv.fr/annuaires-professionnels/artisan-rge-architecte" target="_blank" rel="noopener" class="font-semibold underline hover:text-ember-700">France Rénov’</a>.
