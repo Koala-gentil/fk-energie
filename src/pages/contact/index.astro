@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContactForm from '../../components/ContactForm.astro';
+import ShowroomCard from '../../components/ShowroomCard.astro';
+import { showrooms } from '../../data/site';
+
+const crumbs = [{ label: 'Demande d’étude', href: '/contact/' }];
+---
+
+<BaseLayout
+  title="Demande d’étude gratuite et contact"
+  description="Demandez une étude gratuite à FK Énergie : poêle à granulés, poêle à bois, pompe à chaleur, chaudière, insert ou entretien. Réponse d’un conseiller du showroom le plus proche. 03 21 88 88 60."
+  breadcrumbs={crumbs}
+>
+  <section class="container-page pt-8 pb-16 sm:pt-12">
+    <nav aria-label="Fil d’Ariane" class="mb-5 text-sm text-ink-600">
+      <ol class="flex items-center gap-1.5">
+        <li><a href="/" class="hover:text-ember-700">Accueil</a></li>
+        <li aria-hidden="true" class="text-ink-400">/</li>
+        <li aria-current="page" class="font-semibold text-ink-900">Demande d’étude</li>
+      </ol>
+    </nav>
+    <h1 class="mb-8 text-4xl leading-[1.04] sm:text-5xl">Votre projet de chauffage</h1>
+    <ContactForm />
+  </section>
+
+  <section class="bg-ink-100" aria-labelledby="visite-title">
+    <div class="container-page py-16">
+      <h2 id="visite-title" class="text-3xl sm:text-4xl">Ou passez nous voir</h2>
+      <div class="mt-8 grid gap-5 md:grid-cols-3">
+        {showrooms.map((s) => <ShowroomCard showroom={s} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

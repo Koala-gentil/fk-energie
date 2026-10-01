@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import RealisationsGrid from '../components/RealisationsGrid.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { carnet } from '../data/realisations';
+import { site } from '../data/site';
+
+const crumbs = [{ label: 'Nos réalisations', href: '/realisations/' }];
+---
+
+<BaseLayout
+  title="Nos réalisations : poêles à bois et à granulés installés"
+  description="Découvrez en photos les poêles à granulés et poêles à bois installés par FK Énergie chez nos clients du Pas-de-Calais et du Nord : Palazzetti, HETA, Lotus, Contura…"
+  breadcrumbs={crumbs}
+>
+  <PageHero
+    title="Le carnet de poses"
+    lead="Chaque installation, datée et située, posée par nos propres équipes, de l’Audomarois au Calaisis."
+    crumbs={crumbs}
+    cta={false}
+  />
+
+  <section class="container-page py-16">
+    <RealisationsGrid items={carnet} filterable />
+    <p class="mt-10 flex flex-wrap items-center gap-2 text-ink-600">
+      Retrouvez nos nouvelles installations chaque semaine sur
+      <a href={site.facebook} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 font-semibold text-ember-700 hover:underline">
+        <Icon name="facebook" class="size-4" /> notre page Facebook
+      </a>
+    </p>
+  </section>
+
+  <CtaBand title="Votre intérieur sera le prochain ?" />
+</BaseLayout>

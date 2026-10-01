@@ -1,0 +1,111 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import FeatureCard from '../components/FeatureCard.astro';
+import Faq from '../components/Faq.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
+import hero from '../assets/images/produits/showroom-pompe-a-chaleur-atlantic.jpg';
+import pellet from '../assets/images/realisations/poele-granules-palazzetti-vivi-us.jpg';
+
+const crumbs = [{ label: 'Pompes à chaleur', href: '/pompes-a-chaleur/' }];
+const description =
+  'Installation de pompes à chaleur Atlantic air/eau et air/air (climatisation réversible) par un installateur RGE QualiPAC. Aire-sur-la-Lys, Ardres, Rexpoëde. Étude et devis gratuits.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Quelle différence entre une pompe à chaleur air/eau et air/air ?',
+    a: 'La PAC air/eau capte les calories de l’air extérieur pour chauffer l’eau de vos radiateurs ou de votre plancher chauffant, et peut produire l’eau chaude sanitaire : elle remplace une chaudière. La PAC air/air diffuse de l’air chaud (ou frais) par des unités murales : c’est aussi une climatisation réversible.',
+  },
+  {
+    q: 'Une pompe à chaleur fonctionne-t-elle quand il fait très froid ?',
+    a: 'Oui. Les pompes à chaleur actuelles fonctionnent par grand froid, avec un rendement qui diminue lorsque la température baisse. C’est pourquoi le dimensionnement réalisé lors de l’étude est essentiel. L’association avec un poêle à granulés est une solution très confortable.',
+  },
+  {
+    q: 'Faut-il un installateur certifié ?',
+    a: 'Pour bénéficier des aides (MaPrimeRénov’, CEE…), la pose doit être réalisée par un professionnel RGE QualiPAC. C’est le cas de FK Énergie. La manipulation des fluides frigorigènes nécessite aussi une attestation de capacité.',
+  },
+  {
+    q: 'Peut-on combiner pompe à chaleur et poêle ?',
+    a: 'Oui, c’est même une excellente combinaison : la pompe à chaleur assure le chauffage de base et la fraîcheur l’été, le poêle apporte une chaleur d’appoint et l’ambiance du feu lors des grands froids. Nous proposons régulièrement des offres « Pack Été/Hiver ».',
+  },
+];
+---
+
+<BaseLayout
+  title="Pompe à chaleur air/eau et air/air Atlantic"
+  description={description}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    serviceSchema({ name: 'Installation de pompes à chaleur', description, path: '/pompes-a-chaleur/', serviceType: 'Installation de pompe à chaleur' }),
+    faqSchema(faqs),
+  ]}
+>
+  <PageHero
+    title="Pompes à chaleur : chaud l’hiver, frais l’été"
+    lead="Installateurs certifiés RGE QualiPAC, nous posons des pompes à chaleur Atlantic, marque française, pour chauffer toute votre maison et la rafraîchir en été."
+    crumbs={crumbs}
+    imageCaption="Atlantic, dans notre showroom"
+    image={hero}
+    imageAlt="Pompes à chaleur Atlantic air/air exposées dans un showroom FK Énergie"
+  />
+
+  <section class="container-page py-20" aria-labelledby="types-title">
+    <div class="max-w-2xl">
+      <p class="eyebrow">Deux technologies</p>
+      <h2 id="types-title" class="mt-3 text-3xl sm:text-4xl">Quelle pompe à chaleur pour votre logement ?</h2>
+      <p class="mt-4 text-lg text-ink-600">
+        Une pompe à chaleur puise les calories gratuites de l’air extérieur. Pour 1 kWh d’électricité consommé, elle restitue plusieurs kWh de
+        chaleur : de vraies économies sur vos factures.
+      </p>
+    </div>
+    <div class="mt-12 grid gap-6 md:grid-cols-2">
+      <FeatureCard id="air-eau" icon="thermometer" title="Pompe à chaleur air/eau" pros={['Remplace une chaudière fioul ou gaz', 'Radiateurs ou plancher chauffant', 'Production d’eau chaude sanitaire possible']}>
+        Raccordée à votre circuit de chauffage central, elle chauffe toute la maison. C’est la solution idéale pour remplacer une vieille chaudière et
+        réduire fortement votre consommation d’énergie.
+      </FeatureCard>
+      <FeatureCard id="air-air" icon="snowflake" title="Pompe à chaleur air/air & climatisation" pros={['Chauffage et climatisation réversible', 'Pose rapide, sans circuit d’eau', 'Monosplit ou multisplit']}>
+        Des unités intérieures murales diffusent de l’air chaud en hiver et de l’air frais en été. Nous l’avons d’ailleurs installée dans nos propres
+        locaux !
+      </FeatureCard>
+    </div>
+  </section>
+
+  <section class="bg-white py-20" aria-labelledby="pack-title">
+    <div class="container-page grid items-center gap-12 lg:grid-cols-2">
+      <Image
+        src={pellet}
+        alt="Poêle à granulés Palazzetti, complément idéal d’une pompe à chaleur"
+        widths={[480, 720, 960]}
+        sizes="(min-width: 1024px) 560px, 100vw"
+        class="aspect-[4/3] w-full rounded-3xl object-cover"
+      />
+      <div>
+        <p class="eyebrow">Le duo gagnant</p>
+        <h2 id="pack-title" class="mt-3 text-3xl sm:text-4xl">Pompe à chaleur + poêle à granulés</h2>
+        <p class="mt-4 text-lg text-ink-600">
+          Associez une pompe à chaleur réversible Atlantic et un poêle à granulés Palazzetti : confort toute l’année, économies d’énergie, fraîcheur
+          l’été et chaleur de la flamme l’hiver. Demandez-nous nos offres du moment.
+        </p>
+        <ul class="mt-6 space-y-3">
+          {
+            ['Confort été comme hiver', 'Économies d’énergie', 'Installation par nos équipes qualifiées', 'Accompagnement personnalisé, du conseil au suivi'].map((t) => (
+              <li class="flex items-center gap-3">
+                <span class="grid size-7 place-items-center rounded-full bg-ember-100 text-ember-700">
+                  <Icon name="check" class="size-4" strokeWidth={2.5} />
+                </span>
+                {t}
+              </li>
+            ))
+          }
+        </ul>
+        <a href="/contact/" class="btn-primary mt-8">Demander une étude gratuite <Icon name="arrow" class="size-4" /></a>
+      </div>
+    </div>
+  </section>
+
+  <Faq faqs={faqs} title="Vos questions sur les pompes à chaleur" />
+  <CtaBand title="Passez à la pompe à chaleur avec un pro RGE QualiPAC" />
+</BaseLayout>

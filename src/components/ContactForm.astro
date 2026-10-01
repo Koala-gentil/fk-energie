@@ -1,0 +1,657 @@
+---
+import { Image } from 'astro:assets';
+import Icon, { type IconName } from './Icon.astro';
+import { site, showrooms } from '../data/site';
+import { communes } from '../data/communes';
+
+const projects: { value: string; label: string; icon: IconName }[] = [
+  { value: 'granules', label: 'Poêle à granulés', icon: 'pellets' },
+  { value: 'bois', label: 'Poêle à bois', icon: 'flame' },
+  { value: 'pac', label: 'Pompe à chaleur', icon: 'snowflake' },
+  { value: 'chaudiere', label: 'Chaudière', icon: 'boiler' },
+  { value: 'insert', label: 'Insert, cheminée', icon: 'fireplace' },
+  { value: 'entretien', label: 'Entretien, SAV', icon: 'wrench' },
+];
+const currents = ['Fioul', 'Gaz', 'Électrique', 'Bois', 'Granulés', 'Aucun'];
+const whens = ['Dès que possible', 'Cet automne', 'Cet hiver', 'Je me renseigne'];
+const callbacks = ['Matin', 'Midi', 'Après-midi', 'Peu importe'];
+
+const field =
+  'h-13 w-full rounded-xl border border-ink-300 bg-white px-4 text-base text-ink-900 transition placeholder:text-ink-400 focus:border-ember-600 focus:ring-4 focus:ring-ember-600/15 focus:outline-none aria-invalid:border-danger-700 aria-invalid:bg-danger-50';
+const chip =
+  'inline-flex min-h-11 cursor-pointer items-center rounded-full border border-ink-300 bg-white px-4 font-semibold transition select-none hover:border-ember-400 has-checked:border-ember-600 has-checked:bg-ember-100 has-checked:text-ember-800 has-focus-visible:ring-4 has-focus-visible:ring-ember-600/25';
+const legend = 'mb-4 flex items-center gap-2 font-display text-2xl font-semibold text-ink-900';
+const errorText = 'mt-2 text-sm font-semibold text-danger-700';
+const req = 'size-2 rounded-full bg-ember-500';
+---
+
+<div class="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-10" data-devis>
+  <div class="-mx-4 sm:mx-0">
+    <!-- Succès -->
+    <section data-success hidden class="flex flex-col items-center gap-4 border-y border-ink-200 bg-white px-4 py-14 text-center sm:rounded-3xl sm:border sm:px-10">
+      <span class="grid size-20 place-items-center rounded-full bg-ember-600 text-white motion-safe:animate-[fk-pop_.45s_cubic-bezier(.2,1.4,.4,1)]">
+        <Icon name="check" class="size-10" strokeWidth={2.6} />
+      </span>
+      <h2 class="text-3xl sm:text-4xl" tabindex="-1" data-success-title>C’est envoyé, merci !</h2>
+      <p class="text-lg text-ink-700" data-success-line></p>
+      <a href="/" class="btn-secondary mt-2">Retour à l’accueil</a>
+    </section>
+
+    <form
+      id="devis-form"
+      action="/api/contact/"
+      method="post"
+      enctype="multipart/form-data"
+      novalidate
+      data-devis-form
+      data-communes={JSON.stringify(communes)}
+      data-showrooms={JSON.stringify(showrooms.map((s) => ({ slug: s.slug, city: s.city })))}
+      class="flex flex-col gap-9 border-y border-ink-200 bg-white px-4 py-7 sm:rounded-3xl sm:border sm:p-8 lg:p-10"
+    >
+      <div role="alert" hidden data-form-error class="rounded-xl bg-danger-50 px-4 py-3 font-semibold text-danger-700"></div>
+
+      <!-- Projet -->
+      <fieldset>
+        <legend class={legend}>Votre projet <span class={req} aria-hidden="true"></span><span class="sr-only">(obligatoire)</span></legend>
+        <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
+          {
+            projects.map((p) => (
+              <label class="group relative flex min-h-28 cursor-pointer flex-col justify-between gap-3 rounded-2xl border-2 border-ink-200 bg-ink-50 p-4 transition hover:border-ember-300 has-checked:border-ember-600 has-checked:bg-ember-100 has-checked:shadow-lg has-checked:shadow-ember-600/10 has-focus-visible:ring-4 has-focus-visible:ring-ember-600/25">
+                <input type="radio" name="project" value={p.value} class="sr-only" />
+                <span class="grid size-10 place-items-center rounded-xl bg-ink-100 text-ember-800 transition group-has-checked:bg-ember-600 group-has-checked:text-white">
+                  <Icon name={p.icon} class="size-6" />
+                </span>
+                <span class="leading-tight font-bold">{p.label}</span>
+                <span class="absolute top-3 right-3 grid size-6 scale-0 place-items-center rounded-full bg-ember-600 text-white transition group-has-checked:scale-100">
+                  <Icon name="check" class="size-3.5" strokeWidth={3} />
+                </span>
+              </label>
+            ))
+          }
+        </div>
+        <p class={errorText} hidden data-error-for="project">Choisissez un projet</p>
+      </fieldset>
+
+      <!-- Logement -->
+      <div class="border-t border-ink-100 pt-8">
+      <fieldset>
+        <legend class={legend}>Votre logement</legend>
+        <div class="grid gap-7 md:grid-cols-2">
+          <div class="flex flex-col gap-4">
+            <div class="flex rounded-2xl bg-ink-100 p-1" role="radiogroup" aria-label="Type de logement">
+              {
+                ['Maison', 'Appartement'].map((h, i) => (
+                  <label class="flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-xl font-bold text-ink-600 transition has-checked:bg-white has-checked:text-ink-900 has-checked:shadow-sm has-focus-visible:ring-4 has-focus-visible:ring-ember-600/25">
+                    <input type="radio" name="home" value={h} checked={i === 0} class="sr-only" />
+                    {h}
+                  </label>
+                ))
+              }
+            </div>
+            <div class="flex flex-col gap-3 rounded-2xl border border-ink-200 p-4">
+              <div class="flex items-center justify-between gap-3">
+                <label for="surface" class="font-bold">Surface</label>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" class="grid size-11 place-items-center rounded-full border border-ink-300 bg-white transition hover:border-ember-400" aria-label="Moins 10 m²" data-step="-10">
+                    <Icon name="minus" class="size-5" strokeWidth={2.4} />
+                  </button>
+                  <output for="surface" class="min-w-28 text-center font-display text-3xl font-semibold whitespace-nowrap" data-surface-out>100 m²</output>
+                  <button type="button" class="grid size-11 place-items-center rounded-full bg-ember-100 text-ember-800 transition hover:bg-ember-200" aria-label="Plus 10 m²" data-step="10">
+                    <Icon name="plus" class="size-5" strokeWidth={2.4} />
+                  </button>
+                </div>
+              </div>
+              <input id="surface" name="surface" type="range" min="20" max="300" step="10" value="100" class="w-full accent-ember-600" />
+            </div>
+          </div>
+          <div class="flex flex-col gap-6">
+            <div>
+              <p class="mb-2.5 font-bold" id="current-label">Chauffage actuel</p>
+              <div class="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="current-label">
+                {currents.map((c) => <label class={chip}><input type="radio" name="current" value={c} class="sr-only" data-toggleable />{c}</label>)}
+              </div>
+            </div>
+            <div>
+              <p class="mb-2.5 font-bold" id="when-label">Échéance</p>
+              <div class="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="when-label">
+                {whens.map((w) => <label class={chip}><input type="radio" name="when" value={w} class="sr-only" data-toggleable />{w}</label>)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+      </div>
+
+      <!-- Photos -->
+      <div class="border-t border-ink-100 pt-8">
+      <fieldset>
+        <legend class={legend}>Photos de la pièce ou du conduit</legend>
+        <label
+          class="relative flex min-h-24 cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed border-ink-300 bg-ink-50 p-4 transition hover:border-ember-400 has-focus-visible:ring-4 has-focus-visible:ring-ember-600/25 data-[dragging]:border-ember-600 data-[dragging]:bg-ember-100 sm:p-5"
+          data-dropzone
+        >
+          <input type="file" name="photos" accept="image/*" multiple class="sr-only" data-photos-input />
+          <span class="grid size-12 shrink-0 place-items-center rounded-2xl bg-ember-100 text-ember-700">
+            <Icon name="camera" class="size-6" />
+          </span>
+          <span class="flex flex-col">
+            <span class="font-bold">Ajouter des photos <span class="hidden font-normal text-ink-600 sm:inline">ou les glisser ici</span></span>
+            <span class="text-sm text-ink-500">JPG, PNG, HEIC · 6 max.</span>
+          </span>
+        </label>
+        <ul class="mt-3 grid grid-cols-3 gap-2 empty:hidden sm:grid-cols-6" data-photos-list></ul>
+        <p class={errorText} hidden data-error-for="photos"></p>
+      </fieldset>
+      </div>
+
+      <!-- Coordonnées -->
+      <div class="border-t border-ink-100 pt-8">
+      <fieldset>
+        <legend class={legend}>Vos coordonnées</legend>
+        <div class="grid gap-x-5 gap-y-5 md:grid-cols-2">
+          <div>
+            <label for="name" class="mb-2 flex items-center gap-2 font-bold">Nom et prénom <span class={req} aria-hidden="true"></span><span class="sr-only">(obligatoire)</span></label>
+            <input id="name" name="name" type="text" autocomplete="name" maxlength="120" class={field} />
+            <p class={errorText} hidden data-error-for="name">Indiquez votre nom</p>
+          </div>
+          <div>
+            <label for="phone" class="mb-2 flex items-center gap-2 font-bold">Téléphone <span class={req} aria-hidden="true"></span><span class="sr-only">(obligatoire)</span></label>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="40" placeholder="06 12 34 56 78" class={field} />
+            <p class={errorText} hidden data-error-for="phone">Numéro incomplet</p>
+          </div>
+          <div>
+            <label for="email" class="mb-2 block font-bold">E-mail</label>
+            <input id="email" name="email" type="email" autocomplete="email" maxlength="160" placeholder="vous@exemple.fr" class={field} />
+            <p class={errorText} hidden data-error-for="email">Adresse invalide</p>
+          </div>
+          <div class="relative">
+            <label for="commune" class="mb-2 flex items-center gap-2 font-bold">Commune <span class={req} aria-hidden="true"></span><span class="sr-only">(obligatoire)</span></label>
+            <input
+              id="commune"
+              name="commune"
+              type="text"
+              autocomplete="address-level2"
+              maxlength="120"
+              placeholder="Ex. Saint-Omer"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-controls="commune-list"
+              class={field}
+            />
+            <ul
+              id="commune-list"
+              role="listbox"
+              hidden
+              class="absolute inset-x-0 top-full z-20 mt-2 max-h-72 overflow-auto rounded-2xl border border-ink-200 bg-white p-1.5 shadow-xl shadow-ink-900/10"
+              data-commune-list
+            >
+            </ul>
+            <p class={errorText} hidden data-error-for="commune">Indiquez votre commune</p>
+          </div>
+        </div>
+
+        <div class="mt-7">
+          <p class="mb-2.5 font-bold" id="showroom-label">Showroom</p>
+          <div class="grid gap-2.5 sm:grid-cols-3" role="radiogroup" aria-labelledby="showroom-label">
+            {
+              showrooms.map((s) => (
+                <label class="flex min-h-18 cursor-pointer items-center gap-3 rounded-2xl border-2 border-ink-200 bg-ink-50 p-2.5 transition hover:border-ember-300 has-checked:border-ember-600 has-checked:bg-ember-100 has-focus-visible:ring-4 has-focus-visible:ring-ember-600/25" data-showroom={s.slug}>
+                  <input type="radio" name="showroom" value={s.slug} class="sr-only" data-toggleable />
+                  {s.image && <Image src={s.image} alt="" widths={[112]} sizes="56px" class="size-14 shrink-0 rounded-xl object-cover" />}
+                  <span class="flex flex-col items-start gap-1">
+                    <span class="font-bold">{s.city}</span>
+                    <span hidden data-nearest-badge class="rounded-full bg-moss-100 px-2 py-0.5 text-xs font-bold text-moss-700">Le plus proche</span>
+                  </span>
+                </label>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="mt-7">
+          <p class="mb-2.5 font-bold" id="callback-label">Rappel de préférence</p>
+          <div class="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="callback-label">
+            {callbacks.map((c) => <label class={chip}><input type="radio" name="callback" value={c} class="sr-only" data-toggleable />{c}</label>)}
+          </div>
+        </div>
+
+        <div class="mt-7">
+          <label for="message" class="mb-2 block font-bold">Message</label>
+          <textarea
+            id="message"
+            name="message"
+            rows="4"
+            maxlength="5000"
+            placeholder="Pièce à chauffer, conduit existant, questions…"
+            class="w-full rounded-xl border border-ink-300 bg-white px-4 py-3 text-base transition placeholder:text-ink-400 focus:border-ember-600 focus:ring-4 focus:ring-ember-600/15 focus:outline-none"
+          ></textarea>
+        </div>
+
+        <div class="hidden" aria-hidden="true">
+          <label for="website">Ne pas remplir</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <label class="mt-6 flex cursor-pointer items-center gap-3.5 rounded-2xl border border-ink-200 bg-ink-50 p-4 transition has-aria-invalid:border-danger-700 has-aria-invalid:bg-danger-50">
+          <input type="checkbox" name="consent" class="size-6 shrink-0 accent-ember-600" data-consent />
+          <span class="text-[15px] leading-snug">
+            J’accepte d’être recontacté au sujet de cette demande <span class={`${req} inline-block align-middle`} aria-hidden="true"></span><span class="sr-only">(obligatoire)</span> · <a href="/confidentialite/" class="font-semibold underline underline-offset-2">Confidentialité</a>
+          </span>
+        </label>
+      </fieldset>
+      </div>
+
+      <!-- Mobile : récapitulatif compact + envoi -->
+      <div class="flex flex-col gap-3 lg:hidden">
+        <div class="grid grid-cols-5 gap-1.5" data-progress aria-hidden="true">
+          {[0, 1, 2, 3, 4].map(() => <span class="h-1.5 rounded-full bg-ink-200 transition data-[on]:bg-ember-600"></span>)}
+        </div>
+        <p class="font-semibold text-ink-700 empty:hidden" data-summary></p>
+        <ul class="flex flex-wrap gap-1.5 empty:hidden" data-missing></ul>
+        <button type="submit" class="btn-primary w-full text-lg" data-submit>
+          <span class="hidden size-5 animate-spin rounded-full border-[2.5px] border-white/40 border-t-white" data-spinner></span>
+          <span data-submit-label>Envoyer ma demande</span>
+        </button>
+        <a href={site.phoneHref} class="self-center py-2 font-semibold text-ink-600">ou appeler le {site.phone}</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Desktop : récapitulatif en direct -->
+  <aside class="sticky top-28 hidden flex-col gap-5 rounded-3xl border border-ink-200 bg-white p-7 shadow-xl shadow-ink-900/5 lg:flex" aria-label="Récapitulatif de votre demande" data-recap-panel>
+    <div class="flex flex-col gap-3">
+      <p class="font-display text-2xl font-semibold">Votre demande</p>
+      <div class="grid grid-cols-5 gap-1.5" data-progress aria-hidden="true">
+        {[0, 1, 2, 3, 4].map(() => <span class="h-1.5 rounded-full bg-ink-200 transition data-[on]:bg-ember-600"></span>)}
+      </div>
+    </div>
+    <dl class="flex flex-col">
+      {
+        [
+          ['project', 'Projet', true],
+          ['home', 'Logement', false],
+          ['current', 'Actuel', false],
+          ['when', 'Échéance', false],
+          ['photos', 'Photos', false],
+          ['contact', 'Contact', true],
+          ['commune', 'Commune', true],
+          ['showroom', 'Showroom', false],
+        ].map(([key, label, required]) => (
+          <div class="grid grid-cols-[20px_88px_minmax(0,1fr)] items-center gap-2.5 border-t border-ink-100 py-2.5" data-recap={key} data-required={required ? 'true' : undefined}>
+            <span class="grid size-5 place-items-center rounded-full border-2 border-dashed border-ink-300 transition data-[state=done]:border-0 data-[state=done]:bg-ember-600 data-[state=missing]:border-solid data-[state=missing]:border-ember-300 data-[state=error]:border-solid data-[state=error]:border-danger-700" data-mark>
+              <Icon name="check" class="hidden size-3 text-white" strokeWidth={3.2} data-mark-check />
+            </span>
+            <dt class="text-sm text-ink-500">{label}</dt>
+            <dd class="truncate text-right text-[15px] font-semibold text-ink-400 data-[filled]:text-ink-900" data-value>—</dd>
+          </div>
+        ))
+      }
+    </dl>
+    <button type="submit" form="devis-form" class="btn-primary w-full text-lg" data-submit>
+      <span class="hidden size-5 animate-spin rounded-full border-[2.5px] border-white/40 border-t-white" data-spinner></span>
+      <span data-submit-label>Envoyer ma demande</span>
+    </button>
+    <a href={site.phoneHref} class="self-center font-semibold text-ink-600 hover:text-ember-700">ou appeler le {site.phone}</a>
+  </aside>
+</div>
+
+<style is:global>
+  @keyframes fk-pop {
+    from {
+      transform: scale(0.6);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  type Commune = { name: string; cp: string; showroom: string };
+  type ShowroomRef = { slug: string; city: string };
+
+  const MAX_PHOTOS = 6;
+  const MAX_TOTAL_BYTES = 4_000_000; // limite de corps des fonctions Vercel : 4,5 Mo
+  const PROJECT_LABELS: Record<string, string> = {
+    granules: 'Poêle à granulés',
+    bois: 'Poêle à bois',
+    pac: 'Pompe à chaleur',
+    chaudiere: 'Chaudière',
+    insert: 'Insert, cheminée',
+    entretien: 'Entretien, SAV',
+  };
+  const MOMENTS: Record<string, string> = { Matin: 'le matin', Midi: 'vers midi', 'Après-midi': 'l’après-midi' };
+
+  const root = document.querySelector<HTMLElement>('[data-devis]');
+  const form = document.querySelector<HTMLFormElement>('[data-devis-form]');
+
+  if (root && form) {
+    const communes: Commune[] = JSON.parse(form.dataset.communes ?? '[]');
+    const showroomRefs: ShowroomRef[] = JSON.parse(form.dataset.showrooms ?? '[]');
+    const norm = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const $ = <T extends Element = HTMLElement>(sel: string, scope: ParentNode = root) => scope.querySelector<T>(sel)!;
+    const $$ = <T extends Element = HTMLElement>(sel: string, scope: ParentNode = root) => [...scope.querySelectorAll<T>(sel)];
+    const val = (name: string) => {
+      const el = form.elements.namedItem(name);
+      if (el instanceof RadioNodeList) return el.value;
+      return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement ? el.value.trim() : '';
+    };
+
+    let photos: { id: number; file: File; url: string }[] = [];
+    let attempted = false;
+
+    // Préselection depuis ?projet=
+    const pre = new URLSearchParams(location.search).get('projet');
+    const preInput = pre && form.querySelector<HTMLInputElement>(`input[name="project"][value="${CSS.escape(pre)}"]`);
+    if (preInput) preInput.checked = true;
+
+    // Choix optionnels : un second clic désélectionne
+    $$<HTMLInputElement>('input[data-toggleable]').forEach((input) => {
+      let wasChecked = false;
+      input.closest('label')!.addEventListener('pointerdown', () => (wasChecked = input.checked));
+      input.addEventListener('click', () => {
+        if (wasChecked) {
+          input.checked = false;
+          wasChecked = false;
+          refresh();
+        }
+      });
+    });
+
+    // Surface
+    const range = $<HTMLInputElement>('#surface');
+    const out = $('[data-surface-out]');
+    const syncSurface = () => (out.textContent = `${range.value} m²`);
+    $$<HTMLButtonElement>('[data-step]').forEach((b) =>
+      b.addEventListener('click', () => {
+        range.value = String(Math.min(300, Math.max(20, Number(range.value) + Number(b.dataset.step))));
+        syncSurface();
+        refresh();
+      }),
+    );
+    range.addEventListener('input', syncSurface);
+
+    // Photos
+    const photoInput = $<HTMLInputElement>('[data-photos-input]');
+    const photoList = $('[data-photos-list]');
+    const dropzone = $('[data-dropzone]');
+    const photoError = $('[data-error-for="photos"]');
+    const addPhotos = (files: FileList | null) => {
+      photoError.hidden = true;
+      const incoming = [...(files ?? [])].filter((f) => f.type.startsWith('image/') || /\.(heic|heif)$/i.test(f.name));
+      const room = MAX_PHOTOS - photos.length;
+      if (incoming.length > room) {
+        photoError.textContent = `${MAX_PHOTOS} photos maximum`;
+        photoError.hidden = false;
+      }
+      incoming.slice(0, room).forEach((file) => photos.push({ id: Math.random(), file, url: URL.createObjectURL(file) }));
+      renderPhotos();
+      refresh();
+    };
+    const renderPhotos = () => {
+      photoList.replaceChildren(
+        ...photos.map((p) => {
+          const li = document.createElement('li');
+          li.className = 'relative aspect-square overflow-hidden rounded-xl border border-ink-200 bg-ink-100';
+          const img = document.createElement('img');
+          img.src = p.url;
+          img.alt = p.file.name;
+          img.className = 'size-full object-cover';
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'absolute top-1.5 right-1.5 grid size-8 place-items-center rounded-full bg-ink-900/80 text-lg leading-none font-bold text-ink-50 hover:bg-ink-900';
+          btn.setAttribute('aria-label', `Retirer ${p.file.name}`);
+          btn.textContent = '×';
+          btn.addEventListener('click', () => {
+            URL.revokeObjectURL(p.url);
+            photos = photos.filter((x) => x.id !== p.id);
+            renderPhotos();
+            refresh();
+          });
+          li.append(img, btn);
+          return li;
+        }),
+      );
+    };
+    photoInput.addEventListener('change', () => {
+      addPhotos(photoInput.files);
+      photoInput.value = '';
+    });
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.dataset.dragging = '';
+    });
+    dropzone.addEventListener('dragleave', () => delete dropzone.dataset.dragging);
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      delete dropzone.dataset.dragging;
+      addPhotos(e.dataTransfer?.files ?? null);
+    });
+
+    // Commune : suggestions + showroom le plus proche
+    const communeInput = $<HTMLInputElement>('#commune');
+    const list = $<HTMLUListElement>('[data-commune-list]');
+    let activeIndex = -1;
+    let currentMatches: Commune[] = [];
+    const matchCommune = () => communes.find((c) => norm(c.name) === norm(communeInput.value));
+    const cityOf = (slug?: string | null) => showroomRefs.find((s) => s.slug === slug)?.city;
+    const closeList = () => {
+      list.hidden = true;
+      communeInput.setAttribute('aria-expanded', 'false');
+      communeInput.removeAttribute('aria-activedescendant');
+      activeIndex = -1;
+    };
+    const pickCommune = (c: Commune) => {
+      communeInput.value = c.name;
+      closeList();
+      const checked = form.querySelector<HTMLInputElement>('input[name="showroom"]:checked');
+      if (!checked) form.querySelector<HTMLInputElement>(`input[name="showroom"][value="${c.showroom}"]`)!.checked = true;
+      refresh();
+    };
+    const renderSuggestions = () => {
+      const q = norm(communeInput.value);
+      const matches = q.length < 2 || matchCommune() ? [] : communes.filter((c) => norm(c.name).includes(q) || c.cp.startsWith(q)).slice(0, 6);
+      if (!matches.length) return closeList();
+      list.replaceChildren(
+        ...matches.map((c, i) => {
+          const li = document.createElement('li');
+          li.id = `commune-opt-${i}`;
+          li.setAttribute('role', 'option');
+          li.setAttribute('aria-selected', String(i === activeIndex));
+          li.className = 'flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-2 aria-selected:bg-ember-100 hover:bg-ink-50';
+          li.innerHTML = `<span><strong></strong> <span class="text-ink-500"></span></span><span class="text-sm font-bold text-ember-800"></span>`;
+          li.querySelector('strong')!.textContent = c.name;
+          li.querySelector('.text-ink-500')!.textContent = c.cp;
+          li.querySelector('.text-ember-800')!.textContent = `Showroom ${cityOf(c.showroom) ?? ''}`;
+          li.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            pickCommune(c);
+          });
+          return li;
+        }),
+      );
+      list.hidden = false;
+      communeInput.setAttribute('aria-expanded', 'true');
+      if (activeIndex >= 0) communeInput.setAttribute('aria-activedescendant', `commune-opt-${activeIndex}`);
+      currentMatches = matches;
+    };
+    communeInput.addEventListener('input', () => {
+      activeIndex = -1;
+      renderSuggestions();
+    });
+    communeInput.addEventListener('keydown', (e) => {
+      if (list.hidden) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const n = currentMatches.length;
+        activeIndex = (activeIndex + (e.key === 'ArrowDown' ? 1 : -1) + n) % n;
+        renderSuggestions();
+      } else if (e.key === 'Enter' && activeIndex >= 0) {
+        e.preventDefault();
+        pickCommune(currentMatches[activeIndex]);
+      } else if (e.key === 'Escape') {
+        closeList();
+      }
+    });
+    communeInput.addEventListener('blur', () => setTimeout(closeList, 120));
+
+    // Validation
+    const phoneOk = () => val('phone').replace(/\D/g, '').length >= 10;
+    const emailOk = () => !val('email') || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val('email'));
+    const checks = () => ({
+      project: !!val('project'),
+      name: val('name').length > 1,
+      phone: phoneOk(),
+      commune: val('commune').length > 1,
+      consent: $<HTMLInputElement>('[data-consent]').checked,
+    });
+    const setError = (key: string, show: boolean) => {
+      const msg = root.querySelector<HTMLElement>(`[data-error-for="${key}"]`);
+      if (msg) msg.hidden = !show;
+      const input = key === 'consent' ? $<HTMLInputElement>('[data-consent]') : form.querySelector<HTMLInputElement>(`#${key}`);
+      if (!input) return;
+      if (show) input.setAttribute('aria-invalid', 'true');
+      else input.removeAttribute('aria-invalid');
+    };
+
+    // Récapitulatif
+    const setRow = (key: string, value: string | null) => {
+      const row = $(`[data-recap="${key}"]`);
+      const mark = $('[data-mark]', row);
+      const valueEl = $('[data-value]', row);
+      valueEl.textContent = value ?? '—';
+      valueEl.toggleAttribute('data-filled', !!value);
+      const required = row.dataset.required === 'true';
+      mark.dataset.state = value ? 'done' : required ? (attempted ? 'error' : 'missing') : 'empty';
+      $('[data-mark-check]', row).classList.toggle('hidden', !value);
+    };
+
+    function refresh() {
+      const c = checks();
+      const firstName = val('name').split(/\s+/)[0];
+      const commune = matchCommune();
+      const showroomSlug = val('showroom') || commune?.showroom || null;
+      const photoCount = photos.length ? `${photos.length} photo${photos.length > 1 ? 's' : ''}` : null;
+      const home = `${val('home')} · ${range.value} m²`;
+
+      setRow('project', PROJECT_LABELS[val('project')] ?? null);
+      setRow('home', home);
+      setRow('current', val('current') || null);
+      setRow('when', val('when') || null);
+      setRow('photos', photoCount);
+      setRow('contact', c.name && c.phone ? `${firstName} · ${val('phone')}` : null);
+      setRow('commune', c.commune ? val('commune') : null);
+      setRow('showroom', cityOf(showroomSlug) ?? null);
+
+      $$('[data-showroom]').forEach((el) => {
+        const badge = $('[data-nearest-badge]', el);
+        badge.hidden = el.dataset.showroom !== commune?.showroom;
+      });
+
+      const done = Object.values(c).filter(Boolean).length;
+      $$('[data-progress]').forEach((bar) => [...bar.children].forEach((seg, i) => seg.toggleAttribute('data-on', i < done)));
+
+      $('[data-summary]').textContent = [PROJECT_LABELS[val('project')], `${val('home')} ${range.value} m²`, photoCount, cityOf(showroomSlug)].filter(Boolean).join(' · ');
+      const missing = $('[data-missing]');
+      const missingLabels = Object.entries({ project: 'Projet', name: 'Nom', phone: 'Téléphone', commune: 'Commune', consent: 'Accord' }).filter(([k]) => !c[k as keyof typeof c]);
+      missing.replaceChildren(
+        ...missingLabels.map(([, label]) => {
+          const li = document.createElement('li');
+          li.textContent = label;
+          li.className = attempted
+            ? 'rounded-full border border-danger-300 bg-danger-50 px-2.5 py-1 text-sm font-bold text-danger-700'
+            : 'rounded-full border border-ink-200 bg-ink-100 px-2.5 py-1 text-sm font-bold text-ink-600';
+          return li;
+        }),
+      );
+
+      if (attempted) {
+        Object.entries(c).forEach(([k, ok]) => setError(k, !ok));
+        setError('email', !emailOk());
+      } else if (val('email').includes('@')) {
+        setError('email', !emailOk());
+      }
+    }
+    form.addEventListener('input', refresh);
+    form.addEventListener('change', refresh);
+    refresh();
+
+    // Compression des photos (le corps d'une fonction Vercel est limité à 4,5 Mo)
+    const compress = async (file: File): Promise<Blob | null> => {
+      try {
+        const bitmap = await createImageBitmap(file);
+        const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(bitmap.width * scale);
+        canvas.height = Math.round(bitmap.height * scale);
+        canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        return await new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.82));
+      } catch {
+        return file.size < 2_000_000 ? file : null; // format non décodable (HEIC hors Safari) : envoyé tel quel s'il est léger
+      }
+    };
+
+    const formError = $('[data-form-error]');
+    const setBusy = (busy: boolean) =>
+      $$<HTMLButtonElement>('[data-submit]').forEach((b) => {
+        b.disabled = busy;
+        $('[data-spinner]', b).classList.toggle('hidden', !busy);
+        $('[data-submit-label]', b).textContent = busy ? 'Envoi…' : 'Envoyer ma demande';
+      });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      formError.hidden = true;
+      const c = checks();
+      if (!Object.values(c).every(Boolean) || !emailOk()) {
+        attempted = true;
+        refresh();
+        const firstInvalid = root.querySelector<HTMLElement>('[data-error-for]:not([hidden])');
+        firstInvalid?.closest('fieldset, div')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      setBusy(true);
+      const data = new FormData(form);
+      data.delete('photos');
+      let total = 0;
+      for (const p of photos) {
+        const blob = await compress(p.file);
+        if (!blob || total + blob.size > MAX_TOTAL_BYTES) continue;
+        total += blob.size;
+        data.append('photos', blob, p.file.name.replace(/\.[^.]+$/, '') + (blob.type === 'image/jpeg' ? '.jpg' : ''));
+      }
+
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+        const json = await res.json().catch(() => ({ ok: false, message: 'Une erreur est survenue.' }));
+        if (!json.ok) throw new Error(json.message);
+        const where = cityOf(val('showroom') || matchCommune()?.showroom);
+        $('[data-success-title]').textContent = `C’est envoyé, merci ${val('name').split(/\s+/)[0]} !`;
+        $('[data-success-line]').textContent = `Un conseiller ${where ? `du showroom de ${where} ` : ''}vous rappelle ${MOMENTS[val('callback')] ?? 'très vite'}.`;
+        form.hidden = true;
+        $('[data-recap-panel]').classList.replace('lg:flex', 'lg:hidden');
+        const success = $('[data-success]');
+        success.hidden = false;
+        $('[data-success-title]').focus();
+        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err) {
+        formError.textContent = err instanceof Error && err.message ? err.message : 'Envoi impossible. Réessayez ou appelez-nous.';
+        formError.hidden = false;
+        formError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    // Erreur renvoyée par le serveur lorsque JavaScript était désactivé
+    const serverError = new URLSearchParams(location.search).get('erreur');
+    if (serverError) {
+      formError.textContent = serverError;
+      formError.hidden = false;
+    }
+  }
+</script>

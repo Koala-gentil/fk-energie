@@ -1,0 +1,126 @@
+@import "tailwindcss";
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/fraunces/opsz-italic.css";
+@import "@fontsource-variable/figtree/wght.css";
+@import "@fontsource/caveat/600.css";
+
+/*
+ * Charte « Au coin du feu » : la lumière d'un salon plutôt que la nuit.
+ * Papier chaud, encre brun-noir, orange braise en accent. Ni noir ni blanc purs.
+ */
+@theme {
+  --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-hand: "Caveat", "Segoe Print", cursive;
+
+  /* « ink » : du papier (50) à l'encre (950) */
+  --color-ink-950: #1f1712;
+  --color-ink-900: #2a201a;
+  --color-ink-800: #3a2e26;
+  --color-ink-700: #5e4e43;
+  --color-ink-600: #6b5b50;
+  --color-ink-500: #7a6a5e;
+  --color-ink-400: #a8968a;
+  --color-ink-300: #cdbba8;
+  --color-ink-200: #e2d6c6;
+  --color-ink-100: #ede3d5;
+  --color-ink-50: #f5efe6;
+
+  --color-ember-900: #6e290d;
+  --color-ember-800: #8a3410;
+  --color-ember-700: #a8400f;
+  --color-ember-600: #bf4a14;
+  --color-ember-500: #d9581c;
+  --color-ember-400: #e57a3c;
+  --color-ember-300: #f2a06c;
+  --color-ember-200: #f2c4a4;
+  --color-ember-100: #f9e3d3;
+  --color-ember-50: #fff5ec;
+
+  --color-moss-700: #22603f;
+  --color-moss-100: #e2efe6;
+
+  --color-danger-700: #a8321a;
+  --color-danger-300: #e3a58b;
+  --color-danger-50: #fdf0ea;
+
+  /* « white » devient la surface des cartes : jamais de blanc pur */
+  --color-white: #fffbf6;
+  --color-black: #1f1712;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-ink-50 font-sans text-ink-900 antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display text-ink-900;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ember-500;
+  }
+  ::selection {
+    @apply bg-ember-100 text-ink-900;
+  }
+}
+
+@utility container-page {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+/* Note manuscrite au-dessus d'un titre (remplace les sur-titres en capitales) */
+@utility eyebrow {
+  @apply font-hand text-2xl leading-none text-ember-600;
+}
+@utility btn {
+  @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-bold transition duration-200 disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility btn-primary {
+  @apply btn bg-ember-600 text-white shadow-lg shadow-ember-600/20 hover:bg-ember-700;
+}
+@utility btn-secondary {
+  @apply btn border border-ink-300 bg-white text-ink-900 hover:border-ember-400;
+}
+@utility link-arrow {
+  @apply inline-flex items-center gap-2 font-bold text-ink-900 underline decoration-ink-300 underline-offset-4 transition hover:text-ember-700 hover:decoration-ember-400;
+}
+@utility card {
+  @apply rounded-3xl border border-ink-200 bg-white;
+}
+
+@layer components {
+  .prose-fk {
+    @apply text-lg leading-relaxed text-ink-700;
+  }
+  .prose-fk p + p {
+    @apply mt-4;
+  }
+  .prose-fk h2 {
+    @apply mt-12 mb-4 text-3xl sm:text-4xl;
+  }
+  .prose-fk h3 {
+    @apply mt-8 mb-3 text-xl;
+  }
+  .prose-fk ul {
+    @apply mt-4 space-y-2;
+  }
+  .prose-fk ul > li {
+    @apply relative pl-6;
+  }
+  .prose-fk ul > li::before {
+    content: "";
+    @apply absolute top-[0.7em] left-0 size-2 rounded-full bg-ember-500;
+  }
+  .prose-fk a {
+    @apply font-semibold text-ember-700 underline decoration-ember-300 underline-offset-2 hover:decoration-ember-600;
+  }
+  .prose-fk strong {
+    @apply text-ink-900;
+  }
+}

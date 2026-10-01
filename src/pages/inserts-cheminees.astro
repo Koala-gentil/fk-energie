@@ -1,0 +1,91 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import FeatureCard from '../components/FeatureCard.astro';
+import Faq from '../components/Faq.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
+import hero from '../assets/images/produits/insert-cheminee-showroom.jpg';
+import side from '../assets/images/showrooms/showroom-aire-interieur-2.jpg';
+
+const crumbs = [{ label: 'Inserts & cheminées', href: '/inserts-cheminees/' }];
+const description =
+  'Transformez votre cheminée ouverte en véritable chauffage : inserts bois et granulés, foyers fermés et habillages Palazzetti. Pose par un installateur RGE QualiBois. Devis gratuit.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Quelle différence entre un insert et un foyer fermé ?',
+    a: 'L’insert s’encastre dans une cheminée existante, alors que le foyer fermé est installé lors de la création d’une nouvelle cheminée, avec un habillage réalisé autour. Dans les deux cas, la combustion se fait porte fermée, avec un bien meilleur rendement.',
+  },
+  {
+    q: 'Mon conduit de cheminée est-il compatible ?',
+    a: 'Nous vérifions l’état et les dimensions de votre conduit lors de la visite technique. Dans la plupart des cas, un tubage adapté permet d’installer un insert en toute sécurité.',
+  },
+  {
+    q: 'Existe-t-il des inserts à granulés ?',
+    a: 'Oui : l’insert à granulés offre le confort automatique et programmable du granulé dans votre cheminée existante.',
+  },
+];
+---
+
+<BaseLayout
+  title="Insert et foyer de cheminée : installation"
+  description={description}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    serviceSchema({ name: 'Installation d’inserts et foyers de cheminée', description, path: '/inserts-cheminees/', serviceType: 'Installation d’insert de cheminée' }),
+    faqSchema(faqs),
+  ]}
+>
+  <PageHero
+    title="Faites de votre cheminée un vrai chauffage"
+    lead="Une cheminée ouverte ne restitue qu’environ 15 % de la chaleur produite. Avec un insert ou un foyer fermé, vous récupérez plus de 70 % de l’énergie du bois, en toute sécurité."
+    crumbs={crumbs}
+    image={hero}
+    imageAlt="Foyer de cheminée exposé dans le showroom FK Énergie"
+  />
+
+  <section class="container-page grid items-center gap-12 py-20 lg:grid-cols-12">
+    <div class="prose-fk lg:col-span-7">
+      <h2 class="!mt-0">Qu’est-ce qu’un insert de cheminée ?</h2>
+      <p>
+        L’insert est un foyer fermé, avec une porte vitrée, que l’on encastre dans une cheminée existante. Vous gardez le charme de votre cheminée et
+        la vision du feu, mais vous transformez un élément décoratif en véritable appareil de chauffage.
+      </p>
+      <p>
+        Avant tout, nous prenons le temps de vous conseiller : dimensions de l’âtre, état du conduit, puissance nécessaire, style… Nous proposons
+        également des habillages pour moderniser votre cheminée.
+      </p>
+      <ul>
+        <li><strong>Économies d’énergie</strong> : jusqu’à 5 fois plus de chaleur qu’un foyer ouvert.</li>
+        <li><strong>Sécurité</strong> : plus d’escarbilles ni d’appel d’air excessif.</li>
+        <li><strong>Écologique</strong> : une combustion plus propre et moins de bois consommé.</li>
+      </ul>
+    </div>
+    <div class="lg:col-span-5">
+      <Image
+        src={side}
+        alt="Espace d’exposition du showroom FK Énergie"
+        widths={[480, 720, 960]}
+        sizes="(min-width: 1024px) 460px, 100vw"
+        class="aspect-[4/3] w-full rounded-3xl object-cover"
+      />
+    </div>
+  </section>
+
+  <section class="bg-white py-20" aria-labelledby="types-title">
+    <div class="container-page">
+      <h2 id="types-title" class="text-3xl sm:text-4xl">Nos solutions pour votre cheminée</h2>
+      <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <FeatureCard icon="flame" title="Insert bois">S’encastre dans votre cheminée existante pour brûler des bûches porte fermée.</FeatureCard>
+        <FeatureCard icon="sparkles" title="Insert à granulés">Le confort programmable du granulé dans votre cheminée.</FeatureCard>
+        <FeatureCard icon="home" title="Foyer fermé">Pour créer une nouvelle cheminée, avec un habillage sur mesure.</FeatureCard>
+        <FeatureCard icon="ruler" title="Habillage">Pour moderniser votre cheminée et l’intégrer à votre intérieur.</FeatureCard>
+      </div>
+    </div>
+  </section>
+
+  <Faq faqs={faqs} title="Vos questions sur les inserts" />
+  <CtaBand title="Redonnez vie à votre cheminée" />
+</BaseLayout>

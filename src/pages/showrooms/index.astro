@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import ShowroomCard from '../../components/ShowroomCard.astro';
+import HoursList from '../../components/HoursList.astro';
+import Icon from '../../components/Icon.astro';
+import { showrooms, site } from '../../data/site';
+import { showroomSchema } from '../../lib/schema';
+
+const crumbs = [{ label: 'Nos showrooms', href: '/showrooms/' }];
+---
+
+<BaseLayout
+  title="Nos showrooms : Aire-sur-la-Lys, Ardres et Rexpoëde"
+  description="Visitez les showrooms FK Énergie à Aire-sur-la-Lys (62), Ardres (62) et Rexpoëde (59) : poêles à granulés, poêles à bois, inserts et pompes à chaleur en exposition. Ouverts du lundi au samedi."
+  breadcrumbs={crumbs}
+  jsonLd={showrooms.map(showroomSchema)}
+>
+  <PageHero
+    title="3 showrooms pour voir, comparer et choisir"
+    lead="Venez découvrir nos appareils en exposition et échanger avec nos conseillers. Nous vous accueillons du lundi au samedi, sans rendez-vous."
+    crumbs={crumbs}
+    cta={false}
+  />
+
+  <section class="container-page py-16">
+    <div class="grid gap-6 md:grid-cols-3">
+      {showrooms.map((s) => <ShowroomCard showroom={s} headingLevel="h2" />)}
+    </div>
+
+    <div class="mt-12 grid gap-6 lg:grid-cols-2">
+      <div class="rounded-3xl bg-white p-8 border border-ink-200">
+        <h2 class="flex items-center gap-3 text-3xl"><Icon name="clock" class="size-7 text-ember-600" /> Horaires d’ouverture</h2>
+        <HoursList class="mt-4" />
+      </div>
+      <div class="flex flex-col justify-between gap-6 rounded-3xl bg-ember-100 p-8">
+        <h2 class="text-3xl">Un seul numéro pour les 3 showrooms</h2>
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <a href="/contact/" class="btn-primary">Demander une étude</a>
+          <a href={site.phoneHref} class="link-arrow"><Icon name="phone" class="size-5 text-ember-600" /> {site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>

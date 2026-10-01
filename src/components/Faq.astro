@@ -1,0 +1,31 @@
+---
+import type { Faq } from '../lib/schema';
+import Icon from './Icon.astro';
+
+interface Props {
+  faqs: Faq[];
+  title?: string;
+}
+const { faqs, title = 'Vos questions' } = Astro.props;
+---
+
+<section class="container-page py-16" aria-labelledby="faq-title">
+  <div class="grid gap-8 lg:grid-cols-12">
+    <h2 id="faq-title" class="text-3xl sm:text-4xl lg:col-span-4">{title}</h2>
+    <div class="border-t border-ink-900 lg:col-span-8">
+      {
+        faqs.map((f) => (
+          <details class="group border-b border-ink-200">
+            <summary class="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 py-4 text-lg font-semibold text-ink-900 transition hover:text-ember-700 [&::-webkit-details-marker]:hidden">
+              {f.q}
+              <span class="grid size-9 shrink-0 place-items-center rounded-full bg-ink-100 text-ember-700 transition group-open:rotate-45 group-open:bg-ember-100">
+                <Icon name="plus" class="size-4" strokeWidth={2.4} />
+              </span>
+            </summary>
+            <p class="pb-6 text-lg leading-relaxed text-ink-700">{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>

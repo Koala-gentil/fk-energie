@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+
+const crumbs = [{ label: 'Mentions légales', href: '/mentions-legales/' }];
+---
+
+<BaseLayout title="Mentions légales" description="Mentions légales du site fk-energie-chauffage.fr, édité par FK ENERGIE." breadcrumbs={crumbs}>
+  <PageHero title="Mentions légales" crumbs={crumbs} cta={false} />
+  <section class="container-page py-16">
+    <div class="prose-fk max-w-3xl">
+      <h2 class="!mt-0">Éditeur du site</h2>
+      <p>
+        <strong>{site.legalName}</strong>, {site.legal.form}<br />
+        Siège social : {site.legal.headOffice}<br />
+        {site.legal.rcs}, SIREN {site.legal.siren}<br />
+        N° TVA intracommunautaire : {site.legal.vat}<br />
+        Code NAF : {site.legal.naf} (travaux d’installation d’équipements thermiques et de climatisation)<br />
+        Téléphone : {site.phone}, e-mail : <a href={`mailto:${site.email}`}>{site.email}</a>
+      </p>
+      <p>Directrice de la publication : {site.legal.director}.</p>
+
+      <h2>Hébergement</h2>
+      <p>
+        Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis, <a href="https://vercel.com" target="_blank" rel="noopener">vercel.com</a>.
+      </p>
+
+      <h2>Qualifications professionnelles</h2>
+      <p>
+        FK ENERGIE est titulaire des qualifications RGE QualiBois et RGE QualiPAC délivrées par Qualit’EnR. Les certificats sont consultables sur
+        l’annuaire <a href="https://france-renov.gouv.fr/annuaires-professionnels/artisan-rge-architecte" target="_blank" rel="noopener">France Rénov’</a>.
+      </p>
+
+      <h2>Propriété intellectuelle</h2>
+      <p>
+        L’ensemble des contenus de ce site (textes, photographies, logos) est la propriété de FK ENERGIE ou de ses partenaires. Toute reproduction sans
+        autorisation préalable est interdite. Les photographies de réalisations ont été prises par FK ENERGIE chez ses clients. Les noms et marques cités
+        (Palazzetti, HETA, Lotus, Contura, Atlantic, RTB…) appartiennent à leurs propriétaires respectifs.
+      </p>
+
+      <h2>Données personnelles</h2>
+      <p>
+        Le traitement des données transmises via le formulaire de contact est décrit dans notre <a href="/confidentialite/">politique de confidentialité</a>.
+      </p>
+
+      <h2>Démarchage téléphonique</h2>
+      <p>
+        Si vous ne souhaitez pas faire l’objet de prospection commerciale par téléphone, vous pouvez vous inscrire gratuitement sur la liste
+        d’opposition <a href="https://www.bloctel.gouv.fr" target="_blank" rel="noopener">Bloctel</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

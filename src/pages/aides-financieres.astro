@@ -1,0 +1,113 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Faq from '../components/Faq.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { faqSchema, type Faq as FaqItem } from '../lib/schema';
+
+const crumbs = [{ label: 'Aides financières', href: '/aides-financieres/' }];
+const description =
+  'MaPrimeRénov’, primes CEE, TVA à 5,5 %, éco-PTZ : les aides pour financer votre poêle, chaudière ou pompe à chaleur posé par un installateur RGE. FK Énergie vous accompagne.';
+
+const aides = [
+  {
+    title: 'MaPrimeRénov’',
+    text: 'L’aide de l’État à la rénovation énergétique, versée par l’Anah. Son montant dépend de vos revenus et du type d’équipement installé.',
+    link: { label: 'france-renov.gouv.fr', href: 'https://france-renov.gouv.fr/aides/maprimerenov' },
+  },
+  {
+    title: 'Primes énergie (CEE)',
+    text: 'Les certificats d’économies d’énergie permettent de recevoir une prime des fournisseurs d’énergie, cumulable avec MaPrimeRénov’.',
+    link: { label: 'economie.gouv.fr', href: 'https://www.economie.gouv.fr/particuliers/prime-energie-cee' },
+  },
+  {
+    title: 'TVA à taux réduit',
+    text: 'Pour les logements de plus de 2 ans, la TVA peut être réduite à 5,5 % sur les équipements performants et leur pose par un professionnel.',
+    link: { label: 'service-public.fr', href: 'https://www.service-public.fr/particuliers/vosdroits/F36436' },
+  },
+  {
+    title: 'Éco-prêt à taux zéro',
+    text: 'Un prêt sans intérêts, accordé par les banques partenaires, pour financer le reste à charge de vos travaux.',
+    link: { label: 'service-public.fr', href: 'https://www.service-public.fr/particuliers/vosdroits/F19905' },
+  },
+];
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Pourquoi faut-il un installateur RGE ?',
+    a: 'La plupart des aides (MaPrimeRénov’, CEE, éco-PTZ) ne sont accordées que si les travaux sont réalisés par une entreprise certifiée RGE pour le type de travaux concerné. FK Énergie est certifiée RGE QualiBois (poêles, chaudières et inserts bois et granulés) et RGE QualiPAC (pompes à chaleur).',
+  },
+  {
+    q: 'Quand faut-il faire la demande d’aide ?',
+    a: 'Pour MaPrimeRénov’ et les primes CEE, la demande doit être faite AVANT la signature du devis ou le début des travaux. Parlez-nous-en dès le début de votre projet.',
+  },
+  {
+    q: 'Les aides sont-elles cumulables ?',
+    a: 'Oui, dans la plupart des cas MaPrimeRénov’, les primes CEE, la TVA réduite et l’éco-PTZ sont cumulables, dans la limite d’un plafond. Les montants et conditions évoluent régulièrement : nous faisons le point avec vous lors de l’étude.',
+  },
+];
+---
+
+<BaseLayout
+  title="Aides pour poêle, chaudière et pompe à chaleur"
+  description={description}
+  breadcrumbs={crumbs}
+  jsonLd={[faqSchema(faqs)]}
+>
+  <PageHero
+    title="Financez votre chauffage grâce aux aides"
+    lead="Entreprise certifiée RGE QualiBois et QualiPAC, FK Énergie vous permet de bénéficier des aides à la rénovation énergétique, et vous accompagne dans vos démarches."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-20" aria-labelledby="aides-title">
+    <h2 id="aides-title" class="text-3xl sm:text-4xl">Les principales aides</h2>
+    <p class="mt-4 max-w-3xl text-lg text-ink-600">
+      Les montants et les conditions d’attribution évoluent régulièrement. Pour connaître les aides auxquelles vous avez droit, consultez les sites
+      officiels ou demandez-nous une étude personnalisée.
+    </p>
+    <div class="mt-10 grid gap-6 md:grid-cols-2">
+      {
+        aides.map((a) => (
+          <article class="rounded-3xl bg-white p-8 border border-ink-200">
+            <span class="grid size-12 place-items-center rounded-2xl bg-ember-100 text-ember-700">
+              <Icon name="euro" class="size-6" />
+            </span>
+            <h3 class="mt-5 text-2xl font-bold">{a.title}</h3>
+            <p class="mt-3 leading-relaxed text-ink-600">{a.text}</p>
+            <a href={a.link.href} target="_blank" rel="noopener" class="mt-4 inline-flex items-center gap-2 font-semibold text-ember-700 hover:underline">
+              En savoir plus sur {a.link.label} <Icon name="arrow" class="size-4" />
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="bg-white py-20" aria-labelledby="accomp-title">
+    <div class="container-page grid gap-12 lg:grid-cols-2 lg:items-center">
+      <div>
+        <p class="eyebrow">Notre accompagnement</p>
+        <h2 id="accomp-title" class="mt-3 text-3xl sm:text-4xl">On vous aide à monter vos dossiers</h2>
+        <p class="mt-4 text-lg text-ink-600">
+          Les démarches peuvent sembler complexes. Nos équipes vous expliquent les aides possibles pour votre projet, vous fournissent les documents
+          nécessaires (devis, attestations RGE, factures conformes) et vous guident à chaque étape.
+        </p>
+      </div>
+      <ol class="space-y-4">
+        {
+          ['Étude gratuite de votre projet et estimation des aides', 'Demande d’aides avant la signature du devis', 'Installation par nos équipes certifiées RGE', 'Transmission des factures et attestations pour le versement'].map((t, i) => (
+            <li class="flex items-center gap-4 rounded-2xl bg-ink-50 p-5 border border-ink-200">
+              <span class="grid size-10 shrink-0 place-items-center rounded-full bg-ember-600 font-display font-bold text-white">{i + 1}</span>
+              <span class="font-semibold text-ink-900">{t}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <Faq faqs={faqs} title="Vos questions sur les aides" />
+  <CtaBand title="Estimons ensemble vos aides" />
+</BaseLayout>

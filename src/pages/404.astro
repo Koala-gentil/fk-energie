@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { productNav, site } from '../data/site';
+---
+
+<BaseLayout title="Page introuvable" description="Cette page n’existe pas ou a été déplacée." noindex>
+  <section class="container-page py-24 text-center">
+    <p class="font-display text-7xl text-ember-500">404</p>
+    <h1 class="mt-4 text-4xl">Cette page n’existe plus</h1>
+    <p class="mx-auto mt-4 max-w-xl text-lg text-ink-600">
+      Notre site a fait peau neuve : la page que vous cherchez a peut-être changé d’adresse. Voici nos principales rubriques :
+    </p>
+    <ul class="mt-8 flex flex-wrap justify-center gap-3">
+      {productNav.map((p) => <li><a href={p.href} class="btn-secondary">{p.label}</a></li>)}
+    </ul>
+    <p class="mt-10 text-ink-600">
+      Besoin d’aide ? <a href={site.phoneHref} class="font-semibold text-ember-700">{site.phone}</a> ou <a href="/contact/" class="font-semibold text-ember-700">formulaire de contact</a>.
+    </p>
+  </section>
+</BaseLayout>

@@ -1,0 +1,98 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon, { type IconName } from '../components/Icon.astro';
+import { site, yearsOfExperience } from '../data/site';
+import hero from '../assets/images/showrooms/facade-aire-sur-la-lys.jpg';
+import interior from '../assets/images/showrooms/showroom-aire-interieur-3.jpg';
+
+const crumbs = [{ label: 'L’entreprise', href: '/entreprise/' }];
+
+const timeline = [
+  { year: '2008', text: 'Création de FK Énergie en juillet, avec une conviction : le chauffage au bois est un métier à part entière.' },
+  { year: '2011', text: 'Installation au 14 rue de Paris à Aire-sur-la-Lys, dans un showroom de 300 m² dédié à la biomasse.' },
+  { year: '2018', text: 'Pour nos 10 ans, ouverture d’un second showroom à Ardres pour le Calaisis et l’Audomarois.' },
+  { year: '2024', text: 'Certification RGE QualiPAC : nous installons désormais aussi des pompes à chaleur et la climatisation.' },
+  { year: '2026', text: 'Ouverture de notre troisième agence à Rexpoëde, dans le Nord.' },
+];
+
+const values: { icon: IconName; title: string; text: string }[] = [
+  { icon: 'users', title: 'Une entreprise familiale', text: 'Un interlocuteur de proximité, qui connaît ses clients et prend le temps de les conseiller.' },
+  { icon: 'shield', title: 'Des installateurs certifiés', text: 'Nos équipes sont certifiées RGE QualiBois et QualiPAC, gage de travaux conformes et éligibles aux aides.' },
+  { icon: 'wrench', title: 'Des techniciens formés', text: 'Une équipe formée directement par les fabricants, en particulier Palazzetti, notre partenaire historique.' },
+  { icon: 'star', title: 'Un choix exigeant', text: 'Nous ne proposons que des marques fiables dont nous maîtrisons l’installation et le SAV.' },
+];
+---
+
+<BaseLayout
+  title="L’entreprise : artisan chauffagiste depuis 2008"
+  description={`FK Énergie, entreprise familiale créée en ${site.foundingYear}, installe poêles, chaudières et pompes à chaleur dans le Pas-de-Calais et le Nord. Installateurs RGE QualiBois et QualiPAC, 3 showrooms.`}
+  breadcrumbs={crumbs}
+>
+  <PageHero
+    title={`${yearsOfExperience} ans au service de votre confort`}
+    lead="Créée en juillet 2008, FK Énergie est une entreprise familiale spécialisée dans l’installation d’équipements de chauffage. Notre priorité : votre confort, avec des installations irréprochables, discrètes et professionnelles."
+    crumbs={crumbs}
+    image={hero}
+    imageAlt="Showroom FK Énergie d’Aire-sur-la-Lys"
+    imageAspect="landscape"
+  />
+
+  <section class="container-page py-20" aria-labelledby="valeurs-title">
+    <h2 id="valeurs-title" class="text-3xl sm:text-4xl">Ce qui nous distingue</h2>
+    <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        values.map((v) => (
+          <article class="rounded-3xl bg-white p-6 border border-ink-200">
+            <Icon name={v.icon} class="size-8 text-ember-600" />
+            <h3 class="mt-4 text-lg font-bold">{v.title}</h3>
+            <p class="mt-2 text-ink-600">{v.text}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="bg-white py-20" aria-labelledby="histoire-title">
+    <div class="container-page grid gap-12 lg:grid-cols-2">
+      <div>
+        <p class="eyebrow">Notre histoire</p>
+        <h2 id="histoire-title" class="mt-3 text-3xl sm:text-4xl">De l’Audomarois à la Flandre</h2>
+        <ol class="relative mt-10 space-y-8 border-l-2 border-ember-200 pl-8">
+          {
+            timeline.map((t) => (
+              <li class="relative">
+                <span class="absolute top-1 -left-[41px] size-4 rounded-full border-4 border-white bg-ember-500 ring-2 ring-ember-200" />
+                <p class="font-display text-2xl text-ember-600">{t.year}</p>
+                <p class="mt-1 text-lg text-ink-700">{t.text}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+      <div class="space-y-6">
+        <Image
+          src={interior}
+          alt="Poêles exposés dans le showroom FK Énergie"
+          widths={[480, 720, 960]}
+          sizes="(min-width: 1024px) 560px, 100vw"
+          class="aspect-[4/3] w-full rounded-3xl object-cover"
+        />
+        <div class="rounded-3xl bg-ember-100 p-8">
+          <p class="font-display text-2xl font-semibold">Nos certifications</p>
+          <ul class="mt-4 space-y-3">
+            <li class="flex gap-3"><Icon name="shield" class="size-6 shrink-0 text-ember-700" /><span><strong>RGE QualiBois</strong>, appareils de chauffage bois et granulés (air et eau)</span></li>
+            <li class="flex gap-3"><Icon name="shield" class="size-6 shrink-0 text-ember-700" /><span><strong>RGE QualiPAC</strong>, pompes à chaleur et chauffe-eau thermodynamiques</span></li>
+          </ul>
+          <p class="mt-6 text-sm text-ink-700">
+            Vérifiables sur l’annuaire officiel <a href="https://france-renov.gouv.fr/annuaires-professionnels/artisan-rge-architecte" target="_blank" rel="noopener" class="font-semibold underline hover:text-ember-700">France Rénov’</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand />
+</BaseLayout>

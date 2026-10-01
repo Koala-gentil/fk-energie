@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import FeatureCard from '../components/FeatureCard.astro';
+import Faq from '../components/Faq.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
+import hero from '../assets/images/produits/chaudiere-granules-rtb-installation.jpg';
+
+const crumbs = [{ label: 'Chaudières', href: '/chaudieres/' }];
+const description =
+  'Installation de chaudières à granulés et à bûches (RTB) pour chauffer toute la maison et l’eau chaude. Remplacement de chaudière fioul ou gaz par un installateur RGE dans le Pas-de-Calais et le Nord.';
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Pourquoi remplacer ma chaudière fioul par une chaudière à granulés ?',
+    a: 'La chaudière à granulés utilise une énergie renouvelable et généralement moins chère que le fioul, tout en gardant votre réseau de radiateurs. Son remplacement fait partie des travaux fortement aidés lorsqu’il est réalisé par un installateur RGE.',
+  },
+  {
+    q: 'Faut-il beaucoup de place pour une chaudière à granulés ?',
+    a: 'Il faut prévoir la chaudière et un espace de stockage des granulés (silo ou réservoir), souvent dans un garage, une cave ou une chaufferie. Nous étudions l’implantation avec vous et proposons des silos sur mesure.',
+  },
+  {
+    q: 'Quel entretien pour une chaudière biomasse ?',
+    a: 'Les chaudières automatiques modernes se nettoient en grande partie seules. Il reste à vider le cendrier de temps en temps et à faire réaliser l’entretien annuel et le ramonage par un professionnel.',
+  },
+];
+---
+
+<BaseLayout
+  title="Chaudière à granulés et à bois : installation RGE"
+  description={description}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    serviceSchema({ name: 'Installation de chaudières biomasse', description, path: '/chaudieres/', serviceType: 'Installation de chaudière à granulés' }),
+    faqSchema(faqs),
+  ]}
+>
+  <PageHero
+    title="Chaudières à granulés et à bûches"
+    lead="Pour chauffer toute la maison et produire votre eau chaude avec une énergie renouvelable, la chaudière biomasse est la solution. Nous installons des chaudières fiables, automatiques et connectées."
+    crumbs={crumbs}
+    imageCaption="Chaudière RTB chez un client"
+    image={hero}
+    imageAlt="Chaudière à granulés RTB installée chez un client par FK Énergie"
+  />
+
+  <section class="container-page grid gap-12 py-20 lg:grid-cols-12">
+    <div class="prose-fk lg:col-span-7">
+      <h2 class="!mt-0">Pourquoi choisir une chaudière biomasse ?</h2>
+      <p>
+        Raccordée à votre chauffage central, une chaudière à granulés ou à bûches chauffe l’ensemble de votre logement. Son rendement peut atteindre
+        90 %, et elle conserve vos radiateurs existants : c’est la solution idéale pour <strong>remplacer une chaudière fioul ou gaz</strong>.
+      </p>
+      <ul>
+        <li><strong>Rendement élevé</strong> : jusqu’à 90 %.</li>
+        <li><strong>Tout le logement chauffé</strong> : radiateurs, plancher chauffant et eau chaude sanitaire.</li>
+        <li><strong>Moins d’entretien</strong> qu’un poêle, grâce au nettoyage automatique.</li>
+        <li><strong>Des aides importantes</strong> pour le remplacement d’une chaudière fossile.</li>
+      </ul>
+      <h2>Chaudières à granulés RTB</h2>
+      <p>
+        Nous installons notamment les chaudières RTB, conçues au Danemark par NBE : fonctionnement 100 % automatique, nettoyage par compresseur,
+        modulation de puissance de 10 à 100 %, silo sur mesure et suivi à distance via internet.
+      </p>
+    </div>
+    <div class="space-y-6 lg:col-span-5">
+      <FeatureCard icon="flame" title="Chaudière à granulés" tone="muted" pros={['Alimentation automatique depuis un silo', 'Programmable et connectée', 'Autonomie de plusieurs semaines']}>
+        Le confort d’une chaudière classique avec une énergie renouvelable et locale.
+      </FeatureCard>
+      <FeatureCard icon="leaf" title="Chaudière à bûches" tone="muted" pros={['Combustible le plus économique', 'Idéale si vous avez accès au bois', 'Associée à un ballon tampon']}>
+        Pour ceux qui disposent de bois et veulent le chauffage central au meilleur coût.
+      </FeatureCard>
+    </div>
+  </section>
+
+  <section class="container-page pb-4">
+    <div class="flex flex-col items-start justify-between gap-4 rounded-3xl bg-ember-50 p-8 border border-ember-100 md:flex-row md:items-center">
+      <div>
+        <p class="font-display text-xl font-bold">Vous préférez garder vos radiateurs sans stocker de combustible ?</p>
+        <p class="mt-1 text-ink-600">La pompe à chaleur air/eau est l’autre grande alternative à la chaudière fioul ou gaz.</p>
+      </div>
+      <a href="/pompes-a-chaleur/" class="btn-secondary shrink-0">Voir les pompes à chaleur <Icon name="arrow" class="size-4" /></a>
+    </div>
+  </section>
+
+  <Faq faqs={faqs} title="Vos questions sur les chaudières" />
+  <CtaBand title="Remplacez votre chaudière, on vous accompagne" />
+</BaseLayout>

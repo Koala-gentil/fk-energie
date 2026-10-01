@@ -1,0 +1,137 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import FeatureCard from '../components/FeatureCard.astro';
+import RealisationsGrid from '../components/RealisationsGrid.astro';
+import Faq from '../components/Faq.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { byCategory } from '../data/realisations';
+import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
+import hero from '../assets/images/realisations/poele-bois-lotus-jubilee-25.jpg';
+import side from '../assets/images/realisations/poele-bois-heta-serie-8.jpg';
+
+const crumbs = [{ label: 'Poêles à bois', href: '/poele-a-bois/' }];
+const description =
+  'Poêles à bois, poêles de masse et poêles mixtes HETA, Lotus, Contura et Palazzetti. Vente et pose par un installateur RGE QualiBois dans le Pas-de-Calais et le Nord. Devis gratuit.';
+
+const brands = [
+  { name: 'HETA', origin: 'Danemark', text: 'Des poêles à bûches au design scandinave épuré, comme les séries Scan-Line et Série 8, avec d’excellents rendements.' },
+  { name: 'Lotus', origin: 'Danemark', text: 'Des poêles élégants, souvent habillés de pierre ollaire qui accumule et restitue la chaleur (Jubilee, Orbis…).' },
+  { name: 'Contura', origin: 'Suède', text: 'Des poêles suédois compacts et lumineux, avec vitres latérales, idéaux pour les petits espaces.' },
+  { name: 'Palazzetti', origin: 'Italie', text: 'Des poêles à bois au design moderne et la gamme Multifire, qui accepte bûches et granulés.' },
+];
+
+const faqs: FaqItem[] = [
+  {
+    q: 'Quelle puissance de poêle à bois choisir ?',
+    a: 'La puissance dépend du volume à chauffer, de l’isolation de la maison et de l’emplacement du poêle. Un poêle trop puissant fonctionnera au ralenti et s’encrassera. Nous calculons la puissance adaptée lors de l’étude gratuite.',
+  },
+  {
+    q: 'Quelle différence entre un poêle à bois et un poêle de masse ?',
+    a: 'Le poêle à bois classique chauffe rapidement la pièce. Le poêle de masse (ou à accumulation) brûle une charge de bois rapidement, stocke la chaleur dans sa masse (pierre, béton…) puis la restitue doucement pendant de longues heures.',
+  },
+  {
+    q: 'Quelle longueur de bûches ?',
+    a: 'Selon les modèles, les poêles acceptent des bûches de 25 à 50 cm. C’est un critère à prendre en compte selon votre fournisseur de bois ; nous vous le précisons pour chaque appareil.',
+  },
+  {
+    q: 'Faut-il faire ramoner son conduit ?',
+    a: 'Oui, le ramonage est obligatoire, en général deux fois par an dont une pendant la période de chauffe (selon le règlement sanitaire départemental). Nous assurons l’entretien et le ramonage.',
+  },
+];
+---
+
+<BaseLayout
+  title="Poêle à bois : vente et installation RGE"
+  description={description}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    serviceSchema({ name: 'Installation de poêles à bois', description, path: '/poele-a-bois/', serviceType: 'Installation de poêle à bois' }),
+    faqSchema(faqs),
+  ]}
+>
+  <PageHero
+    title="Poêles à bois : le charme de la flamme, la performance en plus"
+    lead="Un poêle à bois moderne chauffe beaucoup plus et consomme beaucoup moins qu’une cheminée ouverte. Nous sélectionnons des poêles scandinaves et italiens à haut rendement, installés par nos équipes certifiées QualiBois."
+    crumbs={crumbs}
+    imageCaption="Lotus Jubilee 25 · juillet 2025"
+    image={hero}
+    imageAlt="Poêle à bois Lotus Jubilee installé par FK Énergie"
+  />
+
+  <section class="container-page grid gap-12 py-20 lg:grid-cols-12">
+    <div class="prose-fk lg:col-span-7">
+      <h2 class="!mt-0">Se chauffer au bois, simplement</h2>
+      <p>
+        Le bois est une énergie renouvelable, locale et bien moins chère que le gaz ou l’électricité. Les poêles que nous installons atteignent des
+        rendements de 70 % à près de 90 %, et bénéficient pour la plupart du label <strong>Flamme Verte</strong>.
+      </p>
+      <p>
+        Bûches courtes ou longues, poêle d’angle, habillage en pierre ou en céramique, vision du feu panoramique… Venez comparer les modèles dans nos
+        showrooms : nous vous aidons à trouver le poêle qui correspond à votre intérieur et à vos besoins.
+      </p>
+      <ul>
+        <li><strong>Économique</strong> : le bois reste l’une des énergies les moins chères.</li>
+        <li><strong>Neutre en carbone</strong> : le CO₂ émis correspond à celui absorbé par l’arbre pendant sa croissance.</li>
+        <li><strong>Confortable</strong> : une chaleur douce et enveloppante, et l’ambiance unique du feu de bois.</li>
+      </ul>
+    </div>
+    <div class="lg:col-span-5">
+      <Image
+        src={side}
+        alt="Poêle à bûches HETA Série 8 installé par FK Énergie"
+        widths={[480, 720, 960]}
+        sizes="(min-width: 1024px) 460px, 100vw"
+        class="aspect-[4/5] w-full rounded-3xl object-cover"
+      />
+    </div>
+  </section>
+
+  <section class="bg-white py-20" aria-labelledby="types-title">
+    <div class="container-page">
+      <div class="max-w-2xl">
+        <p class="eyebrow">Nos gammes</p>
+        <h2 id="types-title" class="mt-3 text-3xl sm:text-4xl">Poêle à bois, de masse ou mixte</h2>
+      </div>
+      <div class="mt-12 grid gap-6 lg:grid-cols-3">
+        <FeatureCard id="poele-a-bois" icon="flame" title="Poêle à bois traditionnel" pros={['Montée en température rapide', 'Large choix de designs', 'Budget maîtrisé']}>
+          Le grand classique : un foyer fermé, une belle vision du feu et une chaleur rapide pour votre pièce de vie.
+        </FeatureCard>
+        <FeatureCard id="poeles-de-masse" icon="clock" title="Poêle de masse" pros={['Chaleur restituée jusqu’à 24 h', 'Moins de rechargements', 'Chaleur douce et homogène']}>
+          Appelé aussi poêle à accumulation : sa masse en pierre ollaire, en acier ou en béton emmagasine la chaleur et la diffuse longtemps après
+          l’extinction du feu.
+        </FeatureCard>
+        <FeatureCard id="poeles-mixtes" icon="sparkles" title="Poêle mixte bois / granulés" pros={['Bûches ou granulés au choix', 'Autonomie des granulés', 'Plaisir des bûches']}>
+          Avec la gamme Multifire de Palazzetti, vous choisissez votre combustible selon vos envies et votre présence à la maison.
+        </FeatureCard>
+      </div>
+
+      <h2 class="mt-20 text-3xl sm:text-4xl">Les marques que nous installons</h2>
+      <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          brands.map((b) => (
+            <li class="rounded-3xl bg-ink-50 p-6 border border-ink-200">
+              <p class="font-display text-2xl font-semibold">{b.name}</p>
+              <p class="text-sm font-semibold text-ember-700">{b.origin}</p>
+              <p class="mt-3 text-ink-600">{b.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="container-page py-20" aria-labelledby="real-title">
+    <div class="max-w-2xl">
+      <p class="eyebrow">Nos poses</p>
+      <h2 id="real-title" class="mt-3 text-3xl sm:text-4xl">Poêles à bois installés par nos équipes</h2>
+    </div>
+    <div class="mt-10"><RealisationsGrid items={byCategory('bois').slice(0, 8)} /></div>
+    <a href="/realisations/" class="btn-secondary mt-8">Voir toutes nos réalisations <Icon name="arrow" class="size-4" /></a>
+  </section>
+
+  <Faq faqs={faqs} title="Vos questions sur les poêles à bois" />
+  <CtaBand title="Trouvons ensemble votre poêle à bois" />
+</BaseLayout>

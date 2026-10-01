@@ -1,0 +1,45 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+
+interface Props {
+  icon?: IconName;
+  title: string;
+  id?: string;
+  pros?: string[];
+  cons?: string[];
+  tone?: 'white' | 'muted';
+}
+const { icon, title, id, pros = [], cons = [], tone = 'white' } = Astro.props;
+---
+
+<article id={id} class:list={['flex scroll-mt-28 flex-col gap-3 rounded-3xl border p-6 sm:p-7', tone === 'white' ? 'border-ink-200 bg-white' : 'border-transparent bg-ink-100']}>
+  <div class="flex items-center gap-3">
+    {
+      icon && (
+        <span class="grid size-11 shrink-0 place-items-center rounded-2xl bg-ember-100 text-ember-700">
+          <Icon name={icon} class="size-6" />
+        </span>
+      )
+    }
+    <h3 class="text-2xl">{title}</h3>
+  </div>
+  <div class="leading-relaxed text-ink-700"><slot /></div>
+  {
+    (pros.length > 0 || cons.length > 0) && (
+      <ul class="mt-1 space-y-2 border-t border-ink-200 pt-4 text-[15px]">
+        {pros.map((p) => (
+          <li class="flex gap-2.5">
+            <Icon name="check" class="mt-0.5 size-4 shrink-0 text-ember-600" strokeWidth={2.6} />
+            <span>{p}</span>
+          </li>
+        ))}
+        {cons.map((c) => (
+          <li class="flex gap-2.5 text-ink-600">
+            <Icon name="minus" class="mt-0.5 size-4 shrink-0 text-ink-400" strokeWidth={2.4} />
+            <span>{c}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</article>

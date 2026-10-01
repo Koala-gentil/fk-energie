@@ -1,0 +1,121 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import HoursList from '../../components/HoursList.astro';
+import ShowroomCard from '../../components/ShowroomCard.astro';
+import RealisationsGrid from '../../components/RealisationsGrid.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { showrooms, site, mapsUrl, productNav, type Showroom } from '../../data/site';
+import { realisations } from '../../data/realisations';
+import { showroomSchema } from '../../lib/schema';
+
+export const getStaticPaths = (() => showrooms.map((showroom) => ({ params: { slug: showroom.slug }, props: { showroom } }))) satisfies GetStaticPaths;
+
+interface Props {
+  showroom: Showroom;
+}
+const { showroom: s } = Astro.props;
+const crumbs = [
+  { label: 'Nos showrooms', href: '/showrooms/' },
+  { label: s.city, href: `/showrooms/${s.slug}/` },
+];
+const others = showrooms.filter((o) => o.slug !== s.slug);
+const email = s.email ?? site.email;
+---
+
+<BaseLayout
+  title={`Showroom ${s.city} (${s.postalCode}) : poêles et pompes à chaleur`}
+  description={`Showroom FK Énergie, ${s.street} à ${s.city} : poêles à granulés et à bois, inserts, chaudières, pompes à chaleur. Installateur RGE, étude gratuite.`}
+  breadcrumbs={crumbs}
+  jsonLd={[showroomSchema(s)]}
+>
+  <PageHero
+    eyebrow={s.isNew ? 'tout nouveau, ouvert en 2026' : undefined}
+    title={`FK Énergie ${s.city}`}
+    lead={s.intro}
+    crumbs={crumbs}
+    image={s.image}
+    imageAlt={s.imageAlt}
+    imageAspect="landscape"
+  />
+
+  <section class="container-page grid gap-8 py-16 lg:grid-cols-3">
+    <div class="rounded-3xl bg-white p-8 border border-ink-200">
+      <h2 class="flex items-center gap-3 text-2xl"><Icon name="pin" class="size-6 text-ember-600" /> Adresse</h2>
+      <address class="mt-4 text-lg not-italic text-ink-700">
+        FK Énergie<br />
+        {s.street}<br />
+        {s.postalCode} {s.city}
+        {s.landmark && <span class="block text-base text-ink-500">({s.landmark})</span>}
+      </address>
+      <a href={mapsUrl(s)} target="_blank" rel="noopener" class="btn-secondary mt-6">Itinéraire Google Maps <Icon name="arrow" class="size-4" /></a>
+    </div>
+    <div class="rounded-3xl bg-white p-8 border border-ink-200">
+      <h2 class="flex items-center gap-3 text-2xl"><Icon name="clock" class="size-6 text-ember-600" /> Horaires</h2>
+      <HoursList class="mt-2" />
+    </div>
+    <div class="rounded-3xl bg-ember-100 p-8">
+      <h2 class="flex items-center gap-3 text-2xl"><Icon name="phone" class="size-6 text-ember-700" /> Contact</h2>
+      <a href={site.phoneHref} class="mt-4 block font-display text-3xl font-semibold hover:text-ember-700">{site.phone}</a>
+      <a href={`mailto:${email}`} class="mt-2 block break-all text-ink-700 hover:text-ember-700">{email}</a>
+      <a href="/contact/" class="btn-primary mt-6">Demander un devis gratuit</a>
+    </div>
+  </section>
+
+  <section class="bg-white py-16" aria-labelledby="expo-title">
+    <div class="container-page grid gap-12 lg:grid-cols-2">
+      <div>
+        <p class="eyebrow">Sur place</p>
+        <h2 id="expo-title" class="mt-3 text-3xl">Ce que vous trouverez à {s.city}</h2>
+        <ul class="mt-6 space-y-3">
+          {
+            s.highlights.map((h) => (
+              <li class="flex gap-3 text-lg">
+                <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-600" strokeWidth={2.5} />
+                {h}
+              </li>
+            ))
+          }
+        </ul>
+        <h3 class="mt-10 text-xl font-bold">Nos solutions</h3>
+        <ul class="mt-4 flex flex-wrap gap-2">
+          {
+            productNav.map((p) => (
+              <li>
+                <a href={p.href} class="inline-block rounded-full bg-ink-50 px-4 py-2 font-semibold border border-ink-200 hover:border-ember-400">
+                  {p.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div>
+        <p class="eyebrow">Zone d’intervention</p>
+        <h2 class="mt-3 text-3xl">Nous installons à {s.city} et dans les environs</h2>
+        <p class="mt-4 text-lg text-ink-600">
+          Depuis notre showroom de {s.city}, nos équipes interviennent pour la pose, l’entretien et le dépannage de votre chauffage dans tout le secteur :
+        </p>
+        <ul class="mt-6 flex flex-wrap gap-2">
+          {[s.city, ...s.nearby].map((c) => <li class="rounded-full bg-ember-50 px-4 py-2 font-semibold text-ember-800 border border-ember-100">{c}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-16" aria-labelledby="real-title">
+    <h2 id="real-title" class="text-3xl">Quelques-unes de nos réalisations</h2>
+    <div class="mt-8"><RealisationsGrid items={realisations.slice(0, 4)} /></div>
+  </section>
+
+  <section class="container-page pb-4" aria-labelledby="autres-title">
+    <h2 id="autres-title" class="text-2xl font-bold">Nos autres showrooms</h2>
+    <div class="mt-6 grid gap-6 md:grid-cols-2">
+      {others.map((o) => <ShowroomCard showroom={o} />)}
+    </div>
+  </section>
+
+  <CtaBand title={`Un projet de chauffage près de ${s.city} ?`} />
+</BaseLayout>

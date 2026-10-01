@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { site } from '../../data/site';
+---
+
+<BaseLayout title="Demande envoyée" description="Votre demande a bien été envoyée à FK Énergie." noindex>
+  <section class="container-page flex flex-col items-center py-24 text-center">
+    <span class="grid size-16 place-items-center rounded-full bg-moss-100 text-moss-700">
+      <Icon name="check" class="size-8" strokeWidth={2.5} />
+    </span>
+    <h1 class="mt-6 text-4xl">Merci, votre demande est bien envoyée</h1>
+    <p class="mt-4 max-w-xl text-lg text-ink-600">
+      Un conseiller FK Énergie vous recontacte rapidement. Pour une demande urgente, appelez-nous au
+      <a href={site.phoneHref} class="font-semibold text-ember-700">{site.phone}</a>.
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="/" class="btn-primary">Retour à l’accueil</a>
+      <a href="/realisations/" class="btn-secondary">Voir nos réalisations</a>
+    </div>
+  </section>
+</BaseLayout>

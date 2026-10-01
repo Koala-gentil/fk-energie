@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import FeatureCard from '../components/FeatureCard.astro';
+import Faq from '../components/Faq.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
+import hero from '../assets/images/produits/poele-granules-detail.jpg';
+
+const crumbs = [{ label: 'Entretien & ramonage', href: '/entretien-ramonage/' }];
+const description =
+  'Entretien annuel, ramonage et dépannage de poêles à granulés, poêles à bois, chaudières et pompes à chaleur par les techniciens FK Énergie. Pas-de-Calais et Nord.';
+
+const checklist = [
+  'Vider le cendrier et nettoyer le brasero (poêle à granulés : très régulièrement)',
+  'Nettoyer la chambre de combustion et l’échangeur',
+  'Nettoyer la vitre, à froid, avec un produit adapté',
+  'Dégager les trous d’évacuation des fumées',
+  'Nettoyer le réservoir à granulés une fois par mois',
+  'Utiliser un combustible de qualité (bois sec, granulés certifiés)',
+];
+
+const faqs: FaqItem[] = [
+  {
+    q: 'L’entretien annuel est-il obligatoire ?',
+    a: 'Le ramonage du conduit est obligatoire (en général deux fois par an dont une pendant la période de chauffe, selon le règlement sanitaire départemental). L’entretien annuel de l’appareil par un professionnel est fortement recommandé et souvent exigé par les fabricants pour la garantie et par les assureurs.',
+  },
+  {
+    q: 'Entretenez-vous des appareils que vous n’avez pas installés ?',
+    a: 'Nous assurons en priorité le suivi des appareils que nous avons installés. Pour un autre appareil, contactez-nous en précisant la marque et le modèle : nous vous dirons si nous pouvons intervenir.',
+  },
+  {
+    q: 'Recevrai-je un certificat de ramonage ?',
+    a: 'Oui, un certificat vous est remis après chaque ramonage. Conservez-le : il peut vous être demandé par votre assurance habitation.',
+  },
+];
+---
+
+<BaseLayout
+  title="Entretien, ramonage et SAV de poêles et chaudières"
+  description={description}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    serviceSchema({ name: 'Entretien et ramonage', description, path: '/entretien-ramonage/', serviceType: 'Entretien et ramonage d’appareils de chauffage' }),
+    faqSchema(faqs),
+  ]}
+>
+  <PageHero
+    title="Entretien, ramonage & dépannage"
+    lead="Un appareil bien entretenu chauffe mieux, consomme moins, dure plus longtemps et reste sûr. Nos techniciens, formés par les fabricants, assurent le suivi de votre installation."
+    crumbs={crumbs}
+    image={hero}
+    imageAlt="Poêle à granulés en fonctionnement entretenu par FK Énergie"
+  />
+
+  <section class="container-page py-20">
+    <div class="grid gap-6 md:grid-cols-3">
+      <FeatureCard icon="calendar" title="Entretien annuel">
+        Nettoyage complet de l’appareil, contrôle des pièces d’usure et des sécurités, réglage de la combustion pour un rendement optimal.
+      </FeatureCard>
+      <FeatureCard icon="shield" title="Ramonage">
+        Ramonage du conduit, obligatoire pour votre sécurité et votre assurance, avec remise d’un certificat.
+      </FeatureCard>
+      <FeatureCard icon="wrench" title="Dépannage & SAV">
+        Une panne, un code erreur ? Nos techniciens interviennent sur les appareils que nous avons installés, avec des pièces d’origine.
+      </FeatureCard>
+    </div>
+  </section>
+
+  <section class="bg-white py-20" aria-labelledby="gestes-title">
+    <div class="container-page grid gap-12 lg:grid-cols-2">
+      <div>
+        <p class="eyebrow">Au quotidien</p>
+        <h2 id="gestes-title" class="mt-3 text-3xl sm:text-4xl">Les bons gestes d’entretien</h2>
+        <p class="mt-4 text-lg text-ink-600">
+          Il existe deux niveaux d’entretien : l’entretien courant, que nous vous expliquons à la mise en service, et l’entretien annuel réalisé par
+          un professionnel.
+        </p>
+      </div>
+      <ul class="space-y-3">
+        {
+          checklist.map((c) => (
+            <li class="flex gap-3 rounded-2xl bg-ink-50 p-4 border border-ink-200">
+              <Icon name="check" class="mt-0.5 size-5 shrink-0 text-ember-600" strokeWidth={2.5} />
+              {c}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <Faq faqs={faqs} title="Vos questions sur l’entretien" />
+  <CtaBand title="Besoin d’un entretien ou d’un dépannage ?" text="Appelez-nous ou envoyez-nous votre demande en précisant la marque et le modèle de votre appareil." />
+</BaseLayout>

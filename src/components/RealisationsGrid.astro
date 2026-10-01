@@ -1,0 +1,76 @@
+---
+import { Image } from 'astro:assets';
+import { formatMonth, type Realisation } from '../data/realisations';
+
+interface Props {
+  items: Realisation[];
+  filterable?: boolean;
+  /** « carnet » : grandes cartes datées ; « grid » : grille compacte. */
+  layout?: 'carnet' | 'grid';
+}
+const { items, filterable = false, layout = 'grid' } = Astro.props;
+const filters = [
+  { key: 'all', label: 'Toutes' },
+  { key: 'granules', label: 'Granulés' },
+  { key: 'bois', label: 'Bois' },
+];
+---
+
+<div data-gallery>
+  {
+    filterable && (
+      <div class="mb-8 inline-flex rounded-full bg-ink-100 p-1" role="group" aria-label="Filtrer les poses">
+        {filters.map((f, i) => (
+          <button
+            type="button"
+            data-filter={f.key}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+            class="min-h-11 rounded-full px-5 font-semibold text-ink-600 transition hover:text-ink-900 aria-pressed:bg-white aria-pressed:text-ink-900 aria-pressed:shadow-sm"
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+    )
+  }
+  <ul class:list={['grid', layout === 'carnet' ? 'grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6' : 'grid-cols-2 gap-x-3 gap-y-6 sm:gap-x-4 md:grid-cols-3 lg:grid-cols-4']}>
+    {
+      items.map((item) => (
+        <li data-category={item.category} class="group flex flex-col gap-2">
+          <div class="overflow-hidden rounded-2xl bg-ink-100">
+            <Image
+              src={item.image}
+              alt={item.alt}
+              widths={[320, 480, 720]}
+              sizes="(min-width: 1024px) 300px, (min-width: 768px) 33vw, 50vw"
+              class="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+            />
+          </div>
+          <p class="font-display text-[15px] text-ink-600 italic">
+            {formatMonth(item.date)}{item.place && <> · {item.place}</>}
+          </p>
+          <p class:list={['leading-snug font-display font-semibold text-ink-900', layout === 'carnet' ? 'text-xl' : 'text-lg']}>{item.title}</p>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+{
+  filterable && (
+    <script>
+      document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
+        const buttons = root.querySelectorAll<HTMLButtonElement>('[data-filter]');
+        buttons.forEach((btn) =>
+          btn.addEventListener('click', () => {
+            const key = btn.dataset.filter;
+            buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+            root.querySelectorAll<HTMLElement>('[data-category]').forEach((li) => {
+              li.hidden = key !== 'all' && li.dataset.category !== key;
+            });
+          }),
+        );
+      });
+    </script>
+  )
+}

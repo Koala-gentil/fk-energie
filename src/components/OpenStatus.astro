@@ -1,0 +1,78 @@
+---
+import { openingHours } from '../data/site';
+
+interface Props {
+  class?: string;
+  /** « long » : « Ouvert · jusqu’à 18h » ; « short » : « Ouvert » / « Fermé ». */
+  variant?: 'long' | 'short';
+}
+const { class: className = '', variant = 'long' } = Astro.props;
+
+// Créneaux par jour ISO (0 = dimanche), lus par le script côté client à l'heure de Paris
+const schedule = Array.from({ length: 7 }, (_, day) => {
+  const code = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day];
+  return openingHours.find((h) => h.dayCodes.includes(code))?.slots ?? [];
+});
+---
+
+<span
+  data-open-status
+  data-variant={variant}
+  data-schedule={JSON.stringify(schedule)}
+  class:list={[
+    'inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-bold whitespace-nowrap',
+    'bg-ink-100 text-ink-700 data-[state=open]:bg-moss-100 data-[state=open]:text-moss-700',
+    className,
+  ]}
+>
+  <span class="size-2 rounded-full bg-current opacity-80" aria-hidden="true"></span>
+  <span data-open-label>Du lundi au samedi</span>
+</span>
+
+<script>
+  const DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  const hm = (t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+  };
+  const fmt = (t: string) => t.replace(/^0/, '').replace(':00', 'h').replace(':', 'h');
+
+  function update() {
+    // Heure de Paris, quel que soit le fuseau du visiteur
+    const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Paris', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
+    const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+    const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(get('weekday'));
+    const now = Number(get('hour')) * 60 + Number(get('minute'));
+
+    document.querySelectorAll<HTMLElement>('[data-open-status]').forEach((el) => {
+      const schedule: [string, string][][] = JSON.parse(el.dataset.schedule ?? '[]');
+      const label = el.querySelector<HTMLElement>('[data-open-label]')!;
+      const short = el.dataset.variant === 'short';
+      const current = schedule[day]?.find(([from, to]) => now >= hm(from) && now < hm(to));
+      if (current) {
+        el.dataset.state = 'open';
+        label.textContent = short ? 'Ouvert' : `Ouvert · jusqu’à ${fmt(current[1])}`;
+        return;
+      }
+      el.dataset.state = 'closed';
+      if (short) {
+        label.textContent = 'Fermé';
+        return;
+      }
+      const later = schedule[day]?.find(([from]) => hm(from) > now);
+      if (later) {
+        label.textContent = `Fermé · ouvre à ${fmt(later[0])}`;
+        return;
+      }
+      for (let i = 1; i <= 7; i++) {
+        const d = (day + i) % 7;
+        if (schedule[d]?.length) {
+          label.textContent = `Fermé · ouvre ${i === 1 ? 'demain' : DAYS[d]} à ${fmt(schedule[d][0][0])}`;
+          return;
+        }
+      }
+    });
+  }
+  update();
+  setInterval(update, 60_000);
+</script>

@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+import OpenStatus from './OpenStatus.astro';
+import { type Showroom, mapsUrl } from '../data/site';
+
+interface Props {
+  showroom: Showroom;
+  headingLevel?: 'h2' | 'h3';
+}
+const { showroom: s, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+---
+
+<article class="group flex flex-col overflow-hidden rounded-3xl border border-ink-200 bg-white transition hover:shadow-xl hover:shadow-ink-900/5">
+  <div class="aspect-[16/10] overflow-hidden bg-ink-100">
+    {
+      s.image && (
+        <Image
+          src={s.image}
+          alt={s.imageAlt ?? s.name}
+          widths={[400, 640, 900]}
+          sizes="(min-width: 1024px) 400px, 100vw"
+          class="size-full object-cover transition duration-500 group-hover:scale-[1.03]"
+        />
+      )
+    }
+  </div>
+  <div class="flex flex-1 flex-col gap-2 p-6">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <Heading class="text-3xl">
+        <a href={`/showrooms/${s.slug}/`} class="hover:text-ember-700">{s.city}</a>
+      </Heading>
+      {s.isNew ? <span class="rounded-full bg-ember-100 px-3 py-1 text-sm font-bold text-ember-800">Nouveau</span> : <OpenStatus variant="short" />}
+    </div>
+    <address class="text-ink-700 not-italic">
+      {s.street}, {s.postalCode} {s.city}
+      {s.landmark && <span class="block text-sm text-ink-500">{s.landmark}</span>}
+    </address>
+    <div class="mt-auto flex flex-wrap gap-x-6 gap-y-2 pt-4">
+      <a href={mapsUrl(s)} target="_blank" rel="noopener" class="link-arrow">Itinéraire</a>
+      <a href={`/showrooms/${s.slug}/`} class="link-arrow">Horaires & infos</a>
+    </div>
+  </div>
+</article>

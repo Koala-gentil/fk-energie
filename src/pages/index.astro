@@ -1,0 +1,197 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon, { type IconName } from '../components/Icon.astro';
+import ShowroomCard from '../components/ShowroomCard.astro';
+import RealisationsGrid from '../components/RealisationsGrid.astro';
+import { site, showrooms, yearsOfExperience } from '../data/site';
+import { poses } from '../data/realisations';
+
+import heroImg from '../assets/images/realisations/poele-bois-heta-scan-line-1000.jpg';
+import polaroidImg from '../assets/images/realisations/poele-bois-lotus-orbis-2.jpg';
+import imgGranules from '../assets/images/realisations/poele-granules-palazzetti-vivi-us.jpg';
+import imgBois from '../assets/images/realisations/poele-bois-lotus-jubilee-25.jpg';
+import imgPac from '../assets/images/produits/showroom-pompe-a-chaleur-atlantic.jpg';
+import imgChaudiere from '../assets/images/produits/chaudiere-granules-rtb-installation.jpg';
+import imgInsert from '../assets/images/produits/insert-cheminee-showroom.jpg';
+import imgFamille from '../assets/images/showrooms/facade-aire-sur-la-lys.jpg';
+
+const needs: { label: string; icon: IconName; projet: string }[] = [
+  { label: 'Voir de vraies flammes', icon: 'flame', projet: 'bois' },
+  { label: 'Ne plus m’en occuper', icon: 'clock', projet: 'granules' },
+  { label: 'Avoir frais l’été aussi', icon: 'snowflake', projet: 'pac' },
+  { label: 'Chauffer toute la maison', icon: 'home', projet: 'chaudiere' },
+];
+
+const solutions = [
+  { name: 'Poêles à granulés', text: 'Chaleur programmable, jusqu’à plusieurs pièces', brands: 'Palazzetti', href: '/poele-a-granules/', image: imgGranules },
+  { name: 'Poêles à bois', text: 'Bûches, poêles de masse, mixtes', brands: 'HETA · Lotus · Contura', href: '/poele-a-bois/', image: imgBois },
+  { name: 'Pompes à chaleur', text: 'Air/eau et air/air réversibles', brands: 'Atlantic', href: '/pompes-a-chaleur/', image: imgPac },
+  { name: 'Chaudières', text: 'Granulés et bûches, pour toute la maison', brands: 'RTB', href: '/chaudieres/', image: imgChaudiere },
+  { name: 'Inserts & cheminées', text: 'Votre cheminée devient un vrai chauffage', brands: 'Palazzetti', href: '/inserts-cheminees/', image: imgInsert },
+];
+
+const timeline = [
+  { year: '2008', text: 'Création de l’entreprise, en juillet' },
+  { year: '2011', text: '300 m² d’exposition à Aire-sur-la-Lys' },
+  { year: '2018', text: 'Ouverture du showroom d’Ardres' },
+  { year: '2026', text: 'Rexpoëde, et les pompes à chaleur' },
+];
+---
+
+<BaseLayout
+  title="Poêles à granulés, poêles à bois & pompes à chaleur | FK Énergie"
+  fullTitle
+  description={`Entreprise familiale depuis ${site.foundingYear} : vente, pose et entretien de poêles à granulés, poêles à bois, chaudières et pompes à chaleur. Showrooms à Aire-sur-la-Lys, Ardres et Rexpoëde. Étude gratuite.`}
+>
+  <!-- Hero -->
+  <section class="container-page grid items-center gap-12 py-12 lg:grid-cols-2 lg:gap-16 lg:py-20">
+    <div class="flex flex-col gap-6">
+      <p class="eyebrow -rotate-2 text-[28px]">une entreprise familiale</p>
+      <h1 class="text-[2.75rem] leading-[1.02] sm:text-6xl xl:text-7xl">
+        Artisans poseurs de poêles et pompes à chaleur, <em class="font-normal text-ember-600">depuis {site.foundingYear}</em>.
+      </h1>
+      <p class="max-w-xl text-lg leading-relaxed text-ink-700 sm:text-xl">
+        Nous conseillons, posons et entretenons nous-mêmes votre chauffage, de Calais à Aire-sur-la-Lys.
+      </p>
+
+      <div class="-mx-4 border-y border-ink-200 bg-white px-4 py-5 sm:mx-0 sm:rounded-3xl sm:border sm:p-6 sm:shadow-lg sm:shadow-ink-900/5">
+        <h2 class="text-xl sm:text-[22px]">Qu’est-ce qui compte le plus pour vous ?</h2>
+        <ul class="mt-4 grid grid-cols-2 gap-2.5">
+          {
+            needs.map((n) => (
+              <li>
+                <a
+                  href={`/contact/?projet=${n.projet}`}
+                  class="group flex h-full min-h-16 flex-col gap-2.5 rounded-2xl border border-ink-200 bg-ink-50 p-3 leading-tight font-semibold transition hover:border-ember-400 hover:bg-ember-50 sm:flex-row sm:items-center sm:gap-3"
+                >
+                  <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-ember-100 text-ember-700 transition group-hover:bg-ember-600 group-hover:text-white">
+                    <Icon name={n.icon} class="size-5" />
+                  </span>
+                  {n.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="relative min-h-[420px] sm:min-h-[560px]">
+      <figure class="absolute top-0 right-0 w-[82%]">
+        <Image
+          src={heroImg}
+          alt="Poêle à bûches HETA Scan-Line 1000 installé par FK Énergie"
+          widths={[480, 720, 960]}
+          sizes="(min-width: 1024px) 480px, 80vw"
+          class="h-[360px] w-full rounded-[1.75rem] object-cover shadow-2xl shadow-ink-900/15 sm:h-[500px]"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <figcaption class="absolute top-4 right-4 hidden rounded-full bg-white/90 px-3.5 py-1.5 text-sm font-semibold backdrop-blur sm:block">
+          HETA Scan-Line 1000 · posé par nos équipes
+        </figcaption>
+      </figure>
+      <figure class="absolute bottom-0 left-0 w-[46%] -rotate-3 rounded-lg bg-white p-2.5 pb-10 shadow-2xl shadow-ink-900/20">
+        <Image src={polaroidImg} alt="Poêle Lotus Orbis 2 posé à Aire-sur-la-Lys" widths={[240, 400]} sizes="240px" class="aspect-[4/5] w-full rounded object-cover" loading="eager" />
+        <figcaption class="absolute bottom-2 left-3 font-hand text-lg sm:text-2xl">Aire-sur-la-Lys, mars 2026</figcaption>
+      </figure>
+      <div class="absolute right-4 bottom-4 grid size-24 rotate-6 place-items-center rounded-full bg-ink-900 text-center text-ink-50 shadow-xl sm:right-6 sm:bottom-8 sm:size-28">
+        <span>
+          <span class="block font-display text-2xl leading-none font-semibold">RGE</span>
+          <span class="mt-1 block text-[11px] leading-tight text-ink-200">QualiBois<br />QualiPAC</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Carnet de poses -->
+  <section class="container-page pb-16 sm:pb-20" aria-labelledby="carnet-title">
+    <div class="flex flex-wrap items-end justify-between gap-4 border-t border-ink-900 pt-6">
+      <h2 id="carnet-title" class="text-4xl sm:text-5xl">Nos dernières poses</h2>
+      <a href="/realisations/" class="link-arrow">Tout le carnet <Icon name="arrow" class="size-4" /></a>
+    </div>
+    <div class="mt-8"><RealisationsGrid items={poses.slice(0, 4)} layout="carnet" /></div>
+  </section>
+
+  <!-- Solutions -->
+  <section class="border-y border-ink-200 bg-white" aria-labelledby="solutions-title">
+    <div class="container-page py-16 sm:py-20">
+      <h2 id="solutions-title" class="text-4xl sm:text-5xl">Ce que nous installons</h2>
+      <ul class="mt-8">
+        {
+          solutions.map((s) => (
+            <li>
+              <a href={s.href} class="group grid grid-cols-[72px_1fr_auto] items-center gap-4 border-t border-ink-200 py-4 sm:grid-cols-[112px_1fr_auto] sm:gap-8 sm:py-5">
+                <Image src={s.image} alt="" widths={[160, 240]} sizes="112px" class="aspect-[4/3] w-full rounded-xl object-cover" />
+                <span class="flex flex-col gap-1 lg:flex-row lg:items-baseline lg:gap-6">
+                  <span class="font-display text-2xl font-semibold transition group-hover:text-ember-700 sm:text-3xl">{s.name}</span>
+                  <span class="text-ink-600">{s.text}</span>
+                </span>
+                <span class="flex items-center gap-4">
+                  <span class="hidden text-sm font-semibold text-ink-600 md:inline">{s.brands}</span>
+                  <span class="grid size-11 place-items-center rounded-full border border-ink-300 text-ember-700 transition group-hover:border-ember-600 group-hover:bg-ember-600 group-hover:text-white">
+                    <Icon name="arrow" class="size-5" />
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-2 border-t border-ink-200 pt-6 text-lg text-ink-700">
+        Et après la pose : <a href="/entretien-ramonage/" class="link-arrow">entretien, ramonage et dépannage</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Famille -->
+  <section class="container-page grid items-center gap-10 py-16 sm:py-24 lg:grid-cols-2 lg:gap-16" aria-labelledby="famille-title">
+    <figure class="relative">
+      <Image src={imgFamille} alt="Le showroom FK Énergie d’Aire-sur-la-Lys" widths={[480, 720, 960]} sizes="(min-width: 1024px) 560px, 92vw" class="aspect-[5/4] w-full rounded-[1.75rem] object-cover" />
+      <figcaption class="absolute -bottom-4 left-4 -rotate-2 rounded-lg bg-white px-4 py-2 font-hand text-2xl shadow-lg shadow-ink-900/10">
+        Rue de Paris, Aire-sur-la-Lys
+      </figcaption>
+    </figure>
+    <div class="flex flex-col gap-6">
+      <h2 id="famille-title" class="text-4xl leading-[1.05] sm:text-5xl">Une entreprise de famille, <em class="font-normal">pas une franchise</em>.</h2>
+      <p class="text-lg leading-relaxed text-ink-700">
+        Ceux qui vous conseillent en showroom sont ceux qui posent votre appareil, puis qui l’entretiennent. Sans sous-traitance, depuis {yearsOfExperience} ans.
+      </p>
+      <ol class="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
+        {
+          timeline.map((t) => (
+            <li class="flex flex-col gap-1 border-t-2 border-ember-500 pt-3">
+              <span class="font-display text-2xl font-semibold">{t.year}</span>
+              <span class="text-[15px] leading-snug text-ink-700">{t.text}</span>
+            </li>
+          ))
+        }
+      </ol>
+      <a href="/entreprise/" class="link-arrow self-start">Notre histoire <Icon name="arrow" class="size-4" /></a>
+    </div>
+  </section>
+
+  <!-- Showrooms -->
+  <section class="bg-ink-100" aria-labelledby="showrooms-title">
+    <div class="container-page py-16 sm:py-20">
+      <h2 id="showrooms-title" class="text-4xl sm:text-5xl">Passez nous voir</h2>
+      <div class="mt-8 grid gap-5 md:grid-cols-3">
+        {showrooms.map((s) => <ShowroomCard showroom={s} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- Aides -->
+  <section class="container-page py-16">
+    <div class="flex flex-col gap-5 rounded-[2rem] bg-ember-100 px-6 py-8 sm:px-10 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex flex-col gap-4">
+        <h2 class="text-3xl sm:text-4xl">On monte vos dossiers d’aides avec vous</h2>
+        <ul class="flex flex-wrap gap-2">
+          {['MaPrimeRénov’', 'Primes CEE', 'TVA 5,5 %', 'Éco-PTZ'].map((a) => <li class="rounded-full bg-white px-4 py-1.5 font-semibold">{a}</li>)}
+        </ul>
+      </div>
+      <a href="/aides-financieres/" class="link-arrow shrink-0 text-lg">Voir les aides <Icon name="arrow" class="size-4" /></a>
+    </div>
+  </section>
+</BaseLayout>

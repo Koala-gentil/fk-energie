@@ -1,0 +1,83 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { site, showrooms, productNav, serviceNav, openingHours, formatSlot } from '../data/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-ink-900 text-ink-300">
+  <div class="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
+    <div class="flex flex-col gap-5 lg:col-span-4">
+      <a href="/" class="text-[28px]" aria-label="FK Énergie, accueil"><Logo tone="light" /></a>
+      <p class="font-hand text-2xl leading-tight text-ember-300">Votre confort est notre priorité.</p>
+      <a href={site.phoneHref} class="font-display text-3xl text-ember-300 hover:text-ember-200">{site.phone}</a>
+      <div class="flex flex-col gap-2">
+        <a href={`mailto:${site.email}`} class="flex items-center gap-2 hover:text-ink-50">
+          <Icon name="mail" class="size-5 text-ember-400" />
+          {site.email}
+        </a>
+        <a href={site.facebook} target="_blank" rel="noopener" class="flex items-center gap-2 hover:text-ink-50">
+          <Icon name="facebook" class="size-5 text-ember-400" />
+          Notre carnet de poses sur Facebook
+        </a>
+      </div>
+    </div>
+
+    <div class="grid gap-10 sm:grid-cols-2 lg:col-span-4">
+      <div>
+        <h2 class="font-sans text-sm font-bold tracking-normal text-ink-50">Nos solutions</h2>
+        <ul class="mt-4 space-y-2.5">
+          {productNav.map((i) => <li><a href={i.href} class="hover:text-ink-50">{i.label}</a></li>)}
+        </ul>
+      </div>
+      <div>
+        <h2 class="font-sans text-sm font-bold tracking-normal text-ink-50">Services</h2>
+        <ul class="mt-4 space-y-2.5">
+          {serviceNav.map((i) => <li><a href={i.href} class="hover:text-ink-50">{i.label}</a></li>)}
+          <li><a href="/entreprise/" class="hover:text-ink-50">L’entreprise</a></li>
+          <li><a href="/contact/" class="hover:text-ink-50">Demande d’étude</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-8 md:col-span-2 lg:col-span-4">
+      <div>
+        <h2 class="font-sans text-sm font-bold tracking-normal text-ink-50">Horaires des showrooms</h2>
+        <dl class="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-[15px]">
+          {
+            openingHours.map((h) => (
+              <>
+                <dt class="font-semibold text-ink-100">{h.days}</dt>
+                <dd>{h.slots.length ? h.slots.map(formatSlot).join(' · ') : 'Fermé'}</dd>
+              </>
+            ))
+          }
+        </dl>
+      </div>
+      <ul class="grid gap-3 text-[15px]">
+        {
+          showrooms.map((s) => (
+            <li>
+              <a href={`/showrooms/${s.slug}/`} class="flex gap-2.5 hover:text-ink-50">
+                <Icon name="pin" class="mt-0.5 size-4 shrink-0 text-ember-400" />
+                <span>
+                  <strong class="text-ink-100">{s.city}</strong> · {s.street}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-ink-800">
+    <div class="container-page flex flex-col gap-3 py-6 text-sm sm:flex-row sm:items-center sm:justify-between">
+      <p>© {year} {site.legalName} · RGE QualiBois · RGE QualiPAC</p>
+      <ul class="flex gap-5">
+        <li><a href="/mentions-legales/" class="hover:text-ink-50">Mentions légales</a></li>
+        <li><a href="/confidentialite/" class="hover:text-ink-50">Confidentialité</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
