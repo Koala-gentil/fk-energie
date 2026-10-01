@@ -23,7 +23,7 @@ sources:
     url: "https://librairie.ademe.fr/energies/6161-installer-et-utiliser-un-poele-a-granules-9791029721137.html"
   - label: "ADEME : Adopter le chauffage au bois (guide, édition octobre 2024)"
     url: "https://librairie.ademe.fr/societe-et-politiques-publiques/5667-7200-adopter-le-chauffage-au-bois-9791029719769.html"
-  - label: "ADEME : Comment bien se chauffer au bois ? (guide, 2024)"
+  - label: "ADEME : Comment bien se chauffer au bois ? (guide, juin 2026)"
     url: "https://librairie.ademe.fr/energies/7322-comment-bien-se-chauffer-au-bois--9791029726286.html"
   - label: "Flamme Verte : le label Flamme Verte"
     url: "https://www.flammeverte.org/flamme-verte/le-label-flamme-verte"
@@ -123,6 +123,8 @@ Côté aides, Service Public indique que depuis le 1er septembre 2026, MaPrimeR�
 - Vous aimez le feu de bois, avez de la place pour stocker et pas d’électricité à proximité : le **[poêle à bois](/poele-a-bois/)**.
 - Vous voulez une chaleur douce et durable avec peu de rechargements : le **poêle de masse**.
 - Vous hésitez entre les deux : le **poêle mixte**.
+
+Pour la puissance, faites une première estimation avec notre [calculateur de puissance de poêle](/outils/calcul-puissance-poele/), pour le budget avec notre [calcul de consommation de granulés](/outils/consommation-granules/), et pour voir jusqu’où il chauffera, dessinez votre maison avec notre [simulateur plan et poêle](/outils/plan-maison/).
 
 ## Avec FK Énergie
 

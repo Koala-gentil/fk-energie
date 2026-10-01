@@ -253,7 +253,7 @@ const req = 'size-2 rounded-full bg-ember-500';
           <span class="hidden size-5 animate-spin rounded-full border-[2.5px] border-white/40 border-t-white" data-spinner></span>
           <span data-submit-label>Envoyer ma demande</span>
         </button>
-        <a href={site.phoneHref} class="self-center py-2 font-semibold text-ink-600">ou appeler le {site.phone}</a>
+        <a href={site.phoneHref} class="btn-secondary w-full text-lg"><Icon name="phone" class="size-5 text-ember-600" /> Ou appeler le {site.phone}</a>
       </div>
     </form>
   </div>
@@ -292,7 +292,7 @@ const req = 'size-2 rounded-full bg-ember-500';
       <span class="hidden size-5 animate-spin rounded-full border-[2.5px] border-white/40 border-t-white" data-spinner></span>
       <span data-submit-label>Envoyer ma demande</span>
     </button>
-    <a href={site.phoneHref} class="self-center font-semibold text-ink-600 hover:text-ember-700">ou appeler le {site.phone}</a>
+    <a href={site.phoneHref} class="btn-secondary w-full text-lg"><Icon name="phone" class="size-5 text-ember-600" /> Ou appeler le {site.phone}</a>
   </aside>
 </div>
 
@@ -373,6 +373,19 @@ const req = 'size-2 rounded-full bg-ember-500';
       }),
     );
     range.addEventListener('input', syncSurface);
+
+    // Préremplissage depuis les outils de calcul : ?surface=, ?actuel=, ?note=
+    const params = new URLSearchParams(location.search);
+    const preSurface = Number(params.get('surface'));
+    if (preSurface >= 20) {
+      range.value = String(Math.min(300, Math.round(preSurface / 10) * 10));
+      syncSurface();
+    }
+    const preCurrent = params.get('actuel');
+    const currentInput = preCurrent && form.querySelector<HTMLInputElement>(`input[name="current"][value="${CSS.escape(preCurrent)}"]`);
+    if (currentInput) currentInput.checked = true;
+    const preNote = params.get('note');
+    if (preNote) $<HTMLTextAreaElement>('#message').value = preNote.slice(0, 1000);
 
     // Photos
     const photoInput = $<HTMLInputElement>('[data-photos-input]');

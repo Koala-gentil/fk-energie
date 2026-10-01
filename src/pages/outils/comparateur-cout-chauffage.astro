@@ -1,0 +1,381 @@
+---
+import OutilLayout from '../../layouts/OutilLayout.astro';
+import Field from '../../components/outils/Field.astro';
+import Choices from '../../components/outils/Choices.astro';
+import Graphique from '../../components/outils/Graphique.astro';
+import Icon from '../../components/Icon.astro';
+import { isolations, isolationDe, maisons, climat, energies, systemes, systeme as sys, sourcesThermique, type EnergieId, type Systeme } from '../../data/thermique';
+import { consommationMaison, fmt, euros } from '../../lib/thermique';
+import { coutsChauffage, prixChaleur, type CoutSysteme } from '../../lib/graphiques-outils';
+import type { Faq } from '../../lib/schema';
+import hero from '../../assets/images/produits/chaudiere-granules-rtb-installation.jpg';
+
+/** Rendement global : appareil × installation (émission, distribution, régulation). */
+const rendementGlobal = (s: Systeme) => s.rendement * s.installation;
+/** Prix du kWh de chaleur produit (c€), rendements compris. */
+const centimesUtiles = (s: Systeme) => (energies[s.energie].prix / energies[s.energie].pci / rendementGlobal(s)) * 100;
+/** Prix du kWh d'énergie achetée (c€ par kWh PCI). */
+const centimesAchetes = (s: Systeme) => (energies[s.energie].prix / energies[s.energie].pci) * 100;
+const parPrix = [...systemes].sort((a, b) => centimesUtiles(a) - centimesUtiles(b));
+const centraux = parPrix.filter((s) => s.portee === 'central');
+const rendementTexte = (s: Systeme) => `${fmt(rendementGlobal(s) * 100, 0)} %`;
+
+const defaults = { surface: 100, hauteur: 2.5, isolation: 'annees-80', actuel: 'fioul' };
+/** Coût annuel (€) pour la maison par défaut (100 m², 1975-1988, non mitoyenne). */
+const coutDefaut = (s: Systeme) =>
+  (consommationMaison(defaults.surface, defaults.hauteur, isolationDe(defaults.isolation), s, climat.dh19).kwh / energies[s.energie].pci) * energies[s.energie].prix;
+const actuelDefaut = sys(defaults.actuel);
+const prixEnergies = Object.entries(energies) as [EnergieId, (typeof energies)[EnergieId]][];
+const unites: Record<string, string> = { litre: 'litres', kWh: 'kWh', tonne: 'tonnes', stère: 'stères' };
+
+/** État initial (consommation par défaut du chauffage actuel), recalculé à l'identique par le script. */
+const fournieDefaut = actuelDefaut.defaut * energies[actuelDefaut.energie].pci * rendementGlobal(actuelDefaut);
+const coutsDefaut: CoutSysteme[] = systemes
+  .map((s) => ({ s, cout: ((fournieDefaut * (s.I0 / actuelDefaut.I0)) / rendementGlobal(s) / energies[s.energie].pci) * energies[s.energie].prix }))
+  .sort((a, b) => a.cout - b.cout);
+const coutActuelDefaut = coutsDefaut.find((c) => c.s.id === actuelDefaut.id)!.cout;
+const pac = sys('pac-air-eau');
+
+const faqs: Faq[] = [
+  {
+    q: 'Quel est le chauffage central le moins cher ?',
+    a: `Aux prix moyens actuels, en ne comptant que l’énergie consommée, ${centraux[0].nom} et ${centraux[1].nom} produisent la chaleur la moins chère pour toute la maison, autour de ${fmt(centimesUtiles(centraux[0]))} et ${fmt(centimesUtiles(centraux[1]))} centimes le kWh. Le coût total dépend aussi du prix de l’installation, de l’entretien, des abonnements et des aides.`,
+  },
+  {
+    q: 'Combien économise-t-on en remplaçant une chaudière fioul ?',
+    a: `Pour une maison de 100 m² construite entre 1975 et 1988 dans le Nord, la facture d’énergie de chauffage passerait d’environ ${euros(coutDefaut(sys('fioul')))} par an au fioul à environ ${euros(coutDefaut(sys('pac-air-eau')))} avec une pompe à chaleur air/eau, ou ${euros(coutDefaut(sys('chaudiere-granules')))} avec une chaudière à granulés, aux prix moyens actuels. Faites le calcul avec votre consommation réelle ci-dessus : c’est plus fiable.`,
+  },
+  {
+    q: 'Les abonnements et l’entretien sont-ils compris ?',
+    a: 'Non. Le comparateur compte uniquement l’énergie consommée pour le chauffage. Il faut ajouter l’abonnement (électricité, gaz), l’entretien annuel obligatoire et le ramonage selon l’appareil, ainsi que le coût de l’installation, en partie couvert par les aides.',
+  },
+  {
+    q: 'Un poêle ou une pompe à chaleur air/air peuvent-ils remplacer un chauffage central ?',
+    a: 'Rarement à eux seuls. Un poêle ou une pompe à chaleur air/air chauffent surtout la pièce où ils sont installés, et ne produisent pas l’eau chaude. Ils sont très efficaces pour la pièce de vie, en complément d’un autre chauffage. Pour remplacer une chaudière, on s’oriente plutôt vers une pompe à chaleur air/eau ou une chaudière à granulés.',
+  },
+  {
+    q: 'Pourquoi la pompe à chaleur consomme-t-elle moins d’électricité que des radiateurs ?',
+    a: 'Une pompe à chaleur puise la plus grande partie de la chaleur dans l’air extérieur : pour 1 kWh d’électricité consommé, elle restitue plusieurs kWh de chaleur sur la saison. C’est ce que mesure son coefficient de performance saisonnier, le SCOP. Il baisse par grand froid et avec des radiateurs qui demandent une eau très chaude.',
+  },
+];
+---
+
+<OutilLayout
+  slug="comparateur-cout-chauffage"
+  seoTitle="Comparateur du coût de chauffage par énergie"
+  description="Fioul, gaz, électricité, granulés, bois ou pompe à chaleur : comparez le coût annuel du chauffage dans le Nord et le Pas-de-Calais, aux prix 2026."
+  title="Comparateur du coût de chauffage : fioul, gaz, électricité, granulés, bois, pompe à chaleur"
+  lead="Partez de votre consommation actuelle, ou d’une estimation d’après votre maison, et comparez la facture annuelle d’énergie de chaque mode de chauffage, rendement de l’appareil compris."
+  faqs={faqs}
+  sources={[sourcesThermique.prix, sourcesThermique.prixElectricite, sourcesThermique.prixGaz, sourcesThermique.prixGranules, sourcesThermique.prixBois, sourcesThermique.tvaBois, sourcesThermique.conversions, sourcesThermique.methode3CL, sourcesThermique.cae]}
+  ogImage={hero}
+  ogImageAlt="Chaudière à granulés RTB installée par FK Énergie"
+  guidesFor="/chaudieres/"
+>
+  <section class="container-page py-12" aria-label="Comparateur">
+    <form
+      class="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_440px]"
+      data-outil="comparateur"
+     
+    >
+      <div class="flex flex-col gap-7 rounded-3xl border border-ink-200 bg-white p-6 sm:p-8">
+        <div>
+          <label for="actuel" class="mb-2 block font-bold">Votre chauffage actuel</label>
+          <select
+            id="actuel"
+            name="actuel"
+            class="h-13 w-full rounded-xl border border-ink-300 bg-white px-4 text-base font-semibold text-ink-900 focus:border-ember-600 focus:ring-4 focus:ring-ember-600/15 focus:outline-none"
+          >
+            {systemes.map((s) => <option value={s.id} selected={s.id === defaults.actuel}>{s.label}</option>)}
+          </select>
+        </div>
+
+        <Choices
+          name="mode"
+          legend="Votre besoin de chauffage"
+          value="conso"
+          options={[
+            { value: 'conso', label: 'Je connais ma consommation' },
+            { value: 'maison', label: 'Estimer d’après ma maison' },
+          ]}
+        />
+
+        <div class="flex flex-col gap-1.5" data-mode="conso">
+          <Field
+            name="quantite"
+            label="Consommation de chauffage, par an"
+            value={sys(defaults.actuel).defaut}
+            unit={unites[energies[sys(defaults.actuel).energie].unite]}
+            min={0}
+            step="any"
+            hint="Sur vos factures. Si votre chaudière produit aussi l’eau chaude, ou pour l’électricité et le gaz utilisés en cuisine, retirez cette part si vous la connaissez."
+          />
+        </div>
+
+        <div class="flex flex-col gap-7" data-mode="maison" hidden>
+          <div class="grid gap-5 sm:grid-cols-2">
+            <Field name="surface" label="Surface chauffée" value={defaults.surface} unit="m²" min={5} max={600} />
+            <Field name="hauteur" label="Hauteur sous plafond" value={defaults.hauteur} unit="m" min={2} max={6} step={0.05} />
+          </div>
+          <Choices name="isolation" legend="Isolation de la maison" value={defaults.isolation} variant="list" options={isolations} />
+          <Choices name="maison" legend="Votre maison" value="isolee" options={maisons} />
+        </div>
+
+        <details class="group rounded-2xl border border-ink-200 bg-ink-50">
+          <summary class="flex min-h-13 cursor-pointer list-none items-center justify-between gap-3 px-4 font-bold [&::-webkit-details-marker]:hidden">
+            Modifier les prix de l’énergie
+            <Icon name="chevron" class="size-5 transition group-open:rotate-180" />
+          </summary>
+          <div class="grid gap-4 border-t border-ink-200 p-4 sm:grid-cols-2">
+            {
+              prixEnergies.map(([id, e]) => (
+                <Field name={`prix-${id}`} label={`${e.label} (€ par ${e.unite})`} value={e.prix} unit={`€ / ${e.unite}`} min={0} step="any" hint={e.prixDate} />
+              ))
+            }
+          </div>
+        </details>
+      </div>
+
+      <div class="flex flex-col gap-5 rounded-3xl bg-ink-900 p-7 text-ink-100 lg:sticky lg:top-28">
+        <div>
+          <p class="font-semibold text-ember-300">Votre chauffage aujourd’hui</p>
+          <p class="mt-1 font-display text-6xl font-semibold text-white" aria-live="polite">
+            <span data-out="actuel-cout">{euros(coutActuelDefaut)}</span>&nbsp;<span class="text-3xl">/ an</span>
+          </p>
+          <p class="mt-2 text-ink-300" data-out="actuel-detail">
+            {actuelDefaut.label}, soit environ {euros(coutActuelDefaut / 12)} par mois en moyenne.
+          </p>
+        </div>
+        <div class="rounded-2xl bg-ink-800 p-5 empty:hidden" data-out="economie" aria-live="polite"></div>
+        <p class="rounded-2xl border border-ember-300/40 bg-ember-900/30 p-4 text-sm text-ink-200" data-out="prudence" hidden>
+          <strong class="text-white">Estimation haute.</strong> Calculée d’après la maison avec la méthode du DPE, qui est prudente : en réalité, les
+          maisons anciennes consomment souvent bien moins (Conseil d’analyse économique). Avec vos factures, le résultat sera plus juste.
+        </p>
+        <a href="/contact/" class="btn-primary w-full" data-out="cta">
+          Étudier mon projet gratuitement <Icon name="arrow" class="size-4" />
+        </a>
+        <p class="text-sm text-ink-400">
+          Énergie seule, hors abonnement, entretien et installation. Prix moyens TTC : électricité et gaz à l’automne 2026, fioul en août 2026,
+          granulés et bois au 2e trimestre 2026.
+        </p>
+      </div>
+    </form>
+  </section>
+
+  <section class="container-page pb-16" aria-labelledby="graphiques-title">
+    <h2 id="graphiques-title" class="text-3xl sm:text-4xl">Votre résultat en images</h2>
+    <div class="mt-8 grid items-start gap-6 lg:grid-cols-2">
+      <Graphique
+        id="couts"
+        titre="La facture de chaque chauffage, chez vous"
+        lead={`Pour chauffer votre maison autant qu’aujourd’hui : ${fmt(fournieDefaut, 0)} kWh de chaleur par an.`}
+        html={coutsChauffage(coutsDefaut, actuelDefaut.id)}
+      >
+        <ul class="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-ink-600">
+          <li class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-ink-700" aria-hidden="true"></span>Votre chauffage</li>
+          <li class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-ember-500" aria-hidden="true"></span>Installé par FK Énergie</li>
+          <li class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-ink-300" aria-hidden="true"></span>Autres</li>
+        </ul>
+        <p class="mt-3 text-sm text-ink-600">* Chauffe surtout la pièce de vie : pour toute la maison, en complément d’un autre chauffage.</p>
+      </Graphique>
+
+      <Graphique
+        titre="Le prix de la chaleur"
+        lead="Ce que coûte la même quantité de chaleur (1 kWh) avec chaque chauffage, pertes de l’appareil comprises. Plus la barre est courte, moins c’est cher."
+        html={prixChaleur(systemes)}
+      >
+        <p class="mt-5 text-ink-700">
+          La pompe à chaleur paie l’électricité au même prix que des radiateurs, mais elle donne environ {fmt(pac.rendement, 1)} kWh de chaleur pour
+          1 kWh d’électricité : le reste, elle le prend dans l’air extérieur.
+        </p>
+        <Fragment slot="tableau">
+          <p class="mb-3 text-sm text-ink-600">En centimes d’euro TTC par kWh, aux prix moyens par défaut. * Chauffe surtout la pièce de vie.</p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="text-ink-900">
+                <tr>
+                  <th scope="col" class="px-2 py-2">Chauffage</th>
+                  <th scope="col" class="px-2 py-2">Énergie achetée</th>
+                  <th scope="col" class="px-2 py-2">Rendement</th>
+                  <th scope="col" class="px-2 py-2">Chaleur</th>
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  parPrix.map((s) => (
+                    <tr class="border-t border-ink-200">
+                      <th scope="row" class="px-2 py-2 font-semibold">{s.label}{s.portee === 'piece' && ' *'}</th>
+                      <td class="px-2 py-2 tabular-nums">{fmt(centimesAchetes(s))}</td>
+                      <td class="px-2 py-2 tabular-nums">{rendementTexte(s)}</td>
+                      <td class="px-2 py-2 font-semibold tabular-nums">{fmt(centimesUtiles(s))}</td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </Fragment>
+      </Graphique>
+    </div>
+
+    <div class="mt-6 rounded-3xl bg-ember-50 p-6 sm:p-8">
+      <h3 class="text-2xl">À retenir</h3>
+      <ul class="mt-4 grid gap-4 text-ink-800 md:grid-cols-3">
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>L’énergie ne fait pas tout.</strong> Il faut ajouter l’installation (moins les <a href="/aides-financieres/" class="font-semibold text-ember-700 underline">aides</a>), l’entretien et les abonnements.</span>
+        </li>
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Partez de vos factures.</strong> Avec votre consommation réelle, le résultat est bien plus fiable qu’avec une estimation.</span>
+        </li>
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Poêle et pompe à chaleur air/air chauffent surtout une pièce.</strong> Seuls, ils ne remplacent pas une chaudière.</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="container-page pb-16">
+    <div class="prose-fk max-w-3xl">
+      <h2>Comment le comparateur calcule, pour les curieux</h2>
+      <p>
+        Pour comparer des litres de fioul, des stères de bois et des kWh d’électricité, on ramène tout à la même chose : la chaleur réellement fournie à
+        la maison. On part du prix de l’énergie achetée, on regarde combien de chaleur elle contient, puis on retire ce que perdent l’appareil et
+        l’installation (radiateurs, tuyaux, réglages).
+      </p>
+      <p>
+        Toutes ces pertes viennent d’un seul référentiel : la méthode officielle du DPE (rendement annuel d’une chaudière de 20 kW, poêles Flamme
+        Verte récents, performance par défaut des pompes à chaleur). Le rendement d’une pompe à chaleur dépasse 100 % : elle donne plus de chaleur
+        qu’elle ne consomme d’électricité, en puisant le reste dans l’air extérieur.
+      </p>
+      <ul>
+        <li>
+          <strong>Si vous connaissez votre consommation</strong>, nous en déduisons la chaleur dont votre maison a besoin, avec le rendement de votre
+          chauffage actuel. C’est la méthode la plus fiable.
+        </li>
+        <li>
+          <strong>Sinon</strong>, nous l’estimons avec la méthode du DPE : volume chauffé, isolation, hiver type de la région, chaleur gratuite du
+          soleil et des occupants, baisses de température la nuit. Pour une maison ancienne peu isolée, c’est un maximum.
+        </li>
+      </ul>
+      <p>
+        L’économie sur 10 ans est une simple multiplication, à prix constants : les prix de l’énergie, eux, changeront. Pour sortir du fioul, lisez
+        aussi notre guide <a href="/conseils/remplacer-chaudiere-fioul/">remplacer sa chaudière fioul</a>.
+      </p>
+    </div>
+  </section>
+</OutilLayout>
+
+<script>
+  import { climat, energies, systemes, isolationDe, type EnergieId } from '../../data/thermique';
+  import { consommationMaison, kwhEquivalents, fmt, euros } from '../../lib/thermique';
+  import { coutsChauffage } from '../../lib/graphiques-outils';
+
+  const graph = document.querySelector<HTMLElement>('[data-graph="couts"]')!;
+  const lead = document.querySelector<HTMLElement>('[data-graph-lead="couts"]')!;
+  const form = document.querySelector<HTMLFormElement>('[data-outil="comparateur"]');
+  if (form) {
+    const out = (key: string) => form.querySelector<HTMLElement>(`[data-out="${key}"]`)!;
+    const select = form.querySelector<HTMLSelectElement>('#actuel')!;
+    const quantite = form.querySelector<HTMLInputElement>('#quantite')!;
+    const uniteQuantite = quantite.nextElementSibling!;
+    const unites: Record<string, string> = { litre: 'litres', kWh: 'kWh', tonne: 'tonnes', stère: 'stères' };
+
+    const projets: Record<string, string> = { 'pac-air-eau': 'pac', 'pac-air-air': 'pac', 'chaudiere-granules': 'chaudiere', 'poele-granules': 'granules', 'poele-bois': 'bois' };
+    const actuelsContact: Record<string, string> = {
+      fioul: 'Fioul',
+      gaz: 'Gaz',
+      electrique: 'Électrique',
+      'poele-bois': 'Bois',
+      'poele-granules': 'Granulés',
+      'chaudiere-granules': 'Granulés',
+    };
+
+    /** Nouveau chauffage actuel : unité et exemple de consommation adaptés. */
+    select.addEventListener('change', () => {
+      const actuel = systemes.find((s) => s.id === select.value)!;
+      quantite.value = String(actuel.defaut);
+      uniteQuantite.textContent = unites[energies[actuel.energie].unite];
+      quantite.setAttribute('aria-label', `Consommation de chauffage par an, en ${unites[energies[actuel.energie].unite]}`);
+    });
+
+    const vider = (message: string) => {
+      out('actuel-cout').textContent = '—';
+      out('actuel-detail').textContent = message;
+      out('economie').replaceChildren();
+      lead.textContent = message;
+      graph.replaceChildren();
+      out('cta').setAttribute('href', '/contact/');
+    };
+
+    const update = () => {
+      const d = new FormData(form);
+      const mode = String(d.get('mode'));
+      form.querySelectorAll<HTMLElement>('[data-mode]').forEach((el) => (el.hidden = el.dataset.mode !== mode));
+      out('prudence').hidden = mode !== 'maison';
+      const prix = (id: EnergieId) => {
+        const input = form.querySelector<HTMLInputElement>(`[name="prix-${id}"]`)!;
+        return input.value !== '' && input.checkValidity() ? Number(input.value) : energies[id].prix;
+      };
+      const actuel = systemes.find((s) => s.id === select.value)!;
+
+      /** Énergie à acheter (kWh PCI) pour chaque système. */
+      let kwhDe: (s: (typeof systemes)[number]) => number;
+      if (mode === 'conso') {
+        if (!quantite.checkValidity() || !(Number(quantite.value) > 0)) return vider('Indiquez votre consommation annuelle.');
+        const achete = Number(quantite.value) * energies[actuel.energie].pci;
+        const fournie = achete * actuel.rendement * actuel.installation;
+        kwhDe = (s) => kwhEquivalents(achete, actuel, s);
+        lead.textContent = `Pour chauffer votre maison autant qu’aujourd’hui : ${fmt(fournie, 0)} kWh de chaleur par an.`;
+      } else {
+        const surface = Number(d.get('surface'));
+        const hauteur = Number(d.get('hauteur'));
+        const valid = [...form.querySelectorAll<HTMLInputElement>('[data-mode="maison"] input')].every((i) => i.checkValidity());
+        if (!valid || !(surface > 0 && hauteur > 0)) return vider('Indiquez une surface (5 à 600 m²) et une hauteur sous plafond (2 à 6 m).');
+        const isolation = isolationDe(d.get('isolation'), d.get('maison'));
+        kwhDe = (s) => consommationMaison(surface, hauteur, isolation, s, climat.dh19).kwh;
+        lead.textContent = `Besoin de chauffage estimé de votre maison : ${fmt(consommationMaison(surface, hauteur, isolation, actuel, climat.dh19).besoin, 0)} kWh de chaleur par an.`;
+      }
+
+      const couts = systemes.map((s) => ({ s, cout: (kwhDe(s) / energies[s.energie].pci) * prix(s.energie) })).sort((a, b) => a.cout - b.cout);
+      graph.innerHTML = coutsChauffage(couts, actuel.id);
+
+      // On ne compare qu'à des solutions qui peuvent remplacer le chauffage actuel : un chauffage central se remplace
+      // par un autre chauffage central (pompe à chaleur air/eau, chaudière à granulés).
+      const reference = couts.find((c) => c.s.id === actuel.id)!;
+      const candidats = couts.filter((c) => c.s.fk && c.s.id !== actuel.id && (actuel.portee === 'piece' || c.s.portee === 'central'));
+      const meilleur = candidats[0];
+      const gain = meilleur ? reference.cout - meilleur.cout : 0;
+      out('actuel-cout').textContent = euros(reference.cout);
+      out('actuel-detail').textContent = `${actuel.label}, soit environ ${euros(reference.cout / 12)} par mois en moyenne.`;
+      if (meilleur && gain > 0) {
+        const bloc = document.createElement('div');
+        bloc.innerHTML = `<p class="text-sm text-ink-300"></p><p class="mt-1 font-display text-3xl font-semibold text-white"></p><p class="mt-2 font-semibold text-ember-300"></p><p class="mt-1 text-sm text-ink-300"></p>`;
+        const [titre, cout, eco, dix] = bloc.querySelectorAll('p');
+        titre.textContent = `Avec ${meilleur.s.nom.replace(/^(la|le|les) /, (m) => ({ 'la ': 'une ', 'le ': 'un ', 'les ': 'des ' })[m]!)}`;
+        cout.textContent = `${euros(meilleur.cout)} / an`;
+        eco.textContent = `${euros(gain)} d’économie par an`;
+        dix.textContent = `Soit environ ${euros(gain * 10)} en 10 ans, à prix constants, hors installation.`;
+        out('economie').replaceChildren(...bloc.children);
+      } else {
+        const p = document.createElement('p');
+        p.className = 'font-semibold text-white';
+        p.textContent = 'Parmi les solutions qui peuvent le remplacer, votre chauffage est déjà le moins cher à l’usage.';
+        out('economie').replaceChildren(p);
+      }
+      const params: Record<string, string> = {
+        projet: meilleur ? (projets[meilleur.s.id] ?? '') : '',
+        note: `Comparateur de coût : chauffage actuel ${actuel.label.toLowerCase()}, coût actuel ${euros(reference.cout)}/an${meilleur ? `, ${meilleur.s.label.toLowerCase()} ${euros(meilleur.cout)}/an` : ''}.`,
+      };
+      if (actuelsContact[actuel.id]) params.actuel = actuelsContact[actuel.id];
+      if (mode === 'maison') params.surface = String(d.get('surface'));
+      out('cta').setAttribute('href', `/contact/?${new URLSearchParams(params)}`);
+    };
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    update();
+  }
+</script>

@@ -19,7 +19,8 @@ export default defineConfig({
 
   integrations: [
     sitemap({
-      filter: (page) => !page.includes('/contact/merci/'),
+      // Pages non indexées : confirmation de contact, simulateur plein écran (sa page de présentation l'est)
+      filter: (page) => !page.includes('/contact/merci/') && !page.includes('/outils/plan-maison/simulateur/'),
       i18n: { defaultLocale: 'fr', locales: { fr: 'fr-FR' } },
     }),
   ],

@@ -1,0 +1,41 @@
+---
+import Icon from '../Icon.astro';
+
+/**
+ * Carte d'un graphique d'outil : titre, phrase qui dit quoi regarder, graphique (HTML rendu par `lib/graphiques.ts`),
+ * puis le slot par défaut (à retenir) et le slot `tableau`, replié, pour les chiffres détaillés.
+ * `id` : le script de la page remplace le contenu de `[data-graph="<id>"]` et de `[data-graph-lead="<id>"]`.
+ */
+interface Props {
+  titre: string;
+  lead?: string;
+  html: string;
+  id?: string;
+  class?: string;
+  hidden?: boolean;
+}
+const { titre, lead, html, id, class: className, hidden } = Astro.props;
+---
+
+<figure class:list={['card flex flex-col p-6 sm:p-7', className]} hidden={hidden}>
+  <figcaption>
+    <h3 class="text-xl sm:text-2xl">{titre}</h3>
+    {lead && <p class="mt-1.5 text-ink-600" data-graph-lead={id}>{lead}</p>}
+  </figcaption>
+  <slot name="avant" />
+  <div class="mt-6" data-graph={id} set:html={html} />
+  <slot />
+  {
+    Astro.slots.has('tableau') && (
+      <details class="group mt-6 rounded-2xl border border-ink-200 bg-ink-50">
+        <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-bold [&::-webkit-details-marker]:hidden">
+          Voir tous les chiffres
+          <Icon name="chevron" class="size-4 transition group-open:rotate-180" />
+        </summary>
+        <div class="border-t border-ink-200 p-3">
+          <slot name="tableau" />
+        </div>
+      </details>
+    )
+  }
+</figure>

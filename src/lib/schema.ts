@@ -205,6 +205,23 @@ export const articleSchema = (opts: {
   mainEntityOfPage: { '@id': `${opts.url}#webpage` },
 });
 
+/** Outil de calcul en ligne (`/outils/`). */
+export const webApplicationSchema = (opts: { url: string; name: string; description: string }) => ({
+  '@type': 'WebApplication',
+  '@id': `${opts.url}#app`,
+  name: opts.name,
+  description: opts.description,
+  url: opts.url,
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Tous',
+  browserRequirements: 'Requiert JavaScript',
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+  inLanguage: 'fr-FR',
+  publisher: { '@id': organizationId },
+  mainEntityOfPage: { '@id': `${opts.url}#webpage` },
+});
+
 /** Photo d'une pose, pour Google Images (date, lieu, auteur). */
 export const imageObjectSchema = (opts: { url: string; caption: string; date: string; place?: string }) => ({
   '@type': 'ImageObject',

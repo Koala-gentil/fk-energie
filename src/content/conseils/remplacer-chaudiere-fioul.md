@@ -104,6 +104,8 @@ Au-delà du tableau, quatre questions guident le choix :
 3. **L’isolation** : France Rénov’ rappelle qu’installer un nouveau chauffage dans une maison mal isolée ne suffit pas à gagner en confort, et qu’avec un DPE classé E, F ou G, une rénovation globale est sans doute la meilleure solution.
 4. **Le budget** : comparez l’investissement de départ, le coût du combustible ou de l’électricité, l’entretien et les aides auxquelles vous avez droit, plutôt que le seul prix d’achat.
 
+Pour une première idée, notre [comparateur du coût de chauffage](/outils/comparateur-cout-chauffage/) part de votre consommation de fioul, et notre outil [pompe à chaleur et radiateurs](/outils/dimensionnement-pompe-a-chaleur/) estime si vos radiateurs actuels conviennent.
+
 ## Les aides possibles en 2026
 
 Les montants évoluent souvent : faites une simulation sur [france-renov.gouv.fr](https://france-renov.gouv.fr/aides/simulation) ou rapprochez-vous d’un conseiller France Rénov’. Voici les principaux dispositifs.

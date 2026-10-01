@@ -1,0 +1,62 @@
+---
+import type { ImageMetadata } from 'astro';
+import BaseLayout from './BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Faq from '../components/Faq.astro';
+import Sources from '../components/Sources.astro';
+import RelatedTools from '../components/RelatedTools.astro';
+import RelatedGuides from '../components/RelatedGuides.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { getOutil, outilUrl } from '../data/outils';
+import { site } from '../data/site';
+import { faqSchema, webApplicationSchema, type Faq as FaqItem } from '../lib/schema';
+
+/**
+ * Gabarit des pages `/outils/<slug>/` : en-tête, puis le calculateur et ses explications (slot),
+ * puis FAQ, sources, autres outils et guides liés.
+ */
+interface Props {
+  slug: string;
+  /** Balise <title>, sans le nom de l'entreprise. */
+  seoTitle: string;
+  description: string;
+  title: string;
+  lead: string;
+  faqs: FaqItem[];
+  sources: { label: string; url: string }[];
+  ogImage?: ImageMetadata;
+  ogImageAlt?: string;
+  /** Page produit dont on affiche les guides liés. */
+  guidesFor?: string;
+}
+
+const { slug, seoTitle, description, title, lead, faqs, sources, ogImage, ogImageAlt, guidesFor } = Astro.props;
+const outil = getOutil(slug);
+const path = outilUrl(outil);
+const crumbs = [
+  { label: 'Outils', href: '/outils/' },
+  { label: outil.name, href: path },
+];
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={description}
+  ogImage={ogImage}
+  ogImageAlt={ogImageAlt}
+  breadcrumbs={crumbs}
+  jsonLd={[webApplicationSchema({ url: new URL(path, site.url).toString(), name: outil.name, description }), faqSchema(faqs)]}
+>
+  <PageHero eyebrow="outil gratuit" title={title} lead={lead} crumbs={crumbs} cta={false} />
+
+  <slot />
+
+  <Faq faqs={faqs} title="Vos questions" />
+  <Sources
+    sources={sources}
+    note="Ces calculs donnent un ordre de grandeur à partir d’hypothèses standard. Ils ne remplacent pas l’étude thermique réalisée avant une installation, que nous faisons gratuitement."
+  />
+  <RelatedTools exclude={slug} title="Nos autres outils" />
+  {guidesFor && <RelatedGuides path={guidesFor} />}
+  <CtaBand title="Passez du calcul au projet" text="Nous vérifions ces chiffres chez vous, gratuitement, avant de vous proposer un appareil." />
+</BaseLayout>

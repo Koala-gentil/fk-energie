@@ -6,6 +6,7 @@ import FeatureCard from '../components/FeatureCard.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
 import RelatedGuides from '../components/RelatedGuides.astro';
+import RelatedTools from '../components/RelatedTools.astro';
 import ServiceArea from '../components/ServiceArea.astro';
 import Icon from '../components/Icon.astro';
 import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
@@ -110,6 +111,7 @@ const faqs: FaqItem[] = [
     </div>
   </section>
 
+  <RelatedTools path="/pompes-a-chaleur/" />
   <RelatedGuides path="/pompes-a-chaleur/" />
   <Faq faqs={faqs} title="Vos questions sur les pompes à chaleur" />
   <ServiceArea feminine what="Pompes à chaleur" />

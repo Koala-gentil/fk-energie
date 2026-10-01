@@ -1,0 +1,104 @@
+---
+import { classerMurs, piecesDuNiveau, ouverturesDuNiveau, emprise, nomNiveau, lireCle, type Plan, type TypePiece } from '../lib/plan/geometrie';
+
+/**
+ * Plan dessiné au build (SVG statique) : pièces, murs, ouvertures et poêle, niveaux côte à côte.
+ * Sert aux vignettes des modèles du simulateur et à l'aperçu de la page de présentation.
+ */
+interface Props {
+  plan: Plan;
+  /** Texte accessible du dessin. */
+  label: string;
+  /** Écrire le nom des pièces (et du niveau quand il y en a plusieurs). */
+  noms?: boolean;
+  /** Seconde ligne sous le nom de chaque pièce (ex. puissance), par identifiant de pièce. */
+  valeurs?: Record<string, string>;
+  class?: string;
+}
+
+const { plan, label, noms = false, valeurs = {}, class: classe } = Astro.props;
+
+const e = emprise(plan) ?? { x: 0, y: 0, w: 10, h: 10 };
+const ecart = 4;
+const marge = 1.5;
+const titre = noms && plan.niveaux > 1 ? 2.2 : 0;
+const largeur = plan.niveaux * e.w + (plan.niveaux - 1) * ecart + 2 * marge;
+const viewBox = `${e.x - marge} ${e.y - marge - titre} ${largeur} ${e.h + 2 * marge + titre}`;
+const decalage = (n: number) => n * (e.w + ecart);
+
+const couleurs: Record<TypePiece, string> = {
+  sejour: 'var(--color-ember-100)',
+  cuisine: 'var(--color-ember-50)',
+  chambre: 'var(--color-moss-100)',
+  sdb: '#e3edf3',
+  circulation: 'var(--color-ink-100)',
+  bureau: '#efe7f5',
+  'non-chauffe': 'var(--color-ink-200)',
+};
+const traits = {
+  exterieur: { couleur: 'var(--color-ink-900)', largeur: 0.4, tirets: undefined },
+  mitoyen: { couleur: 'var(--color-ink-500)', largeur: 0.4, tirets: '0.3 0.15' },
+  'non-chauffe': { couleur: 'var(--color-ink-700)', largeur: 0.22, tirets: undefined },
+  interieur: { couleur: 'var(--color-ink-600)', largeur: 0.12, tirets: undefined },
+} as const;
+const niveaux = Array.from({ length: plan.niveaux }, (_, n) => n);
+const niveauDe = new Map(plan.pieces.map((p) => [p.id, p.niveau]));
+---
+
+<svg viewBox={viewBox} class={classe} role="img" aria-label={label} font-family="inherit">
+  {
+    niveaux.map((n) => (
+      <g transform={`translate(${decalage(n)} 0)`}>
+        {piecesDuNiveau(plan, n).map((p) => (
+          <rect x={p.x} y={p.y} width={p.w} height={p.h} fill={couleurs[p.type]} />
+        ))}
+        {[...classerMurs(plan, n)].map(([k, mur]) => {
+          const { sens, x, y } = lireCle(k);
+          const t = traits[mur.classe];
+          return (
+            <line x1={x} y1={y} x2={sens === 'h' ? x + 1 : x} y2={sens === 'v' ? y + 1 : y} stroke={t.couleur} stroke-width={t.largeur} stroke-linecap="square" stroke-dasharray={t.tirets} />
+          );
+        })}
+        {ouverturesDuNiveau(plan, n).map((o) => {
+          const x2 = o.sens === 'h' ? o.x + o.longueur : o.x;
+          const y2 = o.sens === 'v' ? o.y + o.longueur : o.y;
+          return o.type === 'porte' ? (
+            <line x1={o.x} y1={o.y} x2={x2} y2={y2} stroke="var(--color-white)" stroke-width="0.44" />
+          ) : (
+            <line x1={o.x} y1={o.y} x2={x2} y2={y2} stroke="#bcd9ea" stroke-width="0.3" />
+          );
+        })}
+        {plan.emetteurs
+          .filter((e) => niveauDe.get(e.piece) === n)
+          .map((e) =>
+            e.genre === 'poele' ? (
+              <rect x={e.x - 0.7} y={e.y - 0.7} width="1.4" height="1.4" rx="0.3" fill="var(--color-ink-900)" />
+            ) : (
+              <rect x={e.x - 0.8} y={e.y - 0.25} width="1.6" height="0.5" rx="0.1" fill="var(--color-white)" stroke="var(--color-ink-700)" stroke-width="0.08" />
+            ),
+          )}
+        {noms &&
+          piecesDuNiveau(plan, n).map((p) => {
+            const taille = Math.min(0.9, (p.w * 0.9) / Math.max(1, p.nom.length * 0.58));
+            return (
+              <>
+                <text x={p.x + p.w / 2} y={p.y + p.h / 2 + (valeurs[p.id] ? -0.2 : 0.3)} text-anchor="middle" font-size={taille} font-weight="700" fill="var(--color-ink-900)">
+                  {p.nom}
+                </text>
+                {valeurs[p.id] && (
+                  <text x={p.x + p.w / 2} y={p.y + p.h / 2 + 0.95} text-anchor="middle" font-size="0.72" font-weight="700" fill="var(--color-ember-800)">
+                    {valeurs[p.id]}
+                  </text>
+                )}
+              </>
+            );
+          })}
+        {titre > 0 && (
+          <text x={e.x} y={e.y - 1} font-size="0.95" font-weight="700" fill="var(--color-ink-700)">
+            {nomNiveau(n, plan.niveaux)}
+          </text>
+        )}
+      </g>
+    ))
+  }
+</svg>

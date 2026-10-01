@@ -38,9 +38,12 @@
   --color-ember-50: #fff5ec;
 
   --color-moss-700: #22603f;
+  --color-moss-500: #3d8a5f;
+  --color-moss-400: #5ba37a;
   --color-moss-100: #e2efe6;
 
   --color-danger-700: #a8321a;
+  --color-danger-500: #d2563a;
   --color-danger-300: #e3a58b;
   --color-danger-50: #fdf0ea;
 
@@ -146,5 +149,15 @@
   }
   .prose-fk th {
     @apply bg-ink-100 font-semibold text-ink-900;
+  }
+  /* Graphique inséré dans un article : pas de puces ni de marges de texte courant. */
+  .prose-fk [data-graphique] ul {
+    @apply mt-0 space-y-0;
+  }
+  .prose-fk [data-graphique] ul > li {
+    @apply pl-0;
+  }
+  .prose-fk [data-graphique] ul > li::before {
+    content: none;
   }
 }

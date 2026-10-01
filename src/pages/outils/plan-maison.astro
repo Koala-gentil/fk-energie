@@ -1,0 +1,195 @@
+---
+import OutilLayout from '../../layouts/OutilLayout.astro';
+import Icon from '../../components/Icon.astro';
+import PlanMiniature from '../../components/PlanMiniature.astro';
+import { sourcesPlan, tJanvier, parametres, physiqueEchanges, apportsInternesParM2, regulation } from '../../data/plan-thermique';
+import { climat } from '../../data/thermique';
+import { modeles } from '../../lib/plan/modeles';
+import { deperditions, type Enveloppe } from '../../lib/plan/deperditions';
+import { temperatures } from '../../lib/plan/temperatures';
+import type { Faq } from '../../lib/schema';
+import hero from '../../assets/images/realisations/poele-granules-palazzetti.jpg';
+
+/**
+ * Simulateur de chauffage : plan de la maison (un ou plusieurs niveaux), puissance nécessaire par pièce selon la
+ * méthode du DPE, et températures de chaque pièce avec un poêle. Logique dans `scripts/plan-editeur.ts`.
+ */
+
+const faqs: Faq[] = [
+  {
+    q: 'Un poêle peut-il chauffer toute la maison ?',
+    a: 'Cela dépend de sa puissance, de l’isolation et surtout de la disposition : un poêle chauffe d’abord sa pièce, puis les pièces ouvertes sur elle. Les chambres fermées ou éloignées restent plus fraîches. Le simulateur montre la température de chaque pièce, portes ouvertes ou fermées, et l’effet d’un poêle canalisable qui envoie de l’air chaud par des gaines.',
+  },
+  {
+    q: 'Un poêle à granulés peut-il chauffer l’étage ?',
+    a: 'En partie : l’air chaud monte par l’escalier et la chaleur traverse le plancher. Mais l’étage reste en général plus frais que la pièce du poêle, surtout si les portes des chambres sont fermées. Dessinez votre étage et votre escalier pour estimer l’écart, et envisagez des gaines ou un chauffage d’appoint dans les chambres.',
+  },
+  {
+    q: 'Faut-il un poêle de la puissance de toute la maison ?',
+    a: 'Non. La puissance totale du bilan est celle qu’il faudrait pour chauffer chaque pièce à 19 °C par grand froid. Un poêle installé dans le séjour ne répartit pas sa chaleur de façon égale : choisi sur cette puissance totale, il surchaufferait sa pièce. Le simulateur montre ce qu’il donne réellement pièce par pièce.',
+  },
+  {
+    q: 'Comment est calculée la puissance nécessaire dans chaque pièce ?',
+    a: `Avec les coefficients de la méthode officielle du DPE (méthode 3CL), appliqués pièce par pièce : on additionne les pertes par les murs extérieurs, les fenêtres, les portes, le plafond, le plancher, les principaux ponts thermiques et le renouvellement d’air, puis on calcule la puissance qui maintient ${climat.tInterieure} °C par la température extérieure de base retenue par cette méthode pour le Nord et le Pas-de-Calais (${String(climat.tBase).replace('.', ',').replace('-', '−')} °C).`,
+  },
+  {
+    q: 'Mon plan est-il envoyé quelque part ?',
+    a: 'Non. Votre plan reste enregistré dans le navigateur de cet appareil. Il ne nous parvient que si vous l’envoyez avec le bouton « Envoyer mon plan » : il est alors joint en image à votre demande d’étude, avec un résumé des calculs.',
+  },
+  {
+    q: 'Les températures affichées sont-elles exactes ?',
+    a: 'Ce sont des tendances, utiles pour comparer des situations : portes ouvertes ou fermées, poêle plus ou moins puissant, gaines vers les chambres. Le soleil, l’inertie des murs et les habitudes de chacun changent les températures réelles. Avant toute installation, nous faisons une étude chez vous.',
+  },
+];
+
+/** Exemple calculé au build avec le premier modèle : mêmes fonctions que le simulateur, aucun chiffre saisi à la main. */
+const modeleExemple = modeles[0];
+const planExemple = modeleExemple.plan();
+const e = modeleExemple.enveloppe;
+const envExemple: Enveloppe = {
+  hauteur: 2.5,
+  annee: e.annee,
+  murMatiere: e.murMatiere,
+  murEpaisseur: Number(e.murEpaisseur),
+  murIsolant: e.murIsolant,
+  murIsolantEpaisseur: Number(e.murIsolantEpaisseur ?? 8),
+  plafond: e.plafond,
+  plafondIsolant: e.plafondIsolant,
+  plafondIsolantEpaisseur: Number(e.plafondIsolantEpaisseur ?? 20),
+  plancher: e.plancher,
+  plancherIsolant: e.plancherIsolant,
+  plancherIsolantEpaisseur: 6,
+  vitrage: e.vitrage,
+  ventilation: e.ventilation,
+  plancherIntermediaire: 'bois',
+};
+const calculExemple = deperditions(planExemple, envExemple, parametres);
+const puissancePoeleExemple = 8;
+// Poêle à granulés de 8 kW réglé à 20 °C dans le séjour, comme dans le modèle
+const planAvecPoele = { ...planExemple, emetteurs: planExemple.emetteurs.map((e) => ({ ...e, puissance: puissancePoeleExemple })) };
+const simExemple = temperatures(planAvecPoele, calculExemple.pieces, 2.5, 'bois', { tExterieure: tJanvier, tBase: parametres.tBase, apportsInternesParM2: apportsInternesParM2(calculExemple.surfaceChauffee) }, physiqueEchanges, regulation);
+const puissancePoeleUtilisee = [...simExemple.emetteurs.values()].reduce((s, e) => s + e.puissance, 0);
+const nf = (x: number, d = 0) => new Intl.NumberFormat('fr-FR', { maximumFractionDigits: d }).format(x);
+const anneeExemple = e.annee.replace('-', ' à ');
+const puissancesExemple = Object.fromEntries(calculExemple.pieces.map((r) => [r.piece.id, `${nf(Math.round(r.puissance / 10) * 10)} W`]));
+const simulateur = '/outils/plan-maison/simulateur/';
+---
+
+<OutilLayout
+  slug="plan-maison"
+  seoTitle="Simulateur chauffage maison : plan, pièces et poêle"
+  description="Simulateur gratuit : dessinez votre maison, voyez la puissance de chauffage pièce par pièce et la température de chaque pièce avec un poêle, étage compris."
+  title="Simulateur de chauffage : jusqu’où chauffera votre poêle ?"
+  lead="Tracez vos pièces sur un ou plusieurs niveaux, décrivez murs et isolation, placez vos poêles et radiateurs : la puissance nécessaire et la température de chaque pièce s’affichent sur le plan."
+  faqs={faqs}
+  sources={sourcesPlan}
+  ogImage={hero}
+  ogImageAlt="Poêle à granulés Palazzetti installé par FK Énergie"
+  guidesFor="/poele-a-granules/"
+>
+  <section class="container-page py-10">
+    <div class="card grid grid-cols-1 items-center gap-8 overflow-hidden p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:p-10">
+      <div class="flex flex-col gap-6">
+        <h2 class="font-display text-3xl font-semibold sm:text-4xl">Dessinez votre maison, voyez où va la chaleur</h2>
+        <ol class="flex flex-col gap-3 text-lg">
+          <li class="flex gap-3"><span class="grid size-8 shrink-0 place-items-center rounded-full bg-ember-600 font-extrabold text-white">1</span><span><strong>Dessinez</strong> vos pièces, fenêtres et portes, ou partez d’un modèle</span></li>
+          <li class="flex gap-3"><span class="grid size-8 shrink-0 place-items-center rounded-full bg-ember-600 font-extrabold text-white">2</span><span><strong>Décrivez</strong> les murs, l’isolation, le vitrage et la ventilation</span></li>
+          <li class="flex gap-3"><span class="grid size-8 shrink-0 place-items-center rounded-full bg-ember-600 font-extrabold text-white">3</span><span><strong>Placez</strong> vos poêles et radiateurs, et lisez la température de chaque pièce</span></li>
+        </ol>
+        <div class="flex flex-wrap items-center gap-4">
+          <a href={simulateur} class="btn-primary">Ouvrir le simulateur <Icon name="arrow" class="size-4" /></a>
+          <span class="text-ink-600">Gratuit, sans inscription. Votre plan reste dans votre navigateur.</span>
+        </div>
+      </div>
+      <a href={simulateur} class="group block rounded-2xl bg-ink-50 p-3 ring-1 ring-ink-200 transition hover:ring-ember-400" aria-label="Ouvrir le simulateur avec ce plan d’exemple">
+        <PlanMiniature
+          plan={planExemple}
+          noms
+          valeurs={puissancesExemple}
+          label={`Plan d’exemple du simulateur : ${modeleExemple.label.toLowerCase()}, avec la puissance de chauffage nécessaire dans chaque pièce`}
+          class="w-full"
+        />
+        <span class="mt-2 block text-center text-sm text-ink-600 group-hover:text-ember-700">Plan d’exemple : puissance nécessaire par pièce, par {String(climat.tBase).replace('.', ',').replace('-', '−')} °C dehors</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="container-page grid grid-cols-1 gap-12 pb-12 lg:grid-cols-12">
+    <div class="prose-fk lg:col-span-8">
+      <h2 id="comment-utiliser">Comment utiliser le simulateur</h2>
+      <ol>
+        <li><strong>Plan</strong> : partez d’un modèle (plain-pied, maison à étage, maison de ville) ou dessinez vos pièces sur la grille, chaque case mesurant 50 cm de côté. Placez fenêtres et portes sur les murs, déclarez les murs mitoyens et, pour une maison à étage, ajoutez l’étage et l’escalier.</li>
+        <li><strong>Maison</strong> : époque de construction, matière des murs, isolants et leur épaisseur, vitrage, ventilation. Si vous ne savez pas, choisissez « Je ne sais pas » : le calcul reprend les valeurs par défaut de l’époque. Chaque pièce affiche la puissance qu’il lui faut, et le détail de ses pertes quand vous cliquez dessus.</li>
+        <li><strong>Chauffage</strong> : un ou plusieurs poêles, des radiateurs à eau (chaudière, pompe à chaleur) ou électriques, chacun avec sa puissance et son réglage. Le plan affiche la température de chaque pièce, pour la température dehors que vous choisissez.</li>
+        <li><strong>Résultat</strong> : le bilan pièce par pièce, et l’envoi de votre plan à FK Énergie pour une étude gratuite.</li>
+      </ol>
+      <h2>Ce que le calcul prend en compte</h2>
+      <p>
+        La puissance de chaque pièce reprend les valeurs de la méthode officielle du diagnostic de performance énergétique (DPE) : pertes par les murs, les
+        fenêtres, les portes, le plafond et le plancher, ponts thermiques et renouvellement d’air, pour garder {climat.tInterieure} °C quand il fait
+        {' '}{String(climat.tBase).replace('.', ',').replace('-', '−')} °C dehors dans le Nord et le Pas-de-Calais.
+      </p>
+      <p>
+        Les températures avec le poêle viennent d’un bilan pièce par pièce : la chaleur passe par les cloisons, les portes ouvertes, les planchers et
+        l’escalier, en tenant compte de l’air plus chaud qui s’accumule sous le plafond de la pièce du poêle. Le poêle à granulés module sa puissance pour tenir sa consigne ; pour un poêle à bois, le calcul suppose une allure de feu
+        réglée pour la même température moyenne. C’est une tendance par temps stable, qui ne tient pas compte du soleil ni de l’inertie des murs :
+        nous la vérifions chez vous avant de vous conseiller un appareil.
+      </p>
+
+      <h2>Exemple : une maison de plain-pied construite de {anneeExemple}</h2>
+      <p>
+        Le modèle « {modeleExemple.label.toLowerCase()} » du simulateur ({nf(calculExemple.surfaceChauffee)} m² chauffés, murs en parpaing isolés,
+        combles isolés) demande {nf(calculExemple.puissance / 1000, 1)} kW par grand froid. Avec un poêle de {puissancePoeleExemple} kW dans le séjour,
+        réglé à 20 °C, voici ce que donne un jour moyen de janvier ({tJanvier} °C dehors), portes intérieures comme sur le plan :
+      </p>
+      <table>
+        <thead>
+          <tr><th scope="col">Pièce</th><th scope="col">Surface</th><th scope="col">Puissance nécessaire</th><th scope="col">Température avec le poêle</th></tr>
+        </thead>
+        <tbody>
+          {
+            calculExemple.pieces.map((r) => (
+              <tr>
+                <th scope="row">{r.piece.nom}</th>
+                <td>{nf(r.surface, 1)} m²</td>
+                <td>{nf(Math.round(r.puissance / 10) * 10)} W</td>
+                <td>{nf(simExemple.temperatures.get(r.piece.id) ?? 0)} °C</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+      <p>
+        Le poêle tient le séjour en ne fournissant que {nf(puissancePoeleUtilisee / 1000, 1)} kW, mais les chambres restent nettement plus fraîches :
+        c’est typique d’un poêle installé dans la pièce de vie.
+      </p>
+
+      <h2>Pourquoi les chambres restent plus fraîches qu’autour du poêle</h2>
+      <p>
+        Un poêle chauffe surtout l’air de sa pièce. La chaleur gagne les pièces voisines par les portes ouvertes, beaucoup moins à travers les
+        cloisons, et une porte fermée coupe la plus grande partie de l’échange. À l’étage, l’air chaud monte par un escalier ouvert, mais pas par un
+        escalier fermé par une porte. Le simulateur permet de comparer ces situations sur votre propre plan.
+      </p>
+
+      <h2>Poêle et étage : les solutions</h2>
+      <ul>
+        <li>Un escalier ouvert près du poêle, et des portes laissées ouvertes en journée.</li>
+        <li>Un <a href="/poele-a-granules/">poêle à granulés canalisable</a>, qui envoie une partie de sa chaleur par des gaines vers une ou deux pièces proches.</li>
+        <li>Des radiateurs d’appoint réglés plus bas dans les chambres, que le poêle soulage.</li>
+        <li>Pour un chauffage central, une <a href="/outils/dimensionnement-pompe-a-chaleur/">pompe à chaleur air/eau sur vos radiateurs</a>.</li>
+      </ul>
+
+      <h2>Faut-il un poêle de la puissance de toute la maison ?</h2>
+      <p>
+        Non. La puissance totale du bilan est celle qu’il faudrait pour chauffer chaque pièce à {climat.tInterieure} °C par grand froid. Un poêle installé
+        dans le séjour ne répartit pas sa chaleur de façon égale : choisi sur cette puissance totale, il surchaufferait sa pièce. Pour choisir la
+        puissance, voyez notre <a href="/outils/calcul-puissance-poele/">calcul de puissance de poêle</a>.
+      </p>
+      <p>
+        Pour aller plus loin, comparez les <a href="/poele-a-granules/">poêles à granulés</a> et les <a href="/poele-a-bois/">poêles à bois</a>, et
+        lisez notre guide <a href="/conseils/poele-a-granules-ou-poele-a-bois/">poêle à granulés ou poêle à bois</a>.
+      </p>
+    </div>
+  </section>
+</OutilLayout>
+

@@ -6,6 +6,7 @@ import FeatureCard from '../components/FeatureCard.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
 import RelatedGuides from '../components/RelatedGuides.astro';
+import RelatedTools from '../components/RelatedTools.astro';
 import ServiceArea from '../components/ServiceArea.astro';
 import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
 import hero from '../assets/images/produits/insert-cheminee-showroom.jpg';
@@ -90,6 +91,7 @@ const faqs: FaqItem[] = [
     </div>
   </section>
 
+  <RelatedTools path="/inserts-cheminees/" />
   <RelatedGuides path="/inserts-cheminees/" />
   <Faq faqs={faqs} title="Vos questions sur les inserts" />
   <ServiceArea what="Inserts et foyers" />

@@ -19,7 +19,7 @@ faq:
 sources:
   - label: "ADEME : Installer et utiliser un poêle à granulés (fiche, mars 2023)"
     url: "https://librairie.ademe.fr/energies/6161-installer-et-utiliser-un-poele-a-granules-9791029721137.html"
-  - label: "ADEME : Comment bien se chauffer au bois ? (guide, 2024)"
+  - label: "ADEME : Comment bien se chauffer au bois ? (guide, juin 2026)"
     url: "https://librairie.ademe.fr/energies/7322-comment-bien-se-chauffer-au-bois--9791029726286.html"
   - label: "ADEME : Se chauffer au bois, les bons gestes pour moins consommer et moins polluer (décembre 2025)"
     url: "https://agirpourlatransition.ademe.fr/particuliers/amenager-maison/chauffer/chauffage-bois-moins-consommer-moins-polluer"
@@ -81,7 +81,7 @@ Les **sacs** conviennent aux [poêles à granulés](/poele-a-granules/). Le guid
 
 Le **vrac**, livré par camion souffleur, alimente surtout les [chaudières à granulés](/chaudieres/) équipées d’un silo. L’ADEME précise que les granulés en vrac destinés à une chaudière doivent être stockés dans un silo étanche à l’eau et à l’air. Le référentiel NF donne aussi quelques consignes pour le vrac :
 
-- commandez la quantité correspondant à vos besoins, pour éviter les mélanges et le stockage de longue durée ;
+- commandez la quantité correspondant à vos besoins, pour éviter les mélanges et le stockage de longue durée (notre [calcul de consommation de granulés](/outils/consommation-granules/) vous aide à l’estimer) ;
 - vérifiez que le silo est accessible, solide, propre et sans humidité ;
 - limitez à 25 m la distance entre le camion et le silo en cas de soufflage ;
 - nettoyez le silo au moins tous les deux ans et ne mélangez pas les granulés certifiés avec d’autres produits.

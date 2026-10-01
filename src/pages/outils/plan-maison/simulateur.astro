@@ -1,0 +1,695 @@
+---
+import AppLayout from '../../../layouts/AppLayout.astro';
+import Logo from '../../../components/Logo.astro';
+import PlanMiniature from '../../../components/PlanMiniature.astro';
+import { tJanvier } from '../../../data/plan-thermique';
+import { climat } from '../../../data/thermique';
+import { showrooms, site } from '../../../data/site';
+import { modeles } from '../../../lib/plan/modeles';
+import { gammesRadiateurs } from '../../../data/radiateurs';
+
+/**
+ * Simulateur de chauffage en plein écran : plan de la maison, puissance par pièce, températures avec poêles et radiateurs,
+ * envoi du plan pour une étude. La page de présentation (référencée) est `/outils/plan-maison/`.
+ * Logique dans `scripts/plan-editeur.ts`.
+ */
+
+/** Étapes du simulateur : chacune n'affiche que ses outils et son panneau. */
+const etapes = [
+  { value: 'plan', label: 'Plan', court: 'Plan' },
+  { value: 'maison', label: 'Maison', court: 'Maison' },
+  { value: 'chauffage', label: 'Chauffage', court: 'Chauffage' },
+  { value: 'resultat', label: 'Résultat', court: 'Résultat' },
+];
+
+/** Outils, avec les étapes où ils apparaissent et leur icône (tracé SVG 24 × 24). */
+const outils = [
+  { value: 'selection', label: 'Choisir', etapes: 'plan chauffage', d: 'M5 3l6.5 16 2.3-6.7L20.5 10z' },
+  { value: 'piece', label: 'Pièce', etapes: 'plan', d: 'M4 4h16v16H4zM4 9h3M4 14h3M9 4v3M14 4v3' },
+  { value: 'fenetre', label: 'Fenêtre', etapes: 'plan', d: 'M4 5h16v14H4zM12 5v14M4 12h16' },
+  { value: 'porte-fenetre', label: 'Porte-fenêtre', etapes: 'plan', d: 'M5 3h14v18H5zM12 3v18M9.5 12h.01M14.5 12h.01' },
+  { value: 'porte', label: 'Porte', etapes: 'plan', d: 'M6 21V4h12v17M3 21h18M14.5 12.5h.01' },
+  { value: 'escalier', label: 'Escalier', etapes: 'plan', d: 'M4 20h4v-4h4v-4h4V8h4V4' },
+  { value: 'mitoyen', label: 'Mur mitoyen', etapes: 'plan', d: 'M3 4h18v16H3zM3 10l6-6M3 16L15 4M7 20L21 6M13 20l8-8' },
+  { value: 'poele', label: 'Poêle', etapes: 'chauffage', d: 'M12 2v3M6 5h12v12H6zM7.5 17v4M16.5 17v4M12 8.5c1.5 1.4 2.2 2.5 2.2 3.5a2.2 2.2 0 01-4.4 0c0-1 .7-2.1 2.2-3.5z' },
+  { value: 'radiateur', label: 'Radiateur', etapes: 'chauffage', d: 'M4 7h16v10H4zM8 7v10M12 7v10M16 7v10M6 17v2M18 17v2' },
+  { value: 'chaudiere', label: 'Chaudière', etapes: 'chauffage', d: 'M5 2h14v14H5zM5 11h14M8.5 13.5h3M15.5 13.5h.01M12 4.5c1.4 1.7 2.1 2.8 2.1 3.6a2.1 2.1 0 01-4.2 0c0-.8.7-1.9 2.1-3.6zM8 16v5M12 16v5M16 16v5' },
+  { value: 'pac', label: 'Pompe à chaleur', etapes: 'chauffage', d: 'M2 5h20v13H2zM5 18v2M19 18v2M5 11.5a4 4 0 108 0a4 4 0 10-8 0M9 11.5V8.5M9 11.5l2.6 1.5M9 11.5l-2.6 1.5M16 9h3M16 12h3M16 15h3' },
+];
+const icones = {
+  annuler: 'M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 010 11H11',
+  retablir: 'M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 000 11H13',
+  fermer: 'M6 6l12 12M18 6L6 18',
+  fleche: 'M5 12h14M13 6l6 6-6 6',
+  plus: 'M12 5v14M5 12h14',
+  moins: 'M5 12h14',
+};
+
+const descriptions: Record<string, string> = {
+  'plain-pied': '7 pièces, garage non chauffé',
+  etage: 'Rez-de-chaussée, étage et escalier',
+  'maison-de-ville': 'Mitoyenne des deux côtés, à étage',
+};
+
+/** Températures de départ proposées pour dimensionner les radiateurs. */
+const departsDimensionnement = [
+  ['75', '75 °C (régime nominal d’un radiateur)'],
+  ['70', '70 °C (chaudière)'],
+  ['65', '65 °C'],
+  ['60', '60 °C'],
+  ['55', '55 °C (pompe à chaleur, moyenne température)'],
+  ['50', '50 °C'],
+  ['45', '45 °C (basse température)'],
+];
+
+const tBaseTexte = `${String(climat.tBase).replace('.', ',').replace('-', '−')} °C`;
+
+const champ =
+  'h-11 w-full rounded-xl border border-ink-300 bg-white px-3 font-semibold text-ink-900 focus:border-ember-600 focus:ring-4 focus:ring-ember-600/15 focus:outline-none';
+
+const matieres = [
+  ['parpaing', 'Parpaing (bloc béton)'],
+  ['brique-creuse', 'Brique creuse'],
+  ['brique-pleine', 'Brique pleine'],
+  ['pierre', 'Pierre'],
+  ['beton', 'Béton plein'],
+  ['beton-cellulaire', 'Béton cellulaire'],
+  ['ossature-bois', 'Ossature bois'],
+  ['inconnu', 'Je ne sais pas'],
+];
+const isolants = [
+  ['aucun', 'Aucun'],
+  ['laine-verre', 'Laine de verre'],
+  ['laine-roche', 'Laine de roche'],
+  ['polystyrene', 'Polystyrène expansé (blanc)'],
+  ['polystyrene-extrude', 'Polystyrène extrudé'],
+  ['polyurethane', 'Polyuréthane'],
+  ['fibre-bois', 'Fibre de bois'],
+  ['ouate', 'Ouate de cellulose'],
+  ['inconnu', 'Isolé, je ne sais pas avec quoi'],
+];
+const vitrages = [
+  ['simple', 'Simple vitrage'],
+  ['double-ancien', 'Double vitrage ancien (avant 2000)'],
+  ['double-recent', 'Double vitrage récent'],
+  ['triple', 'Triple vitrage'],
+];
+const plafonds = [
+  ['combles-perdus', 'Combles perdus'],
+  ['combles-amenages', 'Combles aménagés (sous rampants)'],
+  ['terrasse', 'Toit terrasse'],
+  ['etage-chauffe', 'Logement chauffé au-dessus (appartement)'],
+];
+const planchers = [
+  ['terre-plein', 'Sur terre-plein'],
+  ['vide-sanitaire', 'Sur vide sanitaire'],
+  ['cave', 'Sur cave ou sous-sol non chauffé'],
+  ['etage-chauffe', 'Logement chauffé en dessous (appartement)'],
+];
+const ventilations = [
+  ['fenetres', 'Aucune (aération par les fenêtres)'],
+  ['naturelle', 'Ventilation naturelle (grilles, conduits)'],
+  ['vmc-autoreglable', 'VMC simple flux autoréglable'],
+  ['vmc-hygro', 'VMC simple flux hygroréglable'],
+  ['vmc-double-flux', 'VMC double flux'],
+];
+const annees = [
+  ['avant-1948', 'Avant 1948'],
+  ['1948-1974', 'De 1948 à 1974'],
+  ['1975-1977', 'De 1975 à 1977'],
+  ['1978-1982', 'De 1978 à 1982'],
+  ['1983-1988', 'De 1983 à 1988'],
+  ['1989-2000', 'De 1989 à 2000'],
+  ['2001-2005', 'De 2001 à 2005'],
+  ['2006-2012', 'De 2006 à 2012'],
+  ['depuis-2013', 'Depuis 2013'],
+];
+const parois = [
+  { titre: 'Murs extérieurs', name: 'murMatiere', options: matieres, defaut: 'parpaing', epaisseur: 'murEpaisseur', epaisseurDefaut: 20, isolant: 'murIsolant', isolantDefaut: 'laine-verre', isolantEpaisseur: 'murIsolantEpaisseur', isolantEpaisseurDefaut: 8 },
+  { titre: 'Plafond', name: 'plafond', options: plafonds, defaut: 'combles-perdus', isolant: 'plafondIsolant', isolantDefaut: 'laine-verre', isolantEpaisseur: 'plafondIsolantEpaisseur', isolantEpaisseurDefaut: 20 },
+  { titre: 'Plancher bas', name: 'plancher', options: planchers, defaut: 'terre-plein', isolant: 'plancherIsolant', isolantDefaut: 'aucun', isolantEpaisseur: 'plancherIsolantEpaisseur', isolantEpaisseurDefaut: 6 },
+];
+const projets = [
+  ['granules', 'Poêle à granulés'],
+  ['bois', 'Poêle à bois'],
+  ['pac', 'Pompe à chaleur'],
+  ['chaudiere', 'Chaudière'],
+  ['insert', 'Insert, cheminée'],
+];
+
+const legende = [
+  { classe: 'h-1.5 w-7 rounded bg-ink-900', texte: 'Mur extérieur' },
+  { classe: 'h-1.5 w-7 rounded bg-[repeating-linear-gradient(90deg,var(--color-ink-500)_0_6px,transparent_6px_9px)]', texte: 'Mur mitoyen' },
+  { classe: 'h-1 w-7 rounded bg-ink-700', texte: 'Mur vers une pièce non chauffée' },
+  { classe: 'h-0.5 w-7 rounded bg-ink-600', texte: 'Cloison intérieure' },
+  { classe: 'h-1.5 w-7 rounded bg-[#bcd9ea]', texte: 'Fenêtre' },
+  { classe: 'size-4 rounded bg-[repeating-linear-gradient(45deg,var(--color-ink-200)_0_3px,var(--color-ink-400)_3px_4px)]', texte: 'Pièce non chauffée' },
+  { classe: 'size-4 rounded bg-ink-900', texte: 'Poêle (goutte bleue : poêle hydro, qui chauffe l’eau des radiateurs)' },
+  { classe: 'h-2 w-6 rounded-sm border border-ink-700 bg-white', texte: 'Radiateur à eau (gris : électrique)' },
+  { classe: 'h-5 w-4 rounded-sm border-2 border-ink-800 bg-white', texte: 'Chaudière (avec une goutte bleue)' },
+  { classe: 'h-4 w-6 rounded-sm border-2 border-ink-800 bg-white', texte: 'Pompe à chaleur (avec son ventilateur)' },
+  { classe: 'h-5 w-4 rounded-sm border border-ink-700', texte: 'Escalier (en pointillé à l’étage)' },
+  { classe: 'h-0 w-7 border-t border-dashed border-ink-400', texte: 'Pièces du niveau du dessous' },
+];
+const raccourcis = [
+  ['Flèches', 'déplacer la pièce choisie'],
+  ['Suppr', 'supprimer l’élément choisi'],
+  ['Échap', 'désélectionner, ou abandonner un geste'],
+  ['Ctrl + Z', 'annuler'],
+  ['Ctrl + Maj + Z', 'rétablir'],
+  ['Ctrl + molette', 'zoomer'],
+];
+
+const iconeBouton = 'grid size-10 place-items-center rounded-xl text-ink-800 transition hover:bg-ink-100 disabled:text-ink-300 disabled:hover:bg-transparent';
+const flottant = 'pointer-events-auto rounded-full bg-white shadow-[0_2px_10px_rgba(42,32,26,0.12)]';
+const boutonEtape =
+  'group flex min-h-10 items-center gap-2 rounded-full py-1 pr-4 pl-1.5 text-sm font-bold text-ink-600 hover:bg-ink-100 aria-[current=step]:bg-ink-900 aria-[current=step]:text-white data-[fait]:text-moss-700';
+const pastilleEtape =
+  'grid size-7 place-items-center rounded-full bg-ink-100 text-[13px] font-extrabold text-ink-700 group-aria-[current=step]:bg-ember-600 group-aria-[current=step]:text-white group-data-[fait]:bg-moss-100 group-data-[fait]:text-moss-700';
+const dialogue =
+  'm-auto w-[min(56rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-1.5rem)] overflow-hidden rounded-3xl bg-white p-0 text-ink-900 shadow-2xl backdrop:bg-ink-950/50';
+/** Fenêtre large : dimensionnement des radiateurs. */
+const dialogueLarge =
+  'm-auto w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-1.5rem)] overflow-hidden rounded-3xl bg-white p-0 text-ink-900 shadow-2xl backdrop:bg-ink-950/50';
+---
+
+<AppLayout
+  title="Simulateur de chauffage : plan de la maison et poêle"
+  description="Dessinez votre maison, voyez la puissance de chauffage pièce par pièce et la température de chaque pièce avec vos poêles et radiateurs."
+>
+  <div data-plan data-etape="plan" class="group/plan flex h-dvh flex-col">
+    <header class="relative z-30 flex h-14 shrink-0 items-center gap-2 border-b border-ink-200 bg-white px-3 sm:gap-3 lg:px-4">
+      <a href="/" class="shrink-0" aria-label="FK Énergie, accueil du site"><Logo class="h-8 sm:h-9" eager /></a>
+      <span class="hidden h-7 w-px bg-ink-200 sm:block"></span>
+      <h1 class="min-w-0 truncate font-display text-base font-semibold leading-tight sm:text-lg">
+        <span class="sm:hidden">Simulateur</span><span class="hidden sm:inline">Simulateur de chauffage</span>
+      </h1>
+      <nav aria-label="Étapes" class="hidden flex-1 justify-center lg:flex">
+        <ol class="flex items-center gap-1.5">
+          {
+            etapes.map((e, i) => (
+              <li class="flex items-center gap-1.5">
+                <button type="button" data-etape-bouton={e.value} class={boutonEtape}>
+                  <span class={pastilleEtape}>{i + 1}</span>
+                  {e.label}
+                </button>
+                {i < etapes.length - 1 && <span class="h-0.5 w-6 rounded-full bg-ink-200 xl:w-8" aria-hidden="true"></span>}
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+      <div class="ml-auto flex items-center lg:ml-0">
+        <button type="button" data-action="annuler" class={iconeBouton} aria-label="Annuler (Ctrl Z)" title="Annuler (Ctrl Z)">
+          <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icones.annuler} /></svg>
+        </button>
+        <button type="button" data-action="retablir" class:list={[iconeBouton, 'hidden sm:grid']} aria-label="Rétablir (Ctrl Maj Z)" title="Rétablir (Ctrl Maj Z)">
+          <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icones.retablir} /></svg>
+        </button>
+      </div>
+      <button type="button" data-cta class="hidden min-h-10 shrink-0 items-center rounded-full bg-ember-600 px-4 text-sm font-bold text-white shadow-md shadow-ember-600/20 hover:bg-ember-700 sm:inline-flex">
+        Envoyer<span class="hidden xl:inline">&nbsp;pour une étude</span>
+      </button>
+      <div class="relative">
+        <button type="button" data-action="menu" class={iconeBouton} aria-label="Plus d’options" aria-expanded="false" aria-controls="menu-simulateur">
+          <svg viewBox="0 0 24 24" class="size-5" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="19" cy="12" r="1.8" /></svg>
+        </button>
+        <div id="menu-simulateur" data-menu hidden class="absolute top-12 right-0 flex w-64 flex-col rounded-2xl border border-ink-200 bg-white p-2 shadow-xl">
+          <button type="button" data-cta class="min-h-11 rounded-xl px-3 text-left font-semibold text-ember-700 hover:bg-ink-50 sm:hidden">Envoyer mon plan pour une étude</button>
+          <button type="button" data-action="retablir" class="min-h-11 rounded-xl px-3 text-left font-semibold hover:bg-ink-50 sm:hidden">Rétablir</button>
+          <button type="button" data-action="modeles" class="min-h-11 rounded-xl px-3 text-left font-semibold hover:bg-ink-50">Partir d’un modèle</button>
+          <button type="button" data-action="telecharger" class="min-h-11 rounded-xl px-3 text-left font-semibold hover:bg-ink-50">Télécharger les images du plan</button>
+          <button type="button" data-action="radiateurs" class="min-h-11 rounded-xl px-3 text-left font-semibold hover:bg-ink-50">Dimensionner les radiateurs</button>
+          <button type="button" data-action="aide" class="min-h-11 rounded-xl px-3 text-left font-semibold hover:bg-ink-50">Aide et légende</button>
+          <a href="/outils/plan-maison/" class="flex min-h-11 items-center rounded-xl px-3 font-semibold hover:bg-ink-50">Quitter le simulateur</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Étapes sur téléphone -->
+    <nav aria-label="Étapes" class="shrink-0 border-b border-ink-200 bg-white px-2 py-1.5 lg:hidden">
+      <ol class="grid grid-cols-4 gap-1">
+        {
+          etapes.map((e, i) => (
+            <li>
+              <button type="button" data-etape-bouton={e.value} class="group flex min-h-10 w-full items-center justify-center gap-1.5 rounded-full text-[13px] font-bold text-ink-600 aria-[current=step]:bg-ink-900 aria-[current=step]:text-white data-[fait]:text-moss-700">
+                <span class="size-5 place-items-center rounded-full bg-ink-100 text-[11px] font-extrabold text-ink-700 group-aria-[current=step]:bg-ember-600 group-aria-[current=step]:text-white group-data-[fait]:bg-moss-100 group-data-[fait]:text-moss-700 hidden sm:grid">{i + 1}</span>
+                {e.court}
+              </button>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <div class="flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-[auto_minmax(0,1fr)_380px] lg:grid-rows-[minmax(0,1fr)]">
+      <!-- Outils de l'étape : colonne à gauche sur ordinateur, barre en bas sur téléphone -->
+      <nav
+        aria-label="Outils"
+        data-rail
+        class="order-3 flex shrink-0 gap-0.5 overflow-x-auto border-t border-ink-200 bg-white px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] group-data-[etape=maison]/plan:hidden group-data-[etape=resultat]/plan:hidden lg:col-start-1 lg:order-1 lg:w-[88px] lg:flex-col lg:overflow-x-visible lg:overflow-y-auto lg:border-t-0 lg:border-r lg:py-3"
+      >
+        {
+          outils.map((o) => (
+            <button
+              type="button"
+              data-outil={o.value}
+              data-etapes={o.etapes}
+              aria-pressed="false"
+              class="flex w-16 shrink-0 flex-col items-center gap-1 rounded-2xl py-2 text-[11px] leading-tight font-bold text-ink-800 transition hover:bg-ink-50 aria-pressed:bg-ember-100 aria-pressed:text-ember-800 lg:w-[72px] lg:text-[11.5px]"
+            >
+              <svg viewBox="0 0 24 24" class="size-[22px]" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={o.d} /></svg>
+              {o.label}
+            </button>
+          ))
+        }
+      </nav>
+
+      <main class="relative order-1 min-h-0 flex-1 overflow-hidden bg-ink-50 lg:col-start-2 lg:order-2">
+        <svg
+          data-plan-svg
+          tabindex="0"
+          viewBox="0 0 60 44"
+          class="absolute inset-0 block size-full touch-none select-none focus-visible:outline-3 focus-visible:-outline-offset-3 focus-visible:outline-ember-600"
+          role="img"
+          aria-label="Plan de la maison. Au clavier : Tab jusqu’au plan, flèches pour déplacer la pièce choisie, Suppr pour la supprimer, Échap pour la désélectionner. Les pièces, leur puissance et leur température se trouvent aussi dans le panneau de chaque étape."
+          style="font-family: var(--font-sans)"></svg>
+
+        <div data-haut class="pointer-events-none absolute top-3 left-3 flex items-start">
+          <div class:list={[flottant, 'flex items-center gap-0.5 p-1']} role="group" data-niveaux aria-label="Niveaux de la maison"></div>
+        </div>
+
+        <!-- Température dehors, à l'étape du chauffage -->
+        <div data-haut data-dehors hidden class="pointer-events-none absolute inset-x-3 top-[3.75rem] flex justify-end lg:inset-x-auto lg:top-3 lg:right-3">
+          <div class:list={[flottant, 'flex w-full items-center gap-2 py-1 pr-1 pl-4 sm:w-auto sm:gap-3']}>
+            <label for="t-exterieure" class="text-sm font-bold">Dehors</label>
+            <input id="t-exterieure" type="range" name="tExterieure" form="pan-poele" min="-15" max="15" step="0.5" value={String(tJanvier)} class="min-w-0 flex-1 accent-ember-600 sm:w-36 sm:flex-none" />
+            <output for="t-exterieure" class="w-[4.75rem] text-right font-bold whitespace-nowrap tabular-nums" data-texterieure>3 °C</output>
+            <div class="flex gap-1">
+              <button type="button" data-preset-text={String(tJanvier)} class="hidden min-h-9 rounded-full px-3 text-[13px] font-bold whitespace-nowrap text-ink-700 hover:bg-ink-100 aria-pressed:bg-ink-900 aria-pressed:text-white sm:block" title={`Moyenne de janvier : ${tJanvier} °C`} aria-pressed="false">Janvier</button>
+              <button type="button" data-preset-text={String(climat.tBase)} class="min-h-9 rounded-full px-3 text-[13px] font-bold whitespace-nowrap text-ink-700 hover:bg-ink-100 aria-pressed:bg-ink-900 aria-pressed:text-white" title={`Température de base : ${tBaseTexte}`} aria-pressed="false">Grand froid</button>
+            </div>
+          </div>
+        </div>
+
+        <p role="alert" hidden data-erreur class="pointer-events-none absolute inset-x-3 top-3 z-10 mx-auto max-w-xl rounded-2xl bg-danger-50 px-4 py-3 font-semibold text-danger-700 shadow-lg shadow-ink-900/10"></p>
+        <p
+          data-aide
+          aria-live="polite"
+          class="pointer-events-none absolute inset-x-3 top-[3.75rem] mx-auto max-w-2xl rounded-2xl bg-white/95 px-4 py-2.5 text-sm text-ink-700 shadow-[0_2px_10px_rgba(42,32,26,0.1)] empty:hidden lg:top-auto lg:bottom-3 lg:left-1/2 lg:w-max lg:max-w-[min(34rem,calc(100%-24rem))] lg:-translate-x-1/2"
+        ></p>
+
+        <div data-masquable class="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between gap-2">
+          <p data-legende-temperatures hidden class="pointer-events-auto flex items-center gap-2 rounded-full bg-white/95 px-3.5 py-2 text-xs text-ink-700 shadow-[0_2px_10px_rgba(42,32,26,0.12)]">
+            <span class="sr-only">Échelle des températures moyennes : </span>
+            <span>10 °C</span>
+            <span class="h-2 w-24 rounded-full bg-[linear-gradient(90deg,#8fb8e0,#dfe9f2_38%,#f7efe3_66%,#f2c4a4_85%,#e57a3c)] sm:w-32" aria-hidden="true"></span>
+            <span>23 °C</span>
+          </p>
+          <span></span>
+          <div class:list={[flottant, 'flex items-center p-1']} role="group" aria-label="Zoom">
+            <button type="button" data-zoom="moins" class="hidden size-9 place-items-center rounded-full hover:bg-ink-100 sm:grid" aria-label="Dézoomer">
+              <svg viewBox="0 0 24 24" class="size-[18px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d={icones.moins} /></svg>
+            </button>
+            <button type="button" data-zoom="plus" class="hidden size-9 place-items-center rounded-full hover:bg-ink-100 sm:grid" aria-label="Zoomer">
+              <svg viewBox="0 0 24 24" class="size-[18px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d={icones.plus} /></svg>
+            </button>
+            <button type="button" data-zoom="ajuster" class="min-h-9 rounded-full px-3 text-sm font-bold hover:bg-ink-100">Tout voir</button>
+          </div>
+        </div>
+      </main>
+
+      <!-- Panneau de l'étape : colonne à droite sur ordinateur, volet en bas sur téléphone -->
+      <aside
+        data-volet="ferme"
+        aria-label="Panneau de l’étape"
+        class="relative z-10 order-2 flex max-h-[62dvh] shrink-0 flex-col rounded-t-3xl bg-white shadow-[0_-6px_20px_rgba(42,32,26,0.12)] transition-[max-height] duration-300 data-[volet=ferme]:max-h-[10.5rem] lg:col-start-3 lg:order-3 lg:max-h-none! lg:rounded-none lg:border-l lg:border-ink-200 lg:shadow-none"
+      >
+        <button type="button" data-action="volet" aria-expanded="false" aria-label="Agrandir le volet" class="flex h-6 shrink-0 items-center justify-center lg:hidden">
+          <span class="h-1.5 w-10 rounded-full bg-ink-300"></span>
+        </button>
+
+        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-1 pb-5 lg:px-5 lg:pt-5" data-volet-contenu>
+          <div data-section="detail" class="flex flex-col gap-4" data-panneau-selection></div>
+
+          <form id="pan-parois" data-section="maison" hidden class="flex flex-col gap-5" data-enveloppe>
+            <div class="flex flex-col gap-1">
+              <h2 class="font-display text-2xl font-semibold">Votre maison</h2>
+              <p class="text-sm text-ink-600">Répondez à ce que vous savez : « Je ne sais pas » prend les valeurs courantes de l’époque (méthode du DPE).</p>
+            </div>
+            <p class="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-2xl bg-ink-900 px-4 py-3 text-sm text-ink-300">
+              <strong class="font-display text-3xl font-semibold text-white" data-total-kw></strong>
+              <span data-total-detail></span>
+            </p>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-bold">Année de construction</span>
+              <select name="annee" class={champ}>{annees.map(([v, l]) => <option value={v} selected={v === '1978-1982'}>{l}</option>)}</select>
+            </label>
+            {
+              parois.map((g) => (
+                <fieldset class="flex flex-col gap-3 border-t border-ink-100 pt-4">
+                  <legend class="text-base font-bold">{g.titre}</legend>
+                  <select name={g.name} class={champ} aria-label={`${g.titre} : type`}>
+                    {g.options.map(([v, l]) => <option value={v} selected={v === g.defaut}>{l}</option>)}
+                  </select>
+                  {g.epaisseur && (
+                    <label class="flex flex-col gap-1.5">
+                      <span class="text-sm font-bold">Épaisseur du mur, sans l’isolant (cm)</span>
+                      <input name={g.epaisseur} type="number" min="5" max="100" value={g.epaisseurDefaut} class={champ} />
+                    </label>
+                  )}
+                  <div class="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-3">
+                    <label class="flex flex-col gap-1.5">
+                      <span class="text-sm font-bold">Isolant</span>
+                      <select name={g.isolant} data-isolant class={champ}>
+                        {isolants.map(([v, l]) => <option value={v} selected={v === g.isolantDefaut}>{l}</option>)}
+                      </select>
+                    </label>
+                    <label class="flex flex-col gap-1.5" data-epaisseur={g.isolant}>
+                      <span class="text-sm font-bold">Épaisseur (cm)</span>
+                      <input name={g.isolantEpaisseur} type="number" min="1" max="60" value={g.isolantEpaisseurDefaut} class={champ} />
+                    </label>
+                  </div>
+                </fieldset>
+              ))
+            }
+            <div class="grid gap-3 border-t border-ink-100 pt-4">
+              <label class="flex flex-col gap-1.5">
+                <span class="text-sm font-bold">Fenêtres</span>
+                <select name="vitrage" class={champ}>{vitrages.map(([v, l]) => <option value={v} selected={v === 'double-ancien'}>{l}</option>)}</select>
+              </label>
+              <label class="flex flex-col gap-1.5">
+                <span class="text-sm font-bold">Ventilation</span>
+                <select name="ventilation" class={champ}>{ventilations.map(([v, l]) => <option value={v} selected={v === 'vmc-autoreglable'}>{l}</option>)}</select>
+              </label>
+              <label class="flex flex-col gap-1.5">
+                <span class="text-sm font-bold">Le haut du plan regarde vers le…</span>
+                <select data-nord class={champ}>
+                  <option value="haut">nord</option>
+                  <option value="droite">ouest</option>
+                  <option value="bas">sud</option>
+                  <option value="gauche">est</option>
+                </select>
+              </label>
+            </div>
+            <details class="group/details border-t border-ink-100 pt-4">
+              <summary class="cursor-pointer font-bold text-ember-800">Plus de réglages : hauteur, plancher entre étages, inertie</summary>
+              <div class="mt-4 flex flex-col gap-4">
+                <label class="flex flex-col gap-1.5">
+                  <span class="text-sm font-bold">Hauteur sous plafond (m)</span>
+                  <input name="hauteur" type="number" step="0.05" min="2" max="6" value="2.5" class={champ} />
+                </label>
+                <label class="flex flex-col gap-1.5">
+                  <span class="text-sm font-bold">Plancher entre les étages</span>
+                  <select name="plancherIntermediaire" class={champ}>
+                    <option value="bois">Plancher bois</option>
+                    <option value="beton">Dalle béton</option>
+                  </select>
+                </label>
+                <label class="flex flex-col gap-1.5">
+                  <span class="text-sm font-bold">Inertie</span>
+                  <select name="inertie" class={champ}>
+                    <option value="auto">Automatique (d’après vos réglages)</option>
+                    <option value="legere">Légère (cloisons et plafonds en plâtre, ossature bois)</option>
+                    <option value="moyenne">Moyenne</option>
+                    <option value="lourde">Lourde (dalles béton, murs maçonnés)</option>
+                    <option value="tres-lourde">Très lourde (murs anciens épais non isolés, dalles béton)</option>
+                  </select>
+                  <span class="text-sm text-ink-600">Masse des murs et des planchers, qui stocke la chaleur et lisse les variations. <span data-inertie-auto></span></span>
+                </label>
+                <p class="text-sm text-ink-600">Ossature bois : la valeur du mur comprend déjà l’isolant placé entre les montants ; laissez « Aucun » dans Isolant, sauf isolation ajoutée par la suite. Béton cellulaire : ce matériau isole par lui-même ; n’indiquez un isolant que s’il y en a un en plus.</p>
+              </div>
+            </details>
+          </form>
+
+          <form id="pan-poele" data-section="chauffage" hidden class="flex flex-col gap-4" data-chauffage>
+            <!-- Sur téléphone, le volet replié montre d'abord le résultat -->
+            <h2 class="hidden font-display text-2xl font-semibold lg:block">Votre chauffage</h2>
+            <p class="text-ink-600" data-poele-absent>Posez un ou plusieurs poêles, des radiateurs, une chaudière ou une pompe à chaleur avec les outils <span class="lg:hidden">en bas de l’écran</span><span class="hidden lg:inline">à gauche</span>, puis lisez la température de chaque pièce sur le plan.</p>
+            <div class="flex flex-col gap-2 rounded-2xl bg-ink-900 p-4 font-semibold text-white empty:hidden" data-etat-poele aria-live="polite"></div>
+            <div data-resultat-poele></div>
+            <div class="flex flex-col gap-2" data-appareils>
+              <h3 class="text-sm font-bold">Appareils</h3>
+              <ul class="flex flex-col gap-1.5 empty:hidden" data-liste-emetteurs aria-label="Appareils de chauffage"></ul>
+              <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                <button type="button" data-action="radiateurs-partout" class="link-arrow">Mettre un radiateur dans chaque pièce</button>
+                <button type="button" data-action="radiateurs" class="link-arrow">Dimensionner les radiateurs</button>
+              </div>
+            </div>
+            <details class="border-t border-ink-100 pt-4">
+              <summary class="cursor-pointer font-bold text-ember-800">Plus de réglages : soleil, portes</summary>
+              <div class="mt-4 flex flex-col gap-3">
+                <label class="flex items-center gap-3 font-semibold">
+                  <input type="checkbox" name="soleil" checked class="size-5 accent-ember-600" />
+                  Compter le soleil d’un mois de janvier moyen
+                </label>
+                <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                  <button type="button" data-portes="ouvrir" class="link-arrow">Ouvrir toutes les portes</button>
+                  <button type="button" data-portes="fermer" class="link-arrow">Fermer toutes les portes</button>
+                </div>
+              </div>
+            </details>
+          </form>
+
+          <div data-section="resultat" hidden class="flex flex-col gap-5">
+            <h2 class="font-display text-2xl font-semibold">Résultat</h2>
+            <div data-recap></div>
+            <div data-temperatures-pieces class="flex flex-col gap-2 empty:hidden"></div>
+            <div class="flex flex-col gap-3 rounded-2xl border border-ink-200 p-4">
+              <div class="flex flex-col gap-1">
+                <h3 class="font-bold">Dimensionnement des radiateurs</h3>
+                <p class="text-sm text-ink-600">Nombre d’éléments ou longueur de radiateur pièce par pièce, selon le modèle, l’épaisseur et la hauteur que vous voulez.</p>
+              </div>
+              <button type="button" data-action="radiateurs" class="btn-secondary min-h-11 self-start">Dimensionner les radiateurs</button>
+            </div>
+            <p class="rounded-2xl border border-dashed border-ember-300 bg-ember-50 p-4 text-sm text-ink-700">
+              Calcul d’après les valeurs de la méthode officielle du DPE, par {tBaseTexte} dehors et {climat.tInterieure} °C dans chaque pièce. C’est une
+              estimation : nous la vérifions chez vous avant de dimensionner un appareil.
+            </p>
+          </div>
+        </div>
+
+        <div data-pied class="flex shrink-0 items-center justify-between gap-2 border-t border-ink-200 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:px-5 lg:pb-3">
+          <button type="button" data-etape-prec class="min-h-11 rounded-full px-3 text-sm font-bold text-ink-700 hover:bg-ink-100"></button>
+          <button type="button" data-etape-suiv class="ml-auto inline-flex min-h-11 items-center gap-2 rounded-full bg-ink-900 px-5 text-sm font-bold text-white hover:bg-ink-800 data-[envoi]:bg-ember-600 data-[envoi]:hover:bg-ember-700">
+            <span data-etape-suiv-texte></span>
+            <svg viewBox="0 0 24 24" class="size-[18px]" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icones.fleche} /></svg>
+          </button>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Démarrage : à la première visite, ou depuis « Modèles » -->
+    <dialog data-dialogue="demarrage" aria-labelledby="titre-demarrage" class={dialogue}>
+      <div class="flex max-h-[calc(100dvh-1.5rem)] flex-col gap-6 overflow-y-auto p-6 sm:p-9">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex flex-col gap-2">
+            <p class="text-sm font-bold tracking-wider text-ember-700 uppercase">Gratuit · sans inscription</p>
+            <h2 id="titre-demarrage" class="font-display text-3xl leading-tight font-semibold sm:text-4xl">Par quoi voulez-vous commencer ?</h2>
+            <p class="max-w-2xl text-ink-700">Partez du modèle le plus proche de votre maison, puis ajustez les pièces, les fenêtres et l’isolation. Votre plan reste dans votre navigateur.</p>
+          </div>
+          <button type="button" data-fermer class={iconeBouton} aria-label="Fermer et garder le plan d’exemple">
+            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d={icones.fermer} /></svg>
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {
+            modeles.map((m) => (
+              <button
+                type="button"
+                data-choix-modele={m.id}
+                class="flex flex-col gap-2 rounded-2xl border border-ink-200 bg-white p-3 text-left transition hover:border-ember-500 hover:bg-ember-50 focus-visible:border-ember-600"
+              >
+                <PlanMiniature plan={m.plan()} label={`Aperçu du modèle ${m.label.toLowerCase()}`} class="h-24 w-full rounded-xl bg-ink-50 p-1" />
+                <span class="font-bold">{m.label}</span>
+                <span class="text-sm text-ink-600">{descriptions[m.id]}</span>
+              </button>
+            ))
+          }
+          <button type="button" data-choix-modele="vide" class="flex flex-col gap-2 rounded-2xl border border-ink-200 bg-white p-3 text-left transition hover:border-ember-500 hover:bg-ember-50">
+            <span class="grid h-24 place-items-center rounded-xl border-2 border-dashed border-ink-300 text-ember-700">
+              <svg viewBox="0 0 24 24" class="size-8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d={icones.plus} /></svg>
+            </span>
+            <span class="font-bold">Plan vierge</span>
+            <span class="text-sm text-ink-600">Dessinez vos pièces vous-même</span>
+          </button>
+        </div>
+        <ol class="grid gap-3 rounded-2xl bg-ink-50 p-4 sm:grid-cols-3">
+          <li class="flex items-start gap-3"><span class="grid size-7 shrink-0 place-items-center rounded-full bg-ember-600 text-sm font-extrabold text-white">1</span><span><strong>Dessinez</strong> vos pièces, fenêtres et portes</span></li>
+          <li class="flex items-start gap-3"><span class="grid size-7 shrink-0 place-items-center rounded-full bg-ember-600 text-sm font-extrabold text-white">2</span><span><strong>Décrivez</strong> les murs, l’isolation et la ventilation</span></li>
+          <li class="flex items-start gap-3"><span class="grid size-7 shrink-0 place-items-center rounded-full bg-ember-600 text-sm font-extrabold text-white">3</span><span><strong>Placez</strong> poêles et radiateurs, lisez les températures</span></li>
+        </ol>
+        <p class="text-sm text-ink-600">
+          Vous retrouverez ces modèles dans le menu « ⋯ », en haut à droite. <a href="/outils/plan-maison/#comment-utiliser" class="font-bold text-ember-700 underline underline-offset-2">Comment fonctionne le simulateur</a>
+        </p>
+      </div>
+    </dialog>
+
+    <!-- Aide et légende -->
+    <dialog data-dialogue="aide" aria-labelledby="titre-aide" class={dialogue}>
+      <div class="flex max-h-[calc(100dvh-1.5rem)] flex-col gap-6 overflow-y-auto p-6 sm:p-9">
+        <div class="flex items-start justify-between gap-4">
+          <h2 id="titre-aide" class="font-display text-3xl font-semibold">Aide et légende</h2>
+          <button type="button" data-fermer class={iconeBouton} aria-label="Fermer">
+            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d={icones.fermer} /></svg>
+          </button>
+        </div>
+        <div class="grid gap-8 sm:grid-cols-2">
+          <div class="flex flex-col gap-3">
+            <h3 class="font-bold">Sur le plan</h3>
+            <ul class="flex flex-col gap-2.5 text-ink-700">
+              {legende.map((l) => <li class="flex items-center gap-3"><span class:list={['shrink-0', l.classe]}></span>{l.texte}</li>)}
+            </ul>
+            <p class="text-sm text-ink-600">Une case de la grille mesure 50 cm. Sur téléphone, zoomez et déplacez le plan avec deux doigts.</p>
+          </div>
+          <div class="flex flex-col gap-3">
+            <h3 class="font-bold">En quatre étapes</h3>
+            <ol class="flex list-decimal flex-col gap-2 pl-5 text-ink-700">
+              <li>Plan : outil « Pièce », cliquez-glissez sur la grille ; outil « Fenêtre, porte », approchez le pointeur d’un mur, puis cliquez.</li>
+              <li>Maison : époque, murs, isolation, fenêtres, ventilation. Chaque pièce affiche la puissance qu’il lui faut.</li>
+              <li>Chauffage : outils « Poêle », « Radiateur », « Chaudière » et « Pompe à chaleur », puis réglez chaque appareil. La température de chaque pièce s’affiche sur le plan ; réglez la température dehors au-dessus du plan.</li>
+              <li>Résultat : le bilan pièce par pièce, et l’envoi de votre plan pour une étude.</li>
+            </ol>
+            <h3 class="mt-2 font-bold">Au clavier</h3>
+            <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+              {raccourcis.map(([k, v]) => <><dt><kbd class="rounded border border-ink-300 bg-ink-50 px-1.5 py-0.5 font-sans font-bold">{k}</kbd></dt><dd class="text-ink-700">{v}</dd></>)}
+            </dl>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Dimensionnement des radiateurs, pièce par pièce -->
+    <dialog data-dialogue="radiateurs" aria-labelledby="titre-dimensionnement" class={dialogueLarge}>
+      <div class="flex max-h-[calc(100dvh-1.5rem)] flex-col">
+        <div class="flex items-start justify-between gap-4 border-b border-ink-100 p-5 sm:px-8 sm:pt-7">
+          <div class="flex flex-col gap-1">
+            <h2 id="titre-dimensionnement" class="font-display text-2xl leading-tight font-semibold sm:text-3xl">Dimensionnement des radiateurs</h2>
+            <p class="text-sm text-ink-600 sm:text-base">Radiateurs à eau qu’il faudrait dans chaque pièce pour garder {climat.tInterieure} °C par {tBaseTexte}.</p>
+          </div>
+          <button type="button" data-fermer class={iconeBouton} aria-label="Fermer">
+            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d={icones.fermer} /></svg>
+          </button>
+        </div>
+        <div class="flex min-h-0 flex-col gap-5 overflow-y-auto p-5 sm:px-8 sm:pb-8">
+          <form class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-dim-form>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-bold">Modèle</span>
+              <select name="gamme" class={champ}>{gammesRadiateurs.map((g) => <option value={g.id}>{g.label}</option>)}</select>
+            </label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-bold">Épaisseur</span>
+              <select name="variante" class={champ}></select>
+            </label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-bold">Hauteur</span>
+              <select name="hauteur" class={champ}></select>
+            </label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-bold">Eau au départ par grand froid</span>
+              <select name="depart" class={champ}>
+                {departsDimensionnement.map(([v, l]) => <option value={v}>{l}</option>)}
+              </select>
+            </label>
+          </form>
+          <div class="grid gap-3 rounded-2xl bg-ink-900 p-4 text-ink-200 sm:grid-cols-3 sm:p-5" data-dim-total></div>
+          <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-dim-cartes aria-label="Radiateurs pièce par pièce"></ul>
+          <p class="text-sm text-ink-600" data-dim-note></p>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Envoi du plan pour une étude -->
+    <dialog data-dialogue="envoi" aria-labelledby="titre-envoi" class={dialogue}>
+      <div class="flex max-h-[calc(100dvh-1.5rem)] flex-col gap-6 overflow-y-auto p-6 sm:p-9">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex flex-col gap-2">
+            <h2 id="titre-envoi" class="font-display text-3xl leading-tight font-semibold">Envoyer mon plan à FK Énergie</h2>
+            <p class="text-ink-700">Nous étudions votre plan, puis nous vérifions ces chiffres chez vous, gratuitement, avant de vous proposer un appareil.</p>
+          </div>
+          <button type="button" data-fermer class={iconeBouton} aria-label="Fermer">
+            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d={icones.fermer} /></svg>
+          </button>
+        </div>
+
+        <div data-envoi-formulaire class="grid gap-8 md:grid-cols-2">
+          <div class="flex min-w-0 flex-col gap-3">
+            <h3 class="font-bold">Ce que nous recevons</h3>
+            <div class="grid grid-cols-2 gap-3" data-envoi-images>
+              <p class="col-span-2 rounded-2xl bg-ink-50 p-4 text-sm text-ink-600">Préparation des images du plan…</p>
+            </div>
+            <p class="text-sm text-ink-600">Avec ce résumé de vos réglages :</p>
+            <p class="max-h-56 overflow-y-auto rounded-2xl bg-ink-50 p-4 text-sm leading-relaxed whitespace-pre-line text-ink-800" data-envoi-resume></p>
+          </div>
+
+          <form class="flex flex-col gap-3" data-envoi-form novalidate>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-bold">Votre projet</span>
+              <select name="project" required class={champ}>{projets.map(([v, l]) => <option value={v}>{l}</option>)}</select>
+            </label>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <label class="flex flex-col gap-1.5">
+                <span class="text-sm font-bold">Nom et prénom</span>
+                <input name="name" autocomplete="name" required minlength="2" maxlength="120" class={champ} />
+              </label>
+              <label class="flex flex-col gap-1.5">
+                <span class="text-sm font-bold">Téléphone</span>
+                <input name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="40" placeholder="06 12 34 56 78" class={champ} />
+              </label>
+              <label class="flex flex-col gap-1.5">
+                <span class="text-sm font-bold">E-mail <span class="font-normal text-ink-500">(facultatif)</span></span>
+                <input name="email" type="email" autocomplete="email" maxlength="160" placeholder="vous@exemple.fr" class={champ} />
+              </label>
+              <label class="flex flex-col gap-1.5">
+                <span class="text-sm font-bold">Commune</span>
+                <input name="commune" autocomplete="address-level2" required minlength="2" maxlength="120" class={champ} />
+              </label>
+            </div>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-bold">Showroom de préférence</span>
+              <select name="showroom" class={champ}>
+                <option value="">Pas de préférence</option>
+                {showrooms.map((s) => <option value={s.slug}>{s.city}</option>)}
+              </select>
+            </label>
+            <label class="flex flex-col gap-1.5">
+              <span class="text-sm font-bold">Un mot sur votre projet <span class="font-normal text-ink-500">(facultatif)</span></span>
+              <textarea name="precisions" rows="3" maxlength="1500" class="w-full rounded-xl border border-ink-300 bg-white px-3 py-2.5 text-ink-900 focus:border-ember-600 focus:ring-4 focus:ring-ember-600/15 focus:outline-none"></textarea>
+            </label>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+            <label class="flex items-start gap-3 text-sm text-ink-700">
+              <input type="checkbox" name="consent" required class="mt-0.5 size-5 shrink-0 accent-ember-600" />
+              J’accepte que FK Énergie utilise ces informations pour me recontacter au sujet de mon projet.
+            </label>
+            <p role="alert" hidden data-envoi-erreur class="rounded-2xl bg-danger-50 px-4 py-3 font-semibold text-danger-700"></p>
+            <button type="submit" class="btn-primary w-full" data-envoi-bouton>Envoyer ma demande d’étude</button>
+            <p class="text-sm text-ink-600">Vous préférez nous appeler ? <a href={site.phoneHref} class="font-bold text-ember-700 underline underline-offset-2">{site.phone}</a></p>
+          </form>
+        </div>
+
+        <div data-envoi-merci hidden class="flex flex-col items-start gap-4 rounded-2xl bg-moss-100 p-6">
+          <p class="font-display text-2xl font-semibold">Merci, votre demande est envoyée.</p>
+          <p class="text-ink-700">Votre plan et le résumé des calculs sont joints. Nous vous recontactons pour convenir de l’étude chez vous.</p>
+          <button type="button" data-fermer class="btn-secondary">Revenir au plan</button>
+        </div>
+      </div>
+    </dialog>
+  </div>
+</AppLayout>
+
+<script>
+  import '../../../scripts/plan-editeur';
+</script>
+
+<style>
+  @media (max-width: 1023px) {
+    /* Téléphone, volet ouvert : le plan est petit, on lui laisse toute la place */
+    [data-plan]:has([data-volet='ouvert']) :is([data-masquable], [data-aide], [data-haut]) {
+      display: none;
+    }
+    /* Deuxième barre en haut du plan (température dehors) : l'aide passe dessous */
+    [data-plan]:has([data-dehors]:not([hidden])) [data-aide] {
+      top: 7.25rem;
+    }
+  }
+</style>

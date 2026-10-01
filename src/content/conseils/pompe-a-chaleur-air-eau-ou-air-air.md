@@ -66,7 +66,7 @@ La chaleur passe par un circuit d’eau. L’ADEME liste les émetteurs adaptés
 - les **radiateurs basse température**, qui fonctionnent avec une eau de 30 à 50 °C ; vos anciens radiateurs peuvent souvent convenir s’ils sont assez dimensionnés ;
 - les **ventilo-convecteurs à eau**.
 
-Si vous avez une chaudière au fioul ou au gaz, la PAC air/eau peut donc reprendre votre réseau existant, après vérification de la puissance des radiateurs.
+Si vous avez une chaudière au fioul ou au gaz, la PAC air/eau peut donc reprendre votre réseau existant, après vérification de la puissance des radiateurs. Notre outil [pompe à chaleur et radiateurs](/outils/dimensionnement-pompe-a-chaleur/) vous en donne une première estimation.
 
 ### Avec une PAC air/air
 

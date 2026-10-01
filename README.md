@@ -44,6 +44,9 @@ src/
   data/communes.ts        ← communes du formulaire et showroom le plus proche
   data/villes.ts          ← pages locales /installateur-chauffage/<ville>/ (distance, communes voisines)
   content/conseils/       ← guides pratiques en Markdown (/conseils/), sources obligatoires
+  data/outils.ts          ← liste des outils de calcul (/outils/) et pages où ils sont proposés
+  data/thermique.ts       ← hypothèses chiffrées des outils (climat, coefficients G, prix, rendements…), chacune sourcée
+  lib/thermique.ts        ← formules des outils, partagées entre le build (tableaux, FAQ) et le navigateur
   data/redirects.json     ← 317 redirections 301 des anciennes URL (archives 2017-2026)
   lib/schema.ts           ← données structurées schema.org (Organization, HVACBusiness, Service, Article, FAQ…)
   layouts/BaseLayout.astro← <head> SEO : title, description, canonical, Open Graph, JSON-LD
@@ -79,6 +82,21 @@ research/                 ← fiche entreprise et recherches (brief du projet)
   au showroom le plus proche, et page « Zone d'intervention » (`/installateur-chauffage/`). Les anciennes URL « près de Calais /
   Saint-Omer / Hazebrouck » y sont redirigées. Pour ajouter une ville : une entrée dans `src/data/villes.ts`, avec un texte
   d'introduction propre (pas de copier-coller entre villes, Google pénalise les pages « satellites »).
+- Outils de calcul `/outils/` : puissance de poêle, consommation de granulés, comparateur de coût, pompe à chaleur et
+  radiateurs, convertisseur bois. Méthode conventionnelle du DPE (3CL) ; recherche et calculs dans `research/donnees-outils.md`,
+  `research/coefficient-g-3cl.md` et `research/calculs/`, revues de chaque outil dans `research/revues-outils/`. Balisage
+  `WebApplication` + `FAQPage`. Le résultat de chaque outil préremplit le formulaire de devis (`?projet=`, `?surface=`,
+  `?actuel=`, `?note=`).
+- Simulateur de plan : `/outils/plan-maison/` est la page de présentation (référencée) ; l'outil lui-même est en plein écran
+  sur `/outils/plan-maison/simulateur/` (gabarit `AppLayout`, `noindex`, hors sitemap). Logique dans `scripts/plan-editeur.ts`,
+  calculs dans `lib/plan/`. Le plan est envoyé depuis l'outil vers `/api/contact` (images PNG jointes + résumé écrit).
+  Parcours en 4 étapes (Plan, Maison, Chauffage, Résultat) : chaque étape n'affiche que ses outils et son panneau,
+  le plan montre les surfaces, puis la puissance nécessaire, puis les températures.
+  Étape Résultat : dimensionnement des radiateurs pièce par pièce (nombre d'éléments ou longueur) d'après les catalogues
+  de `data/radiateurs.ts` (fonte Idéal, Zehnder Charleston, Purmo) ; voir `research/dimensionnement-radiateurs.md`.
+  Chauffage : poêles (plusieurs possibles, dont poêle hydro qui chauffe l'eau des radiateurs) et radiateurs à eau ou électriques placés pièce par pièce, chauffage central
+  (chaudière ou PAC, loi d'eau) ; hypothèses dans `research/regulation-poele.md`, `research/chauffage-central.md`.
+  Journée type de janvier heure par heure (EN ISO 13790), soleil par fenêtre et inertie selon la 3CL : `research/soleil-inertie.md`.
 - Guides `/conseils/` (Markdown dans `src/content/conseils/`) : chaque guide cite ses sources officielles (frontmatter `sources`)
   et apparaît automatiquement sur les pages listées dans `related`. Balisage `Article` + `FAQPage`.
 - Chaque page : titre ≤ 60 caractères et description ≤ 160 (le build affiche `[seo]` en cas de dépassement), canonical, image
@@ -89,6 +107,9 @@ research/                 ← fiche entreprise et recherches (brief du projet)
   (lien vers la page du showroom concerné) et créer la fiche de Rexpoëde.
 
 ## À valider avec le client avant la mise en ligne
+
+- [ ] Outils de calcul : mettre à jour les prix de l'énergie chaque trimestre dans `src/data/thermique.ts` (`energies`, `granules`).
+- [ ] Prix du bois bûche (CEEB) : le bulletin interdit la rediffusion sans autorisation ; demander l'accord ou changer de source.
 
 - [ ] Logo : le logo officiel (photo de profil Facebook 2026, 1254 px) est **détouré** dans `src/assets/brand/` (versions fond clair, fond sombre et badge rond). Récupérer le fichier source vectoriel si possible.
 - [ ] Rexpoëde : horaires (actuellement identiques aux autres showrooms), e-mail, photo de la façade.

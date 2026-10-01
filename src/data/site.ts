@@ -181,6 +181,7 @@ export const serviceNav: NavItem[] = [
   { label: 'Aides financières', href: '/aides-financieres/', description: 'MaPrimeRénov’, CEE, TVA réduite' },
   { label: 'Nos réalisations', href: '/realisations/', description: 'Nos poses chez nos clients' },
   { label: 'Conseils', href: '/conseils/', description: 'Guides pour bien choisir et entretenir' },
+  { label: 'Outils de calcul', href: '/outils/', description: 'Puissance, consommation, coût du chauffage' },
 ];
 
 export const mainNav: NavItem[] = [

@@ -7,6 +7,7 @@ import RealisationsGrid from '../components/RealisationsGrid.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
 import RelatedGuides from '../components/RelatedGuides.astro';
+import RelatedTools from '../components/RelatedTools.astro';
 import ServiceArea from '../components/ServiceArea.astro';
 import Icon from '../components/Icon.astro';
 import { byCategory } from '../data/realisations';
@@ -132,6 +133,7 @@ const faqs: FaqItem[] = [
     <a href="/realisations/" class="btn-secondary mt-8">Voir toutes nos réalisations <Icon name="arrow" class="size-4" /></a>
   </section>
 
+  <RelatedTools path="/poele-a-granules/" />
   <RelatedGuides path="/poele-a-granules/" />
   <Faq faqs={faqs} title="Vos questions sur les poêles à granulés" />
   <ServiceArea what="Poêles à granulés" />

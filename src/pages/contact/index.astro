@@ -2,7 +2,8 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContactForm from '../../components/ContactForm.astro';
 import ShowroomCard from '../../components/ShowroomCard.astro';
-import { showrooms } from '../../data/site';
+import Icon from '../../components/Icon.astro';
+import { site, showrooms } from '../../data/site';
 
 const crumbs = [{ label: 'Demande d’étude', href: '/contact/' }];
 ---
@@ -21,7 +22,16 @@ const crumbs = [{ label: 'Demande d’étude', href: '/contact/' }];
         <li aria-current="page" class="font-semibold text-ink-900">Demande d’étude</li>
       </ol>
     </nav>
-    <h1 class="mb-8 text-4xl leading-[1.04] sm:text-5xl">Votre projet de chauffage</h1>
+    <div class="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <h1 class="text-4xl leading-[1.04] sm:text-5xl">Votre projet de chauffage</h1>
+      <div class="flex flex-col gap-2 lg:items-end">
+        <p class="font-semibold text-ink-700">Pas envie de remplir le formulaire&nbsp;? <span class="whitespace-nowrap">Appelez-nous.</span></p>
+        <a href={site.phoneHref} class="btn-primary min-h-16 px-8 font-display text-2xl sm:text-3xl" aria-label={`Appeler FK Énergie au ${site.phone}`}>
+          <Icon name="phone" class="size-7" />
+          {site.phone}
+        </a>
+      </div>
+    </div>
     <ContactForm />
   </section>
 

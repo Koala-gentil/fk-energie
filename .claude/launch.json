@@ -4,8 +4,53 @@
     {
       "name": "astro-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "4321"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "4321"
+      ],
       "port": 4321
+    },
+    {
+      "name": "astro-dev-outils",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "4330",
+        "--ignore-lock"
+      ],
+      "port": 4330
+    },
+    {
+      "name": "astro-dev-conseils",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "4340",
+        "--ignore-lock"
+      ],
+      "port": 4340
+    },
+    {
+      "name": "astro-dev-horaires",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "4350",
+        "--ignore-lock"
+      ],
+      "port": 4350
     }
   ]
 }

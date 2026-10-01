@@ -4,6 +4,7 @@ import PageHero from '../components/PageHero.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
 import RelatedGuides from '../components/RelatedGuides.astro';
+import RelatedTools from '../components/RelatedTools.astro';
 import Icon from '../components/Icon.astro';
 import { faqSchema, type Faq as FaqItem } from '../lib/schema';
 
@@ -114,6 +115,7 @@ const faqs: FaqItem[] = [
     </div>
   </section>
 
+  <RelatedTools path="/aides-financieres/" />
   <RelatedGuides path="/aides-financieres/" />
   <Faq faqs={faqs} title="Vos questions sur les aides" />
   <CtaBand title="Estimons ensemble vos aides" />

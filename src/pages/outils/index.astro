@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { outils, outilUrl } from '../../data/outils';
+import { site } from '../../data/site';
+
+const crumbs = [{ label: 'Outils', href: '/outils/' }];
+const list = {
+  '@type': 'ItemList',
+  itemListElement: outils.map((o, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: new URL(outilUrl(o), site.url).toString(),
+    name: o.question,
+  })),
+};
+---
+
+<BaseLayout
+  title="Calculateurs chauffage : puissance, conso, coût"
+  description="Outils gratuits : puissance de poêle, consommation de granulés, coût du chauffage, pompe à chaleur, bois, et simulateur de plan avec votre poêle."
+  pageType="CollectionPage"
+  pageExtra={{ mainEntity: list }}
+  breadcrumbs={crumbs}
+>
+  <PageHero
+    eyebrow="faites le calcul"
+    title="Nos outils pour préparer votre projet de chauffage"
+    lead="Les calculs que nous faisons en showroom, à faire vous-même : puissance, consommation, coût annuel, et simulation pièce par pièce avec votre poêle. Gratuits, avec la méthode et les sources expliquées."
+    crumbs={crumbs}
+    cta={false}
+  />
+
+  <section class="container-page py-16">
+    <ul class="grid gap-6 md:grid-cols-2">
+      {
+        outils.map((o) => (
+          <li>
+            <a href={outilUrl(o)} class="group flex h-full flex-col gap-5 rounded-3xl border border-ink-200 bg-white p-7 transition hover:border-ember-300 hover:shadow-xl hover:shadow-ink-900/5">
+              <span class="grid size-14 place-items-center rounded-2xl bg-ember-100 text-ember-800 transition group-hover:bg-ember-600 group-hover:text-white">
+                <Icon name={o.icon} class="size-7" />
+              </span>
+              <span class="flex flex-col gap-2">
+                <span class="text-sm font-semibold text-ember-700">{o.name}</span>
+                <span class="font-display text-2xl leading-snug font-semibold text-ink-900 group-hover:text-ember-700">{o.question}</span>
+              </span>
+              <span class="mt-auto inline-flex items-center gap-2 font-bold text-ink-900">
+                Faire le calcul <Icon name="arrow" class="size-4 transition group-hover:translate-x-1" />
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-8 max-w-3xl text-ink-600">
+      Ces outils donnent un ordre de grandeur à partir d’hypothèses standard, détaillées et sourcées sur chaque page. Avant toute installation, nous
+      réalisons une étude gratuite de votre logement.
+    </p>
+  </section>
+
+  <CtaBand title="Un résultat à vérifier ?" text="Apportez-le en showroom ou envoyez-le-nous : nous l’affinons avec vous, gratuitement." />
+</BaseLayout>

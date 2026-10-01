@@ -1,0 +1,539 @@
+---
+import OutilLayout from '../../layouts/OutilLayout.astro';
+import Field from '../../components/outils/Field.astro';
+import Choices from '../../components/outils/Choices.astro';
+import Graphique from '../../components/outils/Graphique.astro';
+import Icon from '../../components/Icon.astro';
+import { isolations, maisons, climat, radiateurs, pac, sourcesThermique } from '../../data/thermique';
+import { deperditions, puissanceKw, puissanceRadiateur, fmt } from '../../lib/thermique';
+import { puissanceParIsolation, radiateurQuiRefroidit, partRadiateur, partProportionnelle, courbeVide } from '../../lib/graphiques-outils';
+import type { Faq } from '../../lib/schema';
+import hero from '../../assets/images/produits/showroom-pompe-a-chaleur-atlantic.jpg';
+
+const defaults = { surface: 100, hauteur: 2.5, isolation: 'annees-80' };
+const G = (value: string) => isolations.find((i) => i.value === value)!.G;
+const kw = (surface: number, G: number) => puissanceKw(deperditions(surface, 2.5, G), climat.tInterieure, climat.tBase);
+const initial = kw(defaults.surface, G(defaults.isolation));
+const surfaces = [60, 80, 100, 120, 150, 200];
+/** Part de la puissance nominale (ΔT 50 K) restituée selon la température moyenne de l'eau. */
+const temperaturesEau = [35, 40, 45, 50, 55, 60, 65, 70];
+const part = (t: number) => puissanceRadiateur(1, t, radiateurs.tAmbiante, radiateurs.n);
+/** Puissance d'une notice ancienne donnée à 90/70/20 °C (ΔT 60 K) : à diviser par ce facteur pour la ramener à ΔT 50 K. */
+const facteurDt60 = Math.pow(60 / 50, radiateurs.n);
+
+/**
+ * Départ d'eau qui équivaut, par `tExt` dehors, à un départ `departBase` par grand froid : le besoin baisse avec l'écart
+ * de température, et l'émission des radiateurs suit l'écart à la puissance n.
+ */
+const departEquivalent = (tExt: number, departBase: number) => {
+  const moyenneBase = departBase - pac.ecartDepartRetour / 2;
+  const f = (climat.tInterieure - tExt) / (climat.tInterieure - climat.tBase);
+  return radiateurs.tAmbiante + (moyenneBase - radiateurs.tAmbiante) * Math.pow(f, 1 / radiateurs.n) + pac.ecartDepartRetour / 2;
+};
+const testTemperatures = [-5, 0, 5, 10];
+const messageCourbeVide = 'Ajoutez vos radiateurs ci-dessus : le graphique montrera à partir de quelle température d’eau ils chauffent assez votre maison.';
+
+const faqs: Faq[] = [
+  {
+    q: 'Quelle puissance de pompe à chaleur pour 100 m² ?',
+    a: `Dans le Nord et le Pas-de-Calais, une maison de 100 m² sous 2,50 m doit recevoir environ ${fmt(kw(100, G('annees-80')))} kW par ${fmt(climat.tBase)} °C si elle date des années 1975-1988, et environ ${fmt(kw(100, G('recente')))} kW si elle est récente. Sur les fiches des fabricants, comparez ce chiffre à la puissance « Prated », donnée pour ${fmt(pac.tConceptionPrated)} °C en climat moyen. Une pompe à chaleur peut aussi être complétée par un appoint pour les jours les plus froids : le dimensionnement définitif se fait pièce par pièce, lors de l’étude.`,
+  },
+  {
+    q: 'Peut-on garder ses radiateurs avec une pompe à chaleur ?',
+    a: 'Souvent, oui. Une pompe à chaleur air/eau alimente les radiateurs existants, mais elle est d’autant plus efficace que l’eau qu’elle produit est peu chaude. Des radiateurs généreusement dimensionnés, ou une maison mieux isolée qu’à l’origine, permettent de chauffer avec une eau à 55 °C ou moins, le régime de référence des pompes à chaleur sur radiateurs. Sinon, on remplace les radiateurs trop petits ou on choisit une pompe à chaleur haute température.',
+  },
+  {
+    q: 'Une pompe à chaleur fonctionne-t-elle avec des radiateurs en fonte ?',
+    a: 'Oui, si les radiateurs sont assez grands. Ce qui compte n’est pas la matière du radiateur mais sa puissance par rapport aux besoins de la pièce. De grands radiateurs en fonte, dans une maison dont l’isolation a été améliorée, peuvent fonctionner avec une eau moins chaude. Décrivez-les dans le calculateur ci-dessus pour une première estimation.',
+  },
+  {
+    q: 'Qu’est-ce qu’une pompe à chaleur haute température ?',
+    a: 'C’est une pompe à chaleur air/eau capable de produire une eau plus chaude qu’un modèle classique, proche de celle d’une chaudière. Elle permet de garder des radiateurs un peu justes, mais son rendement baisse quand elle produit une eau très chaude.',
+  },
+  {
+    q: 'Comment savoir si mes radiateurs suffisent, sans calcul ?',
+    a: `Faites un test avec votre chaudière actuelle. Une eau à 55 °C par grand froid correspond à environ ${fmt(departEquivalent(0, 55), 0)} °C quand il fait 0 °C dehors, et ${fmt(departEquivalent(5, 55), 0)} °C quand il fait 5 °C. Réglez la température de départ de la chaudière sur la valeur du jour pendant quelques jours : si la maison reste confortable, vos radiateurs devraient convenir à une pompe à chaleur classique. Sur une chaudière ancienne, demandez-nous conseil avant de baisser sa température.`,
+  },
+];
+---
+
+<OutilLayout
+  slug="dimensionnement-pompe-a-chaleur"
+  seoTitle="Puissance de pompe à chaleur air/eau et radiateurs"
+  description="Quelle puissance de pompe à chaleur air/eau pour votre maison, et vos radiateurs actuels conviennent-ils ? Calcul gratuit de la température d’eau nécessaire."
+  title="Pompe à chaleur air/eau : quelle puissance, et vos radiateurs suffisent-ils ?"
+  lead="Estimez la puissance à fournir à votre maison par grand froid, puis décrivez vos radiateurs, en acier ou en fonte : nous calculons la température d’eau dont ils auront besoin avec une pompe à chaleur."
+  faqs={faqs}
+  sources={[sourcesThermique.methode3CL, sourcesThermique.pacTemperatures, sourcesThermique.radiateurs, sourcesThermique.radiateursFonte]}
+  ogImage={hero}
+  ogImageAlt="Pompes à chaleur Atlantic exposées dans un showroom FK Énergie"
+  guidesFor="/pompes-a-chaleur/"
+>
+  <section class="container-page py-12" aria-label="Calculateur">
+    <form class="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_400px]" data-outil="pac">
+      <div class="flex flex-col gap-8">
+        <fieldset class="flex flex-col gap-7 rounded-3xl border border-ink-200 bg-white p-6 sm:p-8">
+          <legend class="sr-only">Votre maison</legend>
+          <h2 class="flex items-center gap-3 text-2xl"><span class="grid size-9 place-items-center rounded-full bg-ember-600 text-base text-white">1</span> Votre maison</h2>
+          <div class="grid gap-5 sm:grid-cols-2">
+            <Field name="surface" label="Surface chauffée par les radiateurs" value={defaults.surface} unit="m²" min={5} max={600} />
+            <Field name="hauteur" label="Hauteur sous plafond" value={defaults.hauteur} unit="m" min={2} max={6} step={0.05} />
+          </div>
+          <Choices name="isolation" legend="Isolation de la maison" value={defaults.isolation} variant="list" options={isolations} />
+          <Choices name="maison" legend="Votre maison" value="isolee" options={maisons} />
+        </fieldset>
+
+        <fieldset class="flex flex-col gap-5 rounded-3xl border border-ink-200 bg-white p-6 sm:p-8">
+          <legend class="sr-only">Vos radiateurs</legend>
+          <div>
+            <h2 class="flex items-center gap-3 text-2xl"><span class="grid size-9 place-items-center rounded-full bg-ember-600 text-base text-white">2</span> Vos radiateurs à eau</h2>
+            <p class="mt-2 text-ink-600">
+              Déclarez <strong>tous</strong> les radiateurs de la surface indiquée, avec le nombre d’exemplaires identiques. Si vous connaissez leur
+              puissance (notice, plaque), choisissez « Puissance connue » ; une puissance donnée pour 90/70 °C sur une notice ancienne se divise par
+              {' '}{fmt(facteurDt60, 2)}.
+            </p>
+          </div>
+          <ul class="flex flex-col gap-3 empty:hidden" data-rads></ul>
+          <button type="button" class="btn-secondary self-start" data-add>
+            <Icon name="plus" class="size-5" /> Ajouter un radiateur
+          </button>
+          <noscript><p class="text-ink-600">Cette partie du calcul nécessite JavaScript.</p></noscript>
+        </fieldset>
+      </div>
+
+      <div class="flex flex-col gap-5 rounded-3xl bg-ink-900 p-7 text-ink-100 lg:sticky lg:top-28">
+        <div>
+          <p class="font-semibold text-ember-300">Puissance à fournir par {fmt(climat.tBase)} °C</p>
+          <p class="mt-1 font-display text-6xl font-semibold text-white" aria-live="polite">
+            <span data-out="kw">{fmt(initial)}</span>&nbsp;<span class="text-3xl">kW</span>
+          </p>
+          <p class="mt-2 text-sm text-ink-300">C’est ce que la maison perd le jour le plus froid de l’année. Sur les fiches des pompes à chaleur, on compare ce chiffre à la puissance « Prated ».</p>
+        </div>
+        <div class="rounded-2xl bg-ink-800 p-5" aria-live="polite">
+          <p class="text-sm text-ink-300">Vos radiateurs</p>
+          <p class="mt-1 text-lg font-semibold text-white" data-out="rads">Ajoutez vos radiateurs pour vérifier s’ils conviennent.</p>
+          <div class="mt-2 empty:hidden" data-out="jauge"></div>
+          <p class="mt-3 text-ink-200 empty:hidden" data-out="verdict"></p>
+        </div>
+        <a href="/contact/?projet=pac" class="btn-primary w-full" data-out="cta">
+          Demander une étude gratuite <Icon name="arrow" class="size-4" />
+        </a>
+        <p class="text-sm text-ink-400">Estimation prudente : le dimensionnement définitif se fait pièce par pièce, lors de l’étude.</p>
+      </div>
+    </form>
+
+    <template data-rad-template>
+      <li class="grid grid-cols-2 gap-3 rounded-2xl border border-ink-200 bg-ink-50 p-4 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_auto] sm:items-end">
+        <label class="col-span-2 flex flex-col gap-1.5 sm:col-span-1">
+          <span class="text-sm font-bold">Type</span>
+          <select data-f="type" class="h-12 w-full rounded-xl border border-ink-300 bg-white px-3 font-semibold">
+            {radiateurs.types.map((t) => <option value={t.value}>{t.label}</option>)}
+          </select>
+        </label>
+        <label class="flex flex-col gap-1.5" data-wrap="hauteur">
+          <span class="text-sm font-bold">Hauteur</span>
+          <select data-f="hauteur" class="h-12 w-full rounded-xl border border-ink-300 bg-white px-3 font-semibold"></select>
+        </label>
+        <label class="flex flex-col gap-1.5" data-wrap="taille">
+          <span class="text-sm font-bold" data-label="taille">Longueur (cm)</span>
+          <input data-f="taille" type="number" inputmode="decimal" min="1" max="300" value="80" class="h-12 w-full rounded-xl border border-ink-300 bg-white px-3 font-semibold" />
+        </label>
+        <label class="flex flex-col gap-1.5">
+          <span class="text-sm font-bold">Nombre</span>
+          <input data-f="nombre" type="number" inputmode="numeric" min="1" max="50" value="1" class="h-12 w-full rounded-xl border border-ink-300 bg-white px-3 font-semibold" />
+        </label>
+        <button type="button" data-remove class="grid size-12 place-items-center justify-self-end rounded-full bg-ink-100 text-ink-700 hover:bg-danger-50 hover:text-danger-700">
+          <Icon name="close" class="size-5" />
+        </button>
+      </li>
+    </template>
+  </section>
+
+  <section class="container-page pb-16" aria-labelledby="graphiques-title">
+    <h2 id="graphiques-title" class="text-3xl sm:text-4xl">Votre résultat en images</h2>
+    <div class="mt-8 grid items-start gap-6 lg:grid-cols-2">
+      <Graphique
+        id="courbe"
+        class="touch-pan-y lg:col-span-2"
+        titre="Vos radiateurs chauffent-ils assez ?"
+        lead="En orange, la chaleur que donnent vos radiateurs selon la température de l’eau envoyée dans le circuit. En noir, ce dont la maison a besoin par grand froid. Là où l’orange passe au-dessus du noir, l’eau est assez chaude."
+        html={courbeVide(messageCourbeVide)}
+      >
+        <p class="mt-3 min-h-6 text-ink-700" data-lecture aria-live="polite"></p>
+        <ul class="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-ink-600">
+          <li class="flex items-center gap-1.5"><span class="size-3 rounded-sm bg-moss-100 ring-1 ring-moss-500" aria-hidden="true"></span>Jusqu’à {pac.niveaux[0].max} °C : idéal</li>
+          <li class="flex items-center gap-1.5"><span class="size-3 rounded-sm bg-ember-50 ring-1 ring-ember-300" aria-hidden="true"></span>{pac.niveaux[0].max} à {pac.niveaux[1].max} °C : pompe à chaleur classique</li>
+          <li class="flex items-center gap-1.5"><span class="size-3 rounded-sm bg-ember-100 ring-1 ring-ember-400" aria-hidden="true"></span>{pac.niveaux[1].max} à {pac.niveaux[2].max} °C : haute température</li>
+          <li class="flex items-center gap-1.5"><span class="size-3 rounded-sm bg-danger-50 ring-1 ring-danger-500" aria-hidden="true"></span>Au-delà : trop chaud pour des radiateurs</li>
+        </ul>
+      </Graphique>
+
+      <Graphique
+        titre="Quand l’eau refroidit, un radiateur perd vite sa force"
+        lead="Part de sa puissance qu’il garde, selon la température de l’eau qui y circule, dans une pièce à 20 °C."
+        html={radiateurQuiRefroidit()}
+      >
+        <p class="mt-4 flex items-center gap-2 text-sm text-ink-600">
+          <span class="h-3.5 w-4 rounded-t-sm border-2 border-b-0 border-dashed border-ink-500" aria-hidden="true"></span>
+          Ce qu’on pourrait croire : {fmt(partProportionnelle(45) * 100, 0)} %
+        </p>
+        <p class="mt-4 text-ink-700">
+          Une eau à 45 °C, c’est à mi-chemin entre la pièce (20 °C) et l’eau d’une chaudière (70 °C). On pourrait croire que le radiateur chauffe
+          moitié moins (le pointillé) : en réalité, il ne garde que <strong class="text-ink-900">{fmt(partRadiateur(45) * 100, 0)} %</strong> de sa puissance. Sa
+          force baisse plus vite que la température de l’eau.
+        </p>
+        <Fragment slot="tableau">
+          <table class="w-full text-left text-sm">
+            <thead class="text-ink-900">
+              <tr><th scope="col" class="px-2 py-2">Eau dans le radiateur</th><th scope="col" class="px-2 py-2">Puissance gardée</th></tr>
+            </thead>
+            <tbody>
+              {
+                temperaturesEau.map((t) => (
+                  <tr class="border-t border-ink-200">
+                    <th scope="row" class="px-2 py-2 font-semibold">{t} °C</th>
+                    <td class="px-2 py-2 tabular-nums">{fmt(part(t) * 100, 0)} %</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </Fragment>
+      </Graphique>
+
+      <Graphique
+        id="isolation"
+        titre="Même surface, autre isolation"
+        lead={`Puissance à fournir par grand froid pour vos ${defaults.surface} m², selon l’époque de la maison.`}
+        html={puissanceParIsolation(defaults.surface, defaults.hauteur, 'isolee', defaults.isolation)}
+      >
+        <Fragment slot="tableau">
+          <p class="mb-3 text-sm text-ink-600">En kW, maison non mitoyenne, 2,50 m sous plafond, {fmt(climat.tBase)} °C dehors.</p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="text-ink-900">
+                <tr>
+                  <th scope="col" class="px-2 py-2">Surface</th>
+                  {isolations.map((i) => <th scope="col" class="px-2 py-2 font-semibold">{i.short}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  surfaces.map((s) => (
+                    <tr class="border-t border-ink-200">
+                      <th scope="row" class="px-2 py-2 font-semibold whitespace-nowrap">{s} m²</th>
+                      {isolations.map((i) => <td class="px-2 py-2 tabular-nums">{fmt(kw(s, i.G))}</td>)}
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </Fragment>
+      </Graphique>
+    </div>
+
+    <div class="mt-6 grid gap-6 lg:grid-cols-2">
+      <div class="rounded-3xl bg-ember-50 p-6 sm:p-8">
+        <h3 class="text-2xl">À retenir</h3>
+        <ul class="mt-4 flex flex-col gap-4 text-ink-800">
+          <li class="flex gap-3">
+            <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+            <span><strong>Plus l’eau est fraîche, plus la pompe à chaleur est économe.</strong> D’où l’intérêt de radiateurs assez grands.</span>
+          </li>
+          <li class="flex gap-3">
+            <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+            <span><strong>Garder ses radiateurs est souvent possible.</strong> Au besoin, on remplace seulement les plus justes.</span>
+          </li>
+          <li class="flex gap-3">
+            <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+            <span><strong>Déclarez tous vos radiateurs.</strong> S’il en manque un, le calcul croit la maison moins bien équipée qu’elle ne l’est.</span>
+          </li>
+        </ul>
+      </div>
+      <div class="card p-6 sm:p-8">
+        <h3 class="text-2xl">Le test à faire chez vous</h3>
+        <p class="mt-2 text-ink-700">
+          Réglez la température de départ de votre chaudière selon la météo du jour, pendant quelques jours. Si la maison reste confortable, vos
+          radiateurs conviennent à une pompe à chaleur classique.
+        </p>
+        <table class="mt-4 w-full text-left">
+          <thead class="text-ink-900">
+            <tr><th scope="col" class="py-2 pr-3">S’il fait dehors</th><th scope="col" class="py-2">Réglez la chaudière sur</th></tr>
+          </thead>
+          <tbody>
+            {testTemperatures.map((t) => <tr class="border-t border-ink-200"><th scope="row" class="py-2 pr-3 font-semibold">{fmt(t)} °C</th><td class="py-2 tabular-nums">environ {fmt(departEquivalent(t, 55), 0)} °C</td></tr>)}
+          </tbody>
+        </table>
+        <p class="mt-3 text-sm text-ink-600">Sur une chaudière ancienne, demandez-nous conseil avant de baisser durablement sa température.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page grid grid-cols-1 gap-12 pb-16 lg:grid-cols-12">
+    <div class="prose-fk lg:col-span-7">
+      <h2>Comment on calcule, pour les curieux</h2>
+      <h3>La puissance de la pompe à chaleur</h3>
+      <p>
+        La puissance affichée est ce que la maison perd quand il fait {fmt(climat.tBase)} °C dehors, la température de base retenue par la méthode
+        officielle du DPE pour le Nord et le Pas-de-Calais. Elle utilise les valeurs d’isolation par défaut de cette méthode, volontairement prudentes,
+        sans compter la chaleur gratuite du soleil et des occupants.
+      </p>
+      <p>
+        Sur la fiche d’une pompe à chaleur, la puissance de référence s’appelle « Prated » : elle est mesurée pour {fmt(pac.tConceptionPrated)} °C
+        dehors (règlement européen n° 813/2013). Une pompe à chaleur peut être un peu moins puissante que le besoin par grand froid, avec un appoint
+        électrique ou une chaudière qui prend le relais les jours les plus froids. C’est ce que nous ajustons lors de l’étude.
+      </p>
+      <h3>Les radiateurs</h3>
+      <p>
+        La puissance écrite sur un radiateur est donnée pour une eau à 70 °C en moyenne (75 °C à l’entrée, 65 °C à la sortie) dans une pièce à 20 °C
+        (norme européenne EN 442). Avec une eau moins chaude, elle baisse selon une courbe fixée par cette norme : c’est elle que suit le graphique.
+      </p>
+      <p>
+        Nous estimons la puissance de vos radiateurs d’après leur type et leurs dimensions, puis nous cherchons la température d’eau qui leur permet de
+        compenser les pertes de la maison par grand froid, avec {pac.ecartDepartRetour} °C d’écart entre l’entrée et la sortie, comme dans les essais
+        réglementaires des pompes à chaleur. Plus cette température est basse, plus la pompe à chaleur sera efficace :
+      </p>
+      <ul>
+        {pac.niveaux.map((n) => <li><strong>{n.label}</strong> : {n.texte}.</li>)}
+        <li>
+          <strong>Au-delà de {pac.departNominalRadiateurs} °C</strong> : c’est plus que ce pour quoi les radiateurs sont prévus. Soit des radiateurs
+          manquent dans la liste, soit la maison perd moins de chaleur que notre estimation prudente, soit il faut revoir l’isolation ou les radiateurs.
+        </li>
+      </ul>
+      <p>
+        Le calcul porte sur toute la surface indiquée : une pièce peut manquer de radiateur même si l’ensemble suffit. Lors de l’étude, nous vérifions
+        pièce par pièce. Pour choisir entre air/eau et air/air, lisez notre guide <a href="/conseils/pompe-a-chaleur-air-eau-ou-air-air/"
+          >pompe à chaleur air/eau ou air/air</a
+        >.
+      </p>
+    </div>
+
+    <div class="lg:col-span-5">
+      <h2 class="text-2xl">Puissance des radiateurs, acier et fonte</h2>
+      <p class="mt-2 text-ink-600">Avec une eau à 70 °C, par mètre de longueur (acier) ou par élément (fonte), d’après les catalogues des fabricants.</p>
+      <div class="mt-5 overflow-x-auto rounded-2xl border border-ink-200 bg-white">
+        <table class="w-full text-left text-[15px]">
+          <thead class="bg-ink-100 text-ink-900">
+            <tr>
+              <th scope="col" class="px-3 py-2.5">Radiateur</th>
+              <th scope="col" class="px-3 py-2.5">Hauteur</th>
+              <th scope="col" class="px-3 py-2.5">Puissance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              radiateurs.types
+                .filter((t) => t.mesure !== 'puissance')
+                .flatMap((t) =>
+                  t.hauteurs.map((h, i) => (
+                    <tr class="border-t border-ink-100">
+                      {i === 0 && <th scope="row" rowspan={t.hauteurs.length} class="px-3 py-2 align-top font-semibold">{t.label}</th>}
+                      <td class="px-3 py-2 tabular-nums">{h.h / 10} cm</td>
+                      <td class="px-3 py-2 tabular-nums">{fmt(h.w, 0)} W {t.mesure === 'longueur' ? 'par mètre' : 'par élément'}</td>
+                    </tr>
+                  )),
+                )
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 text-sm text-ink-600">
+        Les radiateurs en fonte anciens varient beaucoup d’un modèle à l’autre : si vous connaissez leur puissance, elle sera plus juste que ces valeurs.
+      </p>
+    </div>
+  </section>
+</OutilLayout>
+
+<script>
+  import { climat, isolationDe, radiateurs, pac } from '../../data/thermique';
+  import { deperditions, puissanceKw, temperatureEauNecessaire, fmt } from '../../lib/thermique';
+  import { margesCourbe } from '../../lib/graphiques';
+  import {
+    jaugeDepart,
+    courbeRadiateurs,
+    courbeVide,
+    puissanceAuDepart,
+    puissanceParIsolation,
+    departMin,
+    departMax,
+  } from '../../lib/graphiques-outils';
+
+  const form = document.querySelector<HTMLFormElement>('[data-outil="pac"]');
+  const template = document.querySelector<HTMLTemplateElement>('[data-rad-template]');
+  if (form && template) {
+    const list = form.querySelector<HTMLUListElement>('[data-rads]')!;
+    const addButton = form.querySelector<HTMLButtonElement>('[data-add]')!;
+    const out = (key: string) => form.querySelector<HTMLElement>(`[data-out="${key}"]`)!;
+    const typeOf = (value: string) => radiateurs.types.find((t) => t.value === value) ?? radiateurs.types[0];
+    const field = <T extends HTMLElement>(li: Element, f: string) => li.querySelector<T>(`[data-f="${f}"]`)!;
+    const defaultTaille = { longueur: '80', elements: '10', puissance: '1000' };
+    const graphCourbe = document.querySelector<HTMLElement>('[data-graph="courbe"]')!;
+    const lecture = document.querySelector<HTMLElement>('[data-lecture]')!;
+    const messageVide = graphCourbe.textContent!.trim();
+    /** Dernier état de la courbe, pour la redessiner à la bonne largeur et lire une valeur au survol. */
+    let etat: { p50: number; besoin: number; tDepart: number } | null = null;
+
+    const dessinerCourbe = () => {
+      if (!etat) {
+        graphCourbe.innerHTML = courbeVide(messageVide);
+        lecture.textContent = '';
+        return;
+      }
+      graphCourbe.innerHTML = courbeRadiateurs(etat.p50, etat.besoin, etat.tDepart, Math.max(280, Math.round(graphCourbe.clientWidth)));
+      lecture.textContent =
+        etat.tDepart <= departMax
+          ? `Vos radiateurs chauffent assez la maison avec une eau à ${fmt(etat.tDepart, 0)} °C ou plus. Passez la souris ou le doigt sur le graphique pour lire une autre température.`
+          : `Même avec une eau à ${departMax} °C, vos radiateurs ne suffisent pas d’après notre estimation.`;
+    };
+    let largeur = 0;
+    new ResizeObserver(() => {
+      if (graphCourbe.clientWidth === largeur) return;
+      largeur = graphCourbe.clientWidth;
+      if (etat) dessinerCourbe();
+    }).observe(graphCourbe);
+
+    /** Survol : température sous le pointeur, chaleur donnée et besoin. */
+    graphCourbe.addEventListener('pointermove', (e) => {
+      const svg = graphCourbe.querySelector('svg');
+      if (!etat || !svg) return;
+      const box = svg.getBoundingClientRect();
+      const w = box.width - margesCourbe.gauche - margesCourbe.droite;
+      const x = e.clientX - box.left;
+      if (x < margesCourbe.gauche || x > box.width - margesCourbe.droite) return;
+      const t = Math.round(departMin + ((x - margesCourbe.gauche) / w) * (departMax - departMin));
+      const curseur = svg.querySelector('[data-curseur]')!;
+      const cx = String(margesCourbe.gauche + ((t - departMin) / (departMax - departMin)) * w);
+      curseur.setAttribute('x1', cx);
+      curseur.setAttribute('x2', cx);
+      curseur.setAttribute('visibility', 'visible');
+      const kwT = puissanceAuDepart(etat.p50, t) / 1000;
+      lecture.textContent = `Avec une eau à ${t} °C : vos radiateurs donnent ${fmt(kwT)} kW, la maison en demande ${fmt(etat.besoin / 1000)}. ${kwT >= etat.besoin / 1000 ? 'C’est assez.' : 'C’est trop juste.'}`;
+    });
+    graphCourbe.addEventListener('pointerleave', () => dessinerCourbe());
+
+    /** Adapte la ligne au type choisi : hauteurs proposées, longueur, éléments ou puissance. */
+    const syncRow = (li: HTMLElement) => {
+      const type = typeOf(field<HTMLSelectElement>(li, 'type').value);
+      const hauteur = field<HTMLSelectElement>(li, 'hauteur');
+      const previous = hauteur.value;
+      hauteur.replaceChildren(
+        ...type.hauteurs.map((h) => {
+          const o = document.createElement('option');
+          o.value = String(h.h);
+          o.textContent = `${h.h / 10} cm`;
+          return o;
+        }),
+      );
+      if (type.hauteurs.some((h) => String(h.h) === previous)) hauteur.value = previous;
+      else if (type.hauteurs.length > 2) hauteur.value = String(type.hauteurs[2].h);
+      li.querySelector<HTMLElement>('[data-wrap="hauteur"]')!.hidden = type.mesure === 'puissance';
+      const taille = field<HTMLInputElement>(li, 'taille');
+      taille.max = type.mesure === 'longueur' ? '300' : type.mesure === 'elements' ? '60' : '10000';
+      li.querySelector('[data-label="taille"]')!.textContent =
+        type.mesure === 'longueur' ? 'Longueur (cm)' : type.mesure === 'elements' ? 'Éléments' : 'Puissance (W)';
+    };
+
+    /** Libellés accessibles numérotés : « Type du radiateur 2 »… */
+    const renumber = () =>
+      [...list.children].forEach((li, i) => {
+        const n = i + 1;
+        field(li, 'type').setAttribute('aria-label', `Type du radiateur ${n}`);
+        field(li, 'hauteur').setAttribute('aria-label', `Hauteur du radiateur ${n}`);
+        field(li, 'taille').setAttribute('aria-label', `${li.querySelector('[data-label="taille"]')!.textContent} du radiateur ${n}`);
+        field(li, 'nombre').setAttribute('aria-label', `Nombre de radiateurs identiques au radiateur ${n}`);
+        li.querySelector('[data-remove]')!.setAttribute('aria-label', `Retirer le radiateur ${n}`);
+      });
+
+    const addRow = () => {
+      const li = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
+      list.append(li);
+      syncRow(li);
+      li.querySelector('[data-remove]')!.addEventListener('click', () => {
+        li.remove();
+        renumber();
+        addButton.focus();
+        update();
+      });
+      field(li, 'type').addEventListener('change', () => {
+        const before = li.querySelector('[data-label="taille"]')!.textContent;
+        syncRow(li);
+        const type = typeOf(field<HTMLSelectElement>(li, 'type').value);
+        // Changement d'unité (longueur, éléments, puissance) : la valeur saisie n'a plus de sens.
+        if (li.querySelector('[data-label="taille"]')!.textContent !== before) field<HTMLInputElement>(li, 'taille').value = defaultTaille[type.mesure];
+        renumber();
+      });
+      renumber();
+      return li;
+    };
+
+    /** Radiateurs déclarés : puissance nominale (W, ΔT 50 K) et description courte. */
+    const lignes = () =>
+      [...list.children].flatMap((li) => {
+        const type = typeOf(field<HTMLSelectElement>(li, 'type').value);
+        const tailleInput = field<HTMLInputElement>(li, 'taille');
+        const nombreInput = field<HTMLInputElement>(li, 'nombre');
+        const taille = Number(tailleInput.value);
+        const nombre = Number(nombreInput.value);
+        if (!tailleInput.checkValidity() || !nombreInput.checkValidity() || !(taille > 0 && nombre > 0)) return [];
+        const hauteur = field<HTMLSelectElement>(li, 'hauteur').value;
+        if (type.mesure === 'puissance') return [{ p50: taille * nombre, texte: `${nombre} × ${taille} W` }];
+        const w = type.hauteurs.find((h) => String(h.h) === hauteur)?.w ?? 0;
+        const unit = type.mesure === 'longueur' ? (w * taille) / 100 : w * taille;
+        const dim = type.mesure === 'longueur' ? `${Number(hauteur) / 10} × ${taille} cm` : `${taille} éléments de ${Number(hauteur) / 10} cm`;
+        return [{ p50: unit * nombre, texte: `${nombre} × ${type.label.toLowerCase()} ${dim}` }];
+      });
+
+    const update = () => {
+      const d = new FormData(form);
+      const isolation = isolationDe(d.get('isolation'), d.get('maison'));
+      const surfaceInput = form.querySelector<HTMLInputElement>('[name="surface"]')!;
+      const hauteurInput = form.querySelector<HTMLInputElement>('[name="hauteur"]')!;
+      const surface = Number(surfaceInput.value);
+      const hauteur = Number(hauteurInput.value);
+      if (!surfaceInput.checkValidity() || !hauteurInput.checkValidity() || !(surface > 0 && hauteur > 0)) {
+        out('kw').textContent = '—';
+        out('rads').textContent = 'Indiquez une surface (5 à 600 m²) et une hauteur sous plafond (2 à 6 m).';
+        out('verdict').textContent = '';
+        out('jauge').replaceChildren();
+        etat = null;
+        dessinerCourbe();
+        return;
+      }
+      const kw = puissanceKw(deperditions(surface, hauteur, isolation.G), climat.tInterieure, climat.tBase);
+      out('kw').textContent = fmt(kw);
+      document.querySelector('[data-graph="isolation"]')!.innerHTML = puissanceParIsolation(surface, hauteur, d.get('maison'), String(d.get('isolation')));
+      document.querySelector('[data-graph-lead="isolation"]')!.textContent = `Puissance à fournir par grand froid pour vos ${fmt(surface, 0)} m², selon l’époque de la maison.`;
+
+      const rads = lignes();
+      const p50 = rads.reduce((sum, r) => sum + r.p50, 0);
+      let note = `Outil PAC : ${surface} m² sous ${fmt(hauteur, 2)} m, maison ${isolation.label.toLowerCase()}, besoin estimé ${fmt(kw)} kW par ${fmt(climat.tBase)} °C.`;
+      if (p50 > 0) {
+        const tDepart = temperatureEauNecessaire(kw * 1000, p50, radiateurs.tAmbiante, radiateurs.n) + pac.ecartDepartRetour / 2;
+        const niveau = pac.niveaux.find((n) => tDepart <= n.max);
+        const tTexte = tDepart > 90 ? 'plus de 90 °C' : `environ ${fmt(tDepart, 0)} °C`;
+        out('rads').textContent = `Par grand froid, il faudrait envoyer une eau à ${tTexte} dans vos radiateurs (${fmt(p50 / 1000)} kW de radiateurs avec une eau à 70 °C).`;
+        out('verdict').textContent = niveau ? niveau.verdict : pac.verdictHorsNorme;
+        out('jauge').innerHTML = jaugeDepart(tDepart);
+        etat = { p50, besoin: kw * 1000, tDepart };
+        note += ` Radiateurs : ${rads.map((r) => r.texte).join(', ')} (${fmt(p50 / 1000)} kW nominaux), départ estimé ${tTexte}.`;
+      } else {
+        out('rads').textContent = list.children.length ? 'Complétez les dimensions de vos radiateurs.' : 'Ajoutez vos radiateurs pour vérifier s’ils conviennent.';
+        out('verdict').textContent = '';
+        out('jauge').replaceChildren();
+        etat = null;
+      }
+      dessinerCourbe();
+      out('cta').setAttribute('href', `/contact/?${new URLSearchParams({ projet: 'pac', surface: String(surface), note })}`);
+    };
+
+    addButton.addEventListener('click', () => {
+      field<HTMLSelectElement>(addRow(), 'type').focus();
+      update();
+    });
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    update();
+  }
+</script>

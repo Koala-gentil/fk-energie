@@ -6,6 +6,7 @@ import PageHero from '../../components/PageHero.astro';
 import Faq from '../../components/Faq.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import RelatedGuides from '../../components/RelatedGuides.astro';
+import Sources from '../../components/Sources.astro';
 import Icon from '../../components/Icon.astro';
 import { productNav, serviceNav, site } from '../../data/site';
 import { articleSchema, faqSchema } from '../../lib/schema';
@@ -98,24 +99,17 @@ const relatedPages = data.related.map((href) => links.find((l) => l.href === hre
 
   {data.faq.length > 0 && <Faq faqs={data.faq} title="En bref" />}
 
-  <section class="container-page pb-8" aria-labelledby="sources-title">
-    <div class="rounded-3xl border border-ink-200 bg-white p-6 sm:p-8">
-      <h2 id="sources-title" class="text-2xl">Sources</h2>
-      <ol class="mt-4 list-decimal space-y-2 pl-6 text-ink-700 marker:text-ink-500">
-        {
-          data.sources.map((s) => (
-            <li>
-              <a href={s.url} target="_blank" rel="noopener" class="underline decoration-ink-300 underline-offset-2 hover:text-ember-700">{s.label}</a>
-            </li>
-          ))
-        }
-      </ol>
-      <p class="mt-4 text-sm text-ink-600">
-        La réglementation et les aides évoluent : en cas de doute, référez-vous aux textes officiels ou demandez-nous conseil.
-      </p>
-    </div>
-  </section>
+  <Sources sources={data.sources} />
 
   <RelatedGuides exclude={guide.id} title="Autres conseils" />
   <CtaBand />
 </BaseLayout>
+
+<script>
+  import { graphiquesArticles } from '../../lib/graphiques-articles';
+
+  document.querySelectorAll<HTMLElement>('[data-graphique]').forEach((el) => {
+    const graphique = graphiquesArticles[el.dataset.graphique ?? ''];
+    if (graphique) el.innerHTML = graphique();
+  });
+</script>

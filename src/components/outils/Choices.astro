@@ -1,0 +1,40 @@
+---
+/** Choix unique d'un outil de calcul : pastilles (`chips`) ou liste avec précision (`list`). */
+interface Props {
+  name: string;
+  legend: string;
+  options: { value: string; label: string; hint?: string }[];
+  value: string;
+  variant?: 'chips' | 'list';
+  class?: string;
+}
+const { name, legend, options, value, variant = 'chips', class: className } = Astro.props;
+---
+
+<fieldset class={className}>
+  <legend class="mb-2.5 font-bold">{legend}</legend>
+  {
+    variant === 'chips' ? (
+      <div class="flex flex-wrap gap-2">
+        {options.map((o) => (
+          <label class="inline-flex min-h-11 cursor-pointer items-center rounded-full border border-ink-300 bg-white px-4 font-semibold transition select-none hover:border-ember-400 has-checked:border-ember-600 has-checked:bg-ember-100 has-checked:text-ember-800 has-focus-visible:ring-4 has-focus-visible:ring-ember-600/25">
+            <input type="radio" name={name} value={o.value} checked={o.value === value} class="sr-only" />
+            {o.label}
+          </label>
+        ))}
+      </div>
+    ) : (
+      <div class="grid gap-2">
+        {options.map((o) => (
+          <label class="flex cursor-pointer items-start gap-3 rounded-2xl border-2 border-ink-200 bg-ink-50 px-4 py-3 transition hover:border-ember-300 has-checked:border-ember-600 has-checked:bg-ember-100 has-focus-visible:ring-4 has-focus-visible:ring-ember-600/25">
+            <input type="radio" name={name} value={o.value} checked={o.value === value} class="mt-1 size-4 shrink-0 accent-ember-600" />
+            <span class="flex flex-col">
+              <span class="font-bold leading-snug">{o.label}</span>
+              {o.hint && <span class="text-sm text-ink-600">{o.hint}</span>}
+            </span>
+          </label>
+        ))}
+      </div>
+    )
+  }
+</fieldset>

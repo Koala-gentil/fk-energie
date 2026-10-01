@@ -1,0 +1,467 @@
+---
+import OutilLayout from '../../layouts/OutilLayout.astro';
+import Field from '../../components/outils/Field.astro';
+import Choices from '../../components/outils/Choices.astro';
+import Graphique from '../../components/outils/Graphique.astro';
+import Icon from '../../components/Icon.astro';
+import { isolations, isolationDe, maisons, climat, granules, energies, systemes, systeme, sourcesThermique } from '../../data/thermique';
+import { consommationMaison, kwhEquivalents, fmt, euros } from '../../lib/thermique';
+import { granulesParMois, granulesParIsolation } from '../../lib/graphiques-outils';
+import type { Faq } from '../../lib/schema';
+import hero from '../../assets/images/realisations/poele-granules-palazzetti-vivi-us.jpg';
+
+const poele = systeme('poele-granules');
+const chaudiere = systeme('chaudiere-granules');
+const defaults = { surface: 100, hauteur: 2.5, isolation: 'annees-80', actuel: 'fioul' };
+/** Granulés consommés par an (kg), estimation d'après la maison. */
+const kgParAn = (surface: number, isolation: string, s = poele, part = 1) =>
+  (consommationMaison(surface, 2.5, isolationDe(isolation), s, climat.dh19).kwh * part) / granules.pci;
+/** Granulés (kg) pour fournir la même chaleur que `quantite` (litres, kWh, stères…) consommée avec le chauffage `actuel`. */
+const kgDepuis = (quantite: number, actuel: string, s = poele) => {
+  const a = systeme(actuel);
+  return kwhEquivalents(quantite * energies[a.energie].pci, a, s) / granules.pci;
+};
+const actuels = systemes.filter((s) => s.energie !== 'granulesVrac' && s.energie !== 'granulesSac');
+const unites: Record<string, string> = { litre: 'litres', kWh: 'kWh', tonne: 'tonnes', stère: 'stères' };
+const actuelDefaut = systeme(defaults.actuel);
+const initialKg = kgDepuis(actuelDefaut.defaut, defaults.actuel);
+const fioul1000Chaudiere = kgDepuis(1000, 'fioul', chaudiere);
+const fioul1000Poele = kgDepuis(1000, 'fioul');
+/** Part de la consommation annuelle en janvier (degrés-heures du mois). */
+const partJanvier = climat.dh19Mois[0] / climat.dh19;
+const parJourJanvier = (kg: number) => (kg * partJanvier) / 31;
+
+/** Consommation horaire à pleine puissance (kg/h) d'un poêle de `kw` kW. */
+const kgParHeure = (kw: number) => kw / (granules.pci * granules.rendementPoele);
+const puissances = [4, 5, 6, 7, 8, 9, 10, 12];
+const surfaces = [60, 80, 100, 120, 150];
+const ex100 = kgParAn(100, 'annees-80');
+const ex100Recente = kgParAn(100, 'recente');
+const [mesurePoeleMin, mesurePoeleMax] = granules.mesures.poele;
+const [mesureChaudiereMin, mesureChaudiereMax] = granules.mesures.chaudiere;
+/** Part de la consommation annuelle de novembre à mars. */
+const partHiver = [10, 11, 0, 1, 2].reduce((a, m) => a + climat.dh19Mois[m], 0) / climat.dh19;
+
+const faqs: Faq[] = [
+  {
+    q: 'Je consomme 1 000 litres de fioul par an : combien de granulés me faudra-t-il ?',
+    a: `Pour la même chaleur, 1 000 litres de fioul brûlés dans une chaudière correspondent à environ ${fmt(fioul1000Chaudiere / 1000)} tonnes de granulés dans une chaudière à granulés, soit ${fmt(Math.round(fioul1000Chaudiere / granules.sacKg / 5) * 5, 0)} sacs de ${granules.sacKg} kg. Avec un poêle qui chaufferait toute la maison, comptez environ ${fmt(fioul1000Poele / 1000)} tonnes. Le calculateur fait la conversion pour votre consommation, en fioul, gaz, électricité ou bois.`,
+  },
+  {
+    q: 'Combien de sacs de granulés faut-il pour un hiver ?',
+    a: `Selon l’ADEME, un poêle à granulés consomme en moyenne ${fmt(mesurePoeleMin)} à ${fmt(mesurePoeleMax)} tonne par an, souvent en complément d’un autre chauffage, soit ${fmt(Math.round((mesurePoeleMin * 1000) / granules.sacKg), 0)} à ${fmt(Math.round((mesurePoeleMax * 1000) / granules.sacKg), 0)} sacs de ${granules.sacKg} kg. Une chaudière à granulés, qui chauffe toute la maison, en consomme ${fmt(mesureChaudiereMin)} à ${fmt(mesureChaudiereMax)} tonnes. Pour un poêle qui chaufferait seul une maison de 100 m², notre calcul conventionnel donne environ ${fmt(Math.round(ex100 / granules.sacKg), 0)} sacs pour une maison de 1975 à 1988 et ${fmt(Math.round(ex100Recente / granules.sacKg), 0)} sacs pour une maison récente.`,
+  },
+  {
+    q: 'Combien consomme un poêle à granulés par jour ?',
+    a: `À pleine puissance, un poêle de 8 kW brûle environ ${fmt(kgParHeure(8))} kg de granulés par heure. Mais un poêle tourne rarement à fond : il module sa puissance selon la température demandée. En moyenne, pour un poêle qui chauffe seul une maison de 100 m² de 1975 à 1988, comptez environ ${fmt(parJourJanvier(ex100), 0)} kg par jour en janvier, le mois le plus froid.`,
+  },
+  {
+    q: 'Vaut-il mieux acheter les granulés en sac ou en vrac ?',
+    a: `Le sac de ${granules.sacKg} kg convient aux poêles, que l’on remplit à la main. Le vrac, livré par camion souffleur dans un silo, est réservé aux chaudières. Au ${granules.prixDate}, les prix moyens étaient très proches : ${fmt(granules.prixSac, 0)} € la tonne en sacs et ${fmt(granules.prixVrac, 0)} € en vrac (Propellet). Dans les deux cas, choisissez des granulés certifiés, comme ENplus A1, et stockez-les au sec.`,
+  },
+  {
+    q: 'Pourquoi ma consommation réelle est-elle différente ?',
+    a: 'Le calcul suit la méthode conventionnelle du DPE : un hiver moyen, 19 °C dans la maison, des baisses de température la nuit et des granulés certifiés. Une consigne plus élevée, des granulés humides ou un poêle mal entretenu font monter la consommation. Pour les maisons anciennes peu isolées, la méthode du DPE surestime souvent la consommation réelle, selon le Conseil d’analyse économique.',
+  },
+];
+---
+
+<OutilLayout
+  slug="consommation-granules"
+  seoTitle="Consommation de granulés : sacs par an et budget"
+  description="Combien de sacs de granulés par an pour votre poêle ou chaudière ? Calcul gratuit de la consommation (kg, sacs, palettes) et du budget, selon votre maison."
+  title="Consommation de granulés : combien de sacs par an ?"
+  lead="Partez de ce que vous consommez aujourd’hui (fioul, gaz, électricité, bois) : nous le traduisons en sacs de granulés et en budget. Pas de facture sous la main ? Une estimation d’après votre maison donne un ordre de grandeur."
+  faqs={faqs}
+  sources={[sourcesThermique.methode3CL, sourcesThermique.ademeConsommation, sourcesThermique.cae, sourcesThermique.granules, sourcesThermique.prixGranules]}
+  ogImage={hero}
+  ogImageAlt="Poêle à granulés Palazzetti Vivi US installé par FK Énergie"
+  guidesFor="/poele-a-granules/"
+>
+  <section class="container-page py-12" aria-label="Calculateur de consommation annuelle">
+    <form class="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_400px]" data-outil="granules-an">
+      <div class="flex flex-col gap-7 rounded-3xl border border-ink-200 bg-white p-6 sm:p-8">
+        <Choices
+          name="appareil"
+          legend="Votre appareil"
+          value="poele"
+          options={[
+            { value: 'poele', label: 'Poêle à granulés' },
+            { value: 'chaudiere', label: 'Chaudière à granulés' },
+          ]}
+        />
+        <Choices
+          name="mode"
+          legend="Pour calculer, on part de"
+          value="conso"
+          options={[
+            { value: 'conso', label: 'Ma consommation actuelle (le plus juste)' },
+            { value: 'maison', label: 'Ma maison (ordre de grandeur)' },
+          ]}
+        />
+
+        <div class="flex flex-col gap-5" data-mode="conso">
+          <div>
+            <label for="actuel" class="mb-2 block font-bold">Votre chauffage actuel</label>
+            <select
+              id="actuel"
+              name="actuel"
+              class="h-13 w-full rounded-xl border border-ink-300 bg-white px-4 text-base font-semibold text-ink-900 focus:border-ember-600 focus:ring-4 focus:ring-ember-600/15 focus:outline-none"
+            >
+              {actuels.map((s) => <option value={s.id} selected={s.id === defaults.actuel}>{s.label}</option>)}
+            </select>
+          </div>
+          <Field
+            name="quantite"
+            label="Consommation de chauffage, par an"
+            value={actuelDefaut.defaut}
+            unit={unites[energies[actuelDefaut.energie].unite]}
+            min={0}
+            step="any"
+            hint="Sur vos factures. Si elle comprend l’eau chaude ou la cuisine, le résultat sera un peu plus élevé que nécessaire."
+          />
+        </div>
+
+        <div class="flex flex-col gap-7" data-mode="maison" hidden>
+          <div class="grid gap-5 sm:grid-cols-2">
+            <Field name="surface" label="Surface chauffée" value={defaults.surface} unit="m²" min={5} max={600} />
+            <Field name="hauteur" label="Hauteur sous plafond" value={defaults.hauteur} unit="m" min={2} max={6} step={0.05} />
+          </div>
+          <Choices name="isolation" legend="Isolation de la maison" value={defaults.isolation} variant="list" options={isolations} />
+          <Choices name="maison" legend="Votre maison" value="isolee" options={maisons} />
+        </div>
+        <Choices
+          name="part"
+          legend="Part du chauffage assurée par les granulés"
+          value="1"
+          options={[
+            { value: '1', label: 'Tout le chauffage' },
+            { value: '0.75', label: 'Les trois quarts' },
+            { value: '0.5', label: 'La moitié' },
+            { value: '0.25', label: 'Un quart (appoint)' },
+          ]}
+        />
+        <Field
+          name="prix"
+          label="Prix des granulés"
+          value={granules.prixSac}
+          unit="€ / tonne"
+          min={0}
+          max={1500}
+          step="any"
+          hint={`Moyenne nationale au ${granules.prixDate} : ${fmt(granules.prixSac, 0)} € la tonne en sacs, ${fmt(granules.prixVrac, 0)} € en vrac. Remplacez-la par votre prix.`}
+        />
+      </div>
+
+      <div class="flex flex-col gap-5 rounded-3xl bg-ink-900 p-7 text-ink-100 lg:sticky lg:top-28">
+        <p class="font-semibold text-ember-300" data-out="titre">Granulés par an, pour la même chaleur</p>
+        <p class="-mt-3 font-display text-6xl font-semibold text-white" aria-live="polite">
+          <span data-out="principal">{fmt(Math.round(initialKg / granules.sacKg), 0)}</span>&nbsp;<span class="text-3xl" data-out="principal-unite">sacs</span>
+        </p>
+        <dl class="grid grid-cols-2 gap-3">
+          <div class="rounded-2xl bg-ink-800 p-4">
+            <dt class="text-sm text-ink-300">Poids</dt>
+            <dd class="mt-1 text-xl font-semibold text-white" data-out="tonnes">{fmt(initialKg / 1000)} t</dd>
+          </div>
+          <div class="rounded-2xl bg-ink-800 p-4" data-out="palettes-bloc">
+            <dt class="text-sm text-ink-300">Palettes</dt>
+            <dd class="mt-1 text-xl font-semibold text-white" data-out="palettes">{fmt(initialKg / granules.sacKg / granules.sacsParPalette)}</dd>
+          </div>
+          <div class="col-span-2 rounded-2xl bg-ink-800 p-4">
+            <dt class="text-sm text-ink-300">Budget annuel</dt>
+            <dd class="mt-1 text-3xl font-semibold text-white" data-out="budget">{euros((initialKg / 1000) * granules.prixSac)}</dd>
+          </div>
+        </dl>
+        <p class="text-ink-200" data-out="janvier">En janvier, environ {fmt(parJourJanvier(initialKg), 0)} kg par jour.</p>
+        <p class="text-sm text-ink-300" data-out="detail"></p>
+        <div class="rounded-2xl border border-ember-300/40 bg-ember-900/30 p-5" data-out="prudence" hidden>
+          <p class="font-bold text-white">Un maximum, pas une prévision</p>
+          <p class="mt-1.5 text-ink-200">
+            Cette estimation suit la méthode du DPE, volontairement prudente. En vrai, on consomme souvent bien moins, surtout dans les maisons
+            anciennes : selon le Conseil d’analyse économique, l’écart entre une maison mal isolée et une maison bien isolée est six fois plus faible
+            dans la réalité que sur le papier.
+          </p>
+          <button type="button" class="mt-3 font-bold text-ember-300 underline underline-offset-4 hover:text-ember-200" data-vers-conso>
+            Calculer plutôt avec ma consommation actuelle
+          </button>
+        </div>
+        <a href="/contact/?projet=granules" class="btn-primary w-full" data-out="cta">
+          Demander une étude gratuite <Icon name="arrow" class="size-4" />
+        </a>
+        <p class="text-sm text-ink-400">
+          Pour comparer : selon l’ADEME, un poêle consomme en moyenne {fmt(mesurePoeleMin)} à {fmt(mesurePoeleMax)} t par an (souvent avec un autre
+          chauffage), une chaudière {fmt(mesureChaudiereMin)} à {fmt(mesureChaudiereMax)} t.
+        </p>
+      </div>
+    </form>
+  </section>
+
+  <section class="container-page pb-16" aria-labelledby="graphiques-title">
+    <h2 id="graphiques-title" class="text-3xl sm:text-4xl">Votre résultat en images</h2>
+    <div class="mt-8 grid items-start gap-6 lg:grid-cols-2">
+      <Graphique
+        id="mois"
+        titre="Mois par mois"
+        lead="Sacs de 15 kg à prévoir chaque mois, pour un hiver normal."
+        html={granulesParMois(initialKg, false)}
+        class="lg:col-span-2"
+      >
+        <p class="mt-5 text-ink-700">
+          De novembre à mars, vous brûlez {fmt(partHiver * 100, 0)} % des granulés de l’année : prévoyez le stock avant l’hiver.
+        </p>
+      </Graphique>
+
+      <Graphique
+        id="isolation"
+        titre="Même surface, autre isolation"
+        lead={`Estimation haute pour vos ${defaults.surface} m², selon l’époque de la maison.`}
+        hidden
+        html={granulesParIsolation(defaults.surface, defaults.hauteur, 'isolee', defaults.isolation, poele, 1, false)}
+      >
+        <p class="mt-5 text-ink-700">
+          Ce sont des maximums : dans la réalité, l’écart entre maisons anciennes et récentes est bien plus faible que sur ce graphique (Conseil
+          d’analyse économique).
+        </p>
+        <Fragment slot="tableau">
+          <p class="mb-3 text-sm text-ink-600">En sacs de {granules.sacKg} kg par an, poêle chauffant seul une maison non mitoyenne, 2,50 m sous plafond.</p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="text-ink-900">
+                <tr>
+                  <th scope="col" class="px-2 py-2">Surface</th>
+                  {isolations.map((i) => <th scope="col" class="px-2 py-2 font-semibold">{i.short}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  surfaces.map((s) => (
+                    <tr class="border-t border-ink-200">
+                      <th scope="row" class="px-2 py-2 font-semibold whitespace-nowrap">{s} m²</th>
+                      {isolations.map((i) => <td class="px-2 py-2 tabular-nums">{fmt(Math.round(kgParAn(s, i.value) / granules.sacKg), 0)}</td>)}
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </Fragment>
+      </Graphique>
+    </div>
+
+    <div class="mt-6 rounded-3xl bg-ember-50 p-6 sm:p-8">
+      <h3 class="text-2xl">À retenir</h3>
+      <ul class="mt-4 grid gap-4 text-ink-800 md:grid-cols-3">
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Sac ou vrac, même prix.</strong> {fmt(granules.prixSac, 0)} € la tonne en sacs, {fmt(granules.prixVrac, 0)} € en vrac ({granules.prixDate}). Le vrac est réservé aux chaudières avec silo.</span>
+        </li>
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Des granulés certifiés, stockés au sec.</strong> Humides ou poussiéreux, ils chauffent moins et encrassent le poêle.</span>
+        </li>
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Le plus juste : partir de vos factures.</strong> L’estimation d’après la maison est un maximum, surtout pour une maison ancienne.</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="container-page grid items-start gap-6 pb-16 lg:grid-cols-2" aria-labelledby="heure-title">
+    <div class="card p-6 sm:p-7">
+      <h2 id="heure-title" class="text-2xl">Et à pleine puissance, combien par heure ?</h2>
+      <p class="mt-1.5 text-ink-600">C’est le maximum : la plupart du temps, le poêle module et consomme moins.</p>
+      <form class="mt-5" data-outil="granules-jour">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <Field name="kw" id="kw-jour" label="Puissance du poêle" value={8} unit="kW" min={2} max={30} step={0.5} />
+          <Field name="heures" id="heures-jour" label="Heures à pleine puissance" value={10} unit="h / jour" min={1} max={24} />
+        </div>
+        <p class="mt-4 text-lg font-semibold text-ink-900" aria-live="polite" data-out="jour">
+          {fmt(kgParHeure(8))} kg par heure, soit au plus {fmt(kgParHeure(8) * 10)} kg pour 10 heures ({fmt((kgParHeure(8) * 10) / granules.sacKg)} sac).
+        </p>
+      </form>
+    </div>
+    <div class="card overflow-x-auto p-3">
+      <table class="w-full text-left text-[15px]">
+        <thead class="text-ink-900">
+          <tr>
+            <th scope="col" class="px-3 py-2.5">Poêle de</th>
+            <th scope="col" class="px-3 py-2.5">kg par heure</th>
+            <th scope="col" class="px-3 py-2.5">Un sac dure</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            puissances.map((kw) => (
+              <tr class="border-t border-ink-200">
+                <th scope="row" class="px-3 py-2 font-semibold">{kw} kW</th>
+                <td class="px-3 py-2 tabular-nums">{fmt(kgParHeure(kw))}</td>
+                <td class="px-3 py-2 tabular-nums">{fmt(granules.sacKg / kgParHeure(kw))} h</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="container-page pb-16">
+    <div class="prose-fk max-w-3xl">
+      <h2>Comment on calcule, pour les curieux</h2>
+      <h3>À partir de votre consommation actuelle</h3>
+      <p>
+        On calcule la chaleur que votre chauffage fournit vraiment à la maison : la quantité achetée, son contenu en énergie (valeurs officielles),
+        moins les pertes de l’appareil et de l’installation. Puis on cherche combien de granulés il faut pour fournir la même chaleur avec un poêle ou
+        une chaudière à granulés récents. Tous les rendements viennent de la méthode officielle du DPE.
+      </p>
+      <h3>À partir de votre maison</h3>
+      <p>Nous suivons la méthode officielle du diagnostic de performance énergétique (DPE), avec le climat du Nord et du Pas-de-Calais :</p>
+      <ol>
+        <li>
+          <strong>Ce que la maison perd</strong> : on part du volume chauffé et d’un coefficient qui dépend de l’époque de construction et de la
+          mitoyenneté.
+        </li>
+        <li>
+          <strong>Sur un hiver normal</strong> : la méthode DPE fournit le froid cumulé de la saison dans la région. On retire la chaleur gratuite du
+          soleil et des occupants : de {fmt(Math.min(...isolations.map((i) => i.apports)) * 100, 0)} % du besoin pour une maison ancienne à
+          {' '}{fmt(Math.max(...isolations.map((i) => i.apports)) * 100, 0)} % pour une maison récente.
+        </li>
+        <li><strong>Les baisses de température</strong> la nuit et en votre absence réduisent un peu la consommation.</li>
+        <li>
+          <strong>Les granulés</strong> : un kilo de granulés certifiés donne au moins {fmt(granules.pci, 2)} kWh. Nous comptons le rendement d’un
+          appareil récent ({fmt(poele.rendement * 100, 0)} % pour un poêle Flamme Verte, {fmt(chaudiere.rendement * 100, 0)} % sur l’année pour une
+          chaudière) et les pertes de l’installation.
+        </li>
+      </ol>
+      <p>
+        Cette méthode est faite pour comparer les logements, pas pour prévoir une facture : elle suppose toute la maison chauffée à 19 °C. Le Conseil
+        d’analyse économique a comparé le DPE aux dépenses réelles de 178 000 ménages : en réalité, les logements les plus mal classés consomment
+        bien moins que prévu, et l’écart avec les mieux classés est six fois plus faible que sur le papier. Pour une maison ancienne, le résultat est
+        donc un maximum. La répartition par mois suit le froid de chaque mois dans cette même méthode. Tous nos conseils pour choisir vos granulés
+        dans le guide <a href="/conseils/bien-choisir-ses-granules-de-bois/">bien choisir ses granulés de bois</a>.
+      </p>
+    </div>
+  </section>
+</OutilLayout>
+
+<script>
+  import { climat, granules, energies, isolationDe, systeme } from '../../data/thermique';
+  import { consommationMaison, kwhEquivalents, fmt, euros } from '../../lib/thermique';
+  import { granulesParMois, granulesParIsolation } from '../../lib/graphiques-outils';
+
+  const graph = (id: string) => document.querySelector<HTMLElement>(`[data-graph="${id}"]`)!;
+  const lead = (id: string) => document.querySelector<HTMLElement>(`[data-graph-lead="${id}"]`)!;
+  const form = document.querySelector<HTMLFormElement>('[data-outil="granules-an"]');
+  if (form) {
+    const out = (key: string) => form.querySelector<HTMLElement>(`[data-out="${key}"]`)!;
+    const prixInput = form.querySelector<HTMLInputElement>('[name="prix"]')!;
+    const select = form.querySelector<HTMLSelectElement>('#actuel')!;
+    const quantite = form.querySelector<HTMLInputElement>('#quantite')!;
+    const unites: Record<string, string> = { litre: 'litres', kWh: 'kWh', tonne: 'tonnes', stère: 'stères' };
+    /** Nouveau chauffage actuel : unité et exemple de consommation adaptés. */
+    select.addEventListener('change', () => {
+      const actuel = systeme(select.value);
+      quantite.value = String(actuel.defaut);
+      quantite.nextElementSibling!.textContent = unites[energies[actuel.energie].unite];
+    });
+    form.querySelector('[data-vers-conso]')!.addEventListener('click', () => {
+      const radio = form.querySelector<HTMLInputElement>('[name="mode"][value="conso"]')!;
+      radio.checked = true;
+      radio.focus();
+      update();
+    });
+    const figure = (id: string) => graph(id).closest('figure')!;
+    let prixModifie = false;
+    prixInput.addEventListener('input', () => (prixModifie = true));
+    form.querySelectorAll<HTMLInputElement>('[name="appareil"]').forEach((r) =>
+      r.addEventListener('change', () => {
+        // Prix par défaut : sacs pour un poêle, vrac pour une chaudière, sauf si l'utilisateur a saisi le sien.
+        if (!prixModifie) prixInput.value = String(r.value === 'chaudiere' ? granules.prixVrac : granules.prixSac);
+      }),
+    );
+
+    const update = () => {
+      const d = new FormData(form);
+      const mode = String(d.get('mode'));
+      form.querySelectorAll<HTMLElement>('[data-mode]').forEach((el) => (el.hidden = el.dataset.mode !== mode));
+      const chaudiere = d.get('appareil') === 'chaudiere';
+      const surface = Number(d.get('surface'));
+      const hauteur = Number(d.get('hauteur'));
+      const part = Number(d.get('part'));
+      const s = systeme(chaudiere ? 'chaudiere-granules' : 'poele-granules');
+      const visibles = [...form.querySelectorAll<HTMLInputElement>('input[type="number"]')].filter((i) => !i.closest('[hidden]'));
+      const invalide = (message: string) => {
+        out('principal').textContent = '—';
+        out('detail').textContent = message;
+      };
+      if (!visibles.every((i) => i.checkValidity())) return invalide('Vérifiez les valeurs saisies.');
+
+      let kg: number;
+      let detail: string;
+      const isolation = isolationDe(d.get('isolation'), d.get('maison'));
+      if (mode === 'conso') {
+        const q = Number(quantite.value);
+        if (!(q > 0)) return invalide('Indiquez votre consommation annuelle.');
+        const actuel = systeme(select.value);
+        kg = (kwhEquivalents(q * energies[actuel.energie].pci, actuel, s) * part) / granules.pci;
+        detail = `Même chaleur que vos ${fmt(q, 0)} ${unites[energies[actuel.energie].unite]} par an (${actuel.label.toLowerCase()})${part < 1 ? `, pour la part chauffée aux granulés` : ''}.`;
+      } else {
+        if (!(surface > 0 && hauteur > 0)) return invalide('Indiquez une surface (5 à 600 m²) et une hauteur sous plafond (2 à 6 m).');
+        const { besoin, kwh } = consommationMaison(surface, hauteur, isolation, s, climat.dh19);
+        kg = (kwh * part) / granules.pci;
+        detail = `Besoin de chauffage de la maison selon la méthode du DPE : ${fmt(besoin * part, 0)} kWh par an.`;
+      }
+      out('titre').textContent = mode === 'conso' ? 'Granulés par an, pour la même chaleur' : 'Au maximum, par an';
+      out('prudence').hidden = mode === 'conso';
+      out('detail').textContent = detail;
+      const sacs = kg / granules.sacKg;
+      const prix = prixInput.value === '' ? (chaudiere ? granules.prixVrac : granules.prixSac) : Number(prixInput.value);
+      const janvier = (kg * (climat.dh19Mois[0] / climat.dh19)) / 31;
+
+      out('principal').textContent = chaudiere ? fmt(kg / 1000) : fmt(Math.round(sacs), 0);
+      out('principal-unite').textContent = chaudiere ? 'tonnes' : 'sacs';
+      out('tonnes').textContent = chaudiere ? `${fmt(Math.round(kg / 10) * 10, 0)} kg` : `${fmt(kg / 1000)} t`;
+      out('palettes-bloc').hidden = chaudiere;
+      out('palettes').textContent = fmt(sacs / granules.sacsParPalette);
+      out('budget').textContent = euros((kg / 1000) * prix);
+      out('janvier').textContent = chaudiere
+        ? `En janvier, environ ${fmt(janvier, 0)} kg par jour.`
+        : `En janvier, environ ${fmt(janvier, 0)} kg par jour, soit ${fmt((janvier * 7) / granules.sacKg)} sacs par semaine.`;
+      const base = mode === 'conso' ? detail.replace(/\.$/, '') : `${surface} m², maison ${isolation.label.toLowerCase()} (estimation DPE)`;
+      const note = `Calculateur de consommation : ${chaudiere ? 'chaudière' : 'poêle'} à granulés, ${base}, environ ${fmt(kg / 1000)} t de granulés par an.`;
+      const params: Record<string, string> = { projet: chaudiere ? 'chaudiere' : 'granules', note };
+      if (mode === 'maison') params.surface = String(surface);
+      out('cta').setAttribute('href', `/contact/?${new URLSearchParams(params)}`);
+
+      graph('mois').innerHTML = granulesParMois(kg, chaudiere);
+      lead('mois').textContent = chaudiere ? 'Kilos de granulés à prévoir chaque mois, pour un hiver normal.' : `Sacs de ${granules.sacKg} kg à prévoir chaque mois, pour un hiver normal.`;
+      // Le graphique par isolation n'a de sens qu'avec l'estimation d'après la maison.
+      figure('isolation').hidden = mode === 'conso';
+      figure('mois').classList.toggle('lg:col-span-2', mode === 'conso');
+      if (mode === 'maison') {
+        graph('isolation').innerHTML = granulesParIsolation(surface, hauteur, d.get('maison'), String(d.get('isolation')), s, part, chaudiere);
+        lead('isolation').textContent = `Estimation haute pour vos ${fmt(surface, 0)} m², selon l’époque de la maison.`;
+      }
+    };
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    update();
+  }
+
+  const jour = document.querySelector<HTMLFormElement>('[data-outil="granules-jour"]');
+  if (jour) {
+    const update = () => {
+      const d = new FormData(jour);
+      const kw = Number(d.get('kw'));
+      const heures = Number(d.get('heures'));
+      const p = jour.querySelector('[data-out="jour"]')!;
+      if (!(kw > 0 && heures > 0)) return (p.textContent = 'Indiquez une puissance et un nombre d’heures.');
+      const kgh = kw / (granules.pci * granules.rendementPoele);
+      const sacs = (kgh * heures) / granules.sacKg;
+      p.textContent = `${fmt(kgh)} kg par heure, soit au plus ${fmt(kgh * heures)} kg pour ${heures} heures (${fmt(sacs)} sac${sacs >= 2 ? 's' : ''}).`;
+    };
+    jour.addEventListener('input', update);
+    jour.addEventListener('submit', (e) => e.preventDefault());
+  }
+</script>

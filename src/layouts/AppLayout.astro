@@ -1,0 +1,38 @@
+---
+import '../styles/global.css';
+import frauncesUrl from '@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url';
+import figtreeUrl from '@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2?url';
+
+/**
+ * Gabarit des outils en plein écran (simulateur de plan) : ni en-tête ni pied de page du site, la page occupe
+ * toute la fenêtre et ne défile pas. Ces pages ne sont pas indexées : la page de présentation de l'outil l'est.
+ */
+interface Props {
+  /** Titre SEO (sans le nom de l'entreprise, ajouté automatiquement). */
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr" class="h-full overflow-hidden">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{`${title} | FK Énergie`}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, follow" />
+    <link rel="preload" href={frauncesUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={figtreeUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#FFFBF6" />
+    <meta name="format-detection" content="telephone=no" />
+  </head>
+  <body class="h-full overflow-hidden bg-ink-50 text-ink-900">
+    <slot />
+  </body>
+</html>

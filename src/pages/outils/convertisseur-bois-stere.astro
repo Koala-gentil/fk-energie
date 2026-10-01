@@ -1,0 +1,331 @@
+---
+import OutilLayout from '../../layouts/OutilLayout.astro';
+import Field from '../../components/outils/Field.astro';
+import Choices from '../../components/outils/Choices.astro';
+import Graphique from '../../components/outils/Graphique.astro';
+import Icon from '../../components/Icon.astro';
+import { bois, energies, granules, systeme, sourcesThermique } from '../../data/thermique';
+import { pciBois, fmt } from '../../lib/thermique';
+import { energieStere, bilanStere, boisParEssence, stereRecoupe } from '../../lib/graphiques-outils';
+import type { Faq } from '../../lib/schema';
+import hero from '../../assets/images/realisations/poele-bois-heta-scan-line-1000.jpg';
+
+/** Bois d'une essence, ramené à un stère : masse brute (kg) et énergie (kWh) selon l'humidité `h` (0 à 1). */
+const stere = (e: (typeof bois.essences)[number], h: number) => {
+  const masse = e.masseSeche / (1 - h);
+  return { masse, kwh: masse * pciBois(e.pciAnhydre, bois.chaleurVaporisation, h) };
+};
+const essence = (value: string) => bois.essences.find((e) => e.value === value)!;
+const defaults = { essence: bois.essences[0].value, humidite: 20 };
+const initial = stere(essence(defaults.essence), defaults.humidite / 100);
+const humidites = [15, 20, 25, 30, 40, 50];
+const humiditesPoids = [15, 20, 30, 40];
+const pciSec = pciBois(essence('chene').pciAnhydre, bois.chaleurVaporisation, 0.2);
+const pciHumide = pciBois(essence('chene').pciAnhydre, bois.chaleurVaporisation, 0.4);
+const arrondi10 = (x: number) => Math.round(x / 10) * 10;
+/** Chaleur perdue dans la pièce avec du bois à 40 % plutôt qu'à 20 % (part, 0 à 1) et part de l'énergie qui sert à évaporer l'eau. */
+const chaleurEnMoins = (e: (typeof bois.essences)[number]) =>
+  1 - bilanStere(e, bois.bucheHumide.humidite, bois.bucheHumide.perteRendement).piece / bilanStere(e, bois.humiditeIdeale).piece;
+const partEvaporation = (e: (typeof bois.essences)[number], h: number) => bilanStere(e, h).evaporation / bilanStere(e, h).total;
+
+const faqs: Faq[] = [
+  {
+    q: 'Quelle est la différence entre un stère et un m³ ?',
+    a: `Le stère est un volume de bûches de 1 m empilées, vides compris, sur 1 m de large et 1 m de haut. Quand on recoupe ces bûches plus courtes, elles se rangent mieux et le tas diminue : un stère ne fait plus que ${bois.longueurs.filter((l) => l.mab < 1).map((l) => `${fmt(l.mab, 2)} m³ en ${l.label}`).join(', ')} (FCBA). Le mètre cube apparent de bois (MAB), qui mesure le tas tel qu’il est livré, permet de comparer les offres plus justement.`,
+  },
+  {
+    q: 'Combien pèse un stère de bois ?',
+    a: `Selon l’essence et l’humidité, de quelques centaines de kilos à plus d’une demi-tonne. D’après notre estimation, un stère de chêne à 20 % d’humidité pèse environ ${fmt(arrondi10(initial.masse), 0)} kg, un stère de hêtre ${fmt(arrondi10(stere(essence('hetre'), 0.2).masse), 0)} kg et un stère de résineux ${fmt(arrondi10(stere(essence('resineux'), 0.2).masse), 0)} kg. L’ADEME retient environ 500 kg, de manière très approximative.`,
+  },
+  {
+    q: 'Combien de kWh dans un stère de bois ?',
+    a: `Un stère de chêne à 20 % d’humidité contient environ ${fmt(arrondi10(initial.kwh), 0)} kWh, la valeur conventionnelle retenue par l’arrêté sur le diagnostic de performance énergétique (1 680 kWh par stère). Le résultat varie selon l’essence, l’humidité et la façon dont le bois est rangé.`,
+  },
+  {
+    q: 'Pourquoi faut-il brûler du bois sec ?',
+    a: `Un kilo de chêne à 20 % d’humidité contient environ ${fmt(pciSec)} kWh, contre ${fmt(pciHumide)} kWh à 40 %. Mais la plus grosse perte se fait dans l’appareil : selon l’ADEME, des bûches à 40 % d’humidité font perdre environ 25 % de rendement par rapport à des bûches à 20 %, et le bois humide pollue davantage. Visez ${bois.humiditeIdeale} % d’humidité ou moins : c’est la valeur idéale selon l’ADEME et le label NF Bois de chauffage, et la réglementation fixe le plafond d’un bois « sec » à ${bois.humiditeMax} %.`,
+  },
+  {
+    q: 'Comment savoir si mon bois est assez sec ?',
+    a: 'Le plus fiable est un humidimètre, que l’on plante au cœur d’une bûche fraîchement fendue. Attention, la plupart affichent l’humidité sur masse sèche : 25 % à l’appareil correspondent à 20 % sur masse brute, la valeur utilisée ici et sur les labels (NF Bois de chauffage). Selon l’ADEME, des bûches bien sèches présentent de petites fissures qui partent du centre, sont légères et résonnent quand on les cogne l’une contre l’autre.',
+  },
+];
+---
+
+<OutilLayout
+  slug="convertisseur-bois-stere"
+  seoTitle="Convertisseur bois : stère, m³, kg et kWh"
+  description="Convertissez votre bois de chauffage : stère, m³ apparent, kilos et kWh selon l’essence, la longueur des bûches et l’humidité. Équivalent fioul et granulés."
+  title="Convertisseur bois : stère, m³, kilos et kWh"
+  lead="Convertissez une quantité de bois bûche d’une unité à l’autre et estimez l’énergie qu’elle contient, selon l’essence, la longueur des bûches et leur humidité."
+  faqs={faqs}
+  sources={[sourcesThermique.fcbaStere, sourcesThermique.fcbaDensite, sourcesThermique.ademeBois2016, sourcesThermique.ademeBoisHumidite, sourcesThermique.nfBoisChauffage, sourcesThermique.decretHumidite, sourcesThermique.ademeBien, sourcesThermique.pciBois, sourcesThermique.conversions]}
+  ogImage={hero}
+  ogImageAlt="Poêle à bois HETA Scan-Line installé par FK Énergie"
+  guidesFor="/poele-a-bois/"
+>
+  <section class="container-page py-12" aria-label="Convertisseur">
+    <form class="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_400px]" data-outil="bois">
+      <div class="flex flex-col gap-7 rounded-3xl border border-ink-200 bg-white p-6 sm:p-8">
+        <div class="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-end">
+          <Field name="quantite" label="Quantité de bois" value={1} unit="" min={0} max={100000} step="any" />
+          <Choices
+            name="unite"
+            legend="Unité"
+            value="stere"
+            options={[
+              { value: 'stere', label: 'stères' },
+              { value: 'mab', label: 'm³ apparents (MAB)' },
+              { value: 'kg', label: 'kilos' },
+            ]}
+          />
+        </div>
+        <p class="-mt-4 text-sm text-ink-600">
+          Un stère se mesure en bûches de 1 m. Si votre fournisseur appelle « stère de 33 cm » un tas de 1 m³ de bûches de 33 cm, choisissez m³ apparents.
+        </p>
+        <Choices name="longueur" legend="Longueur des bûches" value="50" options={bois.longueurs.map((l) => ({ value: l.value, label: l.label }))} />
+        <Choices name="essence" legend="Essence" value={defaults.essence} options={bois.essences.map((e) => ({ value: e.value, label: e.label }))} />
+        <div>
+          <label for="humidite" class="mb-2 flex items-center justify-between font-bold">
+            Humidité du bois, sur masse brute <output for="humidite" class="font-display text-2xl whitespace-nowrap" data-out="humidite-val">{defaults.humidite} %</output>
+          </label>
+          <input
+            id="humidite"
+            name="humidite"
+            type="range"
+            min="10"
+            max={bois.humiditeCurseurMax}
+            step="1"
+            value={defaults.humidite}
+            aria-valuetext={`${defaults.humidite} %`}
+            aria-describedby="humidite-aide"
+            class="w-full accent-ember-600"
+          />
+          <p id="humidite-aide" class="mt-1.5 text-sm text-ink-600">
+            Bois sec : {bois.humiditeIdeale} % idéalement, {bois.humiditeMax} % au maximum (ADEME, réglementation de 2022). Un humidimètre affiche souvent l’humidité sur masse sèche : 25 % à l’appareil
+            correspondent à 20 % ici.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-5 rounded-3xl bg-ink-900 p-7 text-ink-100 lg:sticky lg:top-28">
+        <p class="font-semibold text-ember-300">Énergie contenue</p>
+        <p class="-mt-3 font-display text-6xl font-semibold text-white" aria-live="polite">
+          <span data-out="kwh">{fmt(Math.round(initial.kwh / 10) * 10, 0)}</span>&nbsp;<span class="text-3xl">kWh</span>
+        </p>
+        <dl class="grid grid-cols-1 gap-3 min-[420px]:grid-cols-3">
+          <div class="rounded-2xl bg-ink-800 p-4">
+            <dt class="text-sm text-ink-300">Stères</dt>
+            <dd class="mt-1 text-xl font-semibold text-white" data-out="stere">1</dd>
+          </div>
+          <div class="rounded-2xl bg-ink-800 p-4">
+            <dt class="text-sm text-ink-300">m³ (MAB)</dt>
+            <dd class="mt-1 text-xl font-semibold text-white" data-out="mab">{fmt(bois.longueurs.find((l) => l.value === '50')!.mab)}</dd>
+          </div>
+          <div class="rounded-2xl bg-ink-800 p-4">
+            <dt class="text-sm text-ink-300">Poids</dt>
+            <dd class="mt-1 text-xl font-semibold text-white" data-out="kg">{fmt(Math.round(initial.masse / 10) * 10, 0)} kg</dd>
+          </div>
+        </dl>
+        <div class="rounded-2xl bg-ink-800 p-5">
+          <p class="text-sm text-ink-300">Autant d’énergie que</p>
+          <p class="mt-1 text-lg font-semibold text-white" data-out="equivalents">
+            {fmt(initial.kwh / energies.fioul.pci, 0)} litres de fioul ou {fmt(initial.kwh / granules.pci / granules.sacKg, 0)} sacs de granulés de {granules.sacKg} kg
+          </p>
+        </div>
+        <a href="/contact/?projet=bois" class="btn-primary w-full">
+          Un poêle pour bien brûler ce bois <Icon name="arrow" class="size-4" />
+        </a>
+        <p class="text-sm text-ink-400" data-out="note">
+          Estimation : selon le rangement et la grosseur des bûches, la quantité de bois dans un stère varie sensiblement. La chaleur utile
+          dépend ensuite du rendement de l’appareil.
+        </p>
+      </div>
+    </form>
+  </section>
+
+  <section class="container-page pb-16" aria-labelledby="graphiques-title">
+    <h2 id="graphiques-title" class="text-3xl sm:text-4xl">Votre résultat en images</h2>
+    <div class="mt-8 grid items-start gap-6 lg:grid-cols-2">
+      <Graphique
+        id="humidite"
+        titre="Bois humide : une partie du bois chauffe l’eau, pas la pièce"
+        lead={`Ce que devient l’énergie d’un stère de ${essence(defaults.essence).label.toLowerCase()} dans un poêle récent.`}
+        html={energieStere(essence(defaults.essence))}
+      >
+        <p class="mt-5 text-lg text-ink-800" data-humide-bilan>
+          Avec le même bois, mais humide, <strong class="text-ink-900">{fmt(chaleurEnMoins(essence(defaults.essence)) * 100, 0)} % de chaleur en moins</strong>{' '}
+          dans la pièce. L’eau qu’il faut faire bouillir n’explique qu’une petite partie de la perte : surtout, le bois humide brûle mal, la flamme est plus
+          froide et une partie de l’énergie part en fumée (ADEME).
+        </p>
+        <p class="mt-3 text-ink-700" data-humide-votre>
+          Votre bois, à {defaults.humidite} % : {fmt(partEvaporation(essence(defaults.essence), defaults.humidite) * 100, 0)} % de son énergie sert
+          seulement à évaporer son eau.
+        </p>
+        <Fragment slot="tableau">
+          <p class="mb-3 text-sm text-ink-600">Poids d’un stère, en kg, selon l’humidité. Estimations.</p>
+          <table class="w-full text-left text-sm">
+            <thead class="text-ink-900">
+              <tr>
+                <th scope="col" class="px-2 py-2">Humidité</th>
+                {bois.essences.map((e) => <th scope="col" class="px-2 py-2 font-semibold">{e.label}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {
+                humiditesPoids.map((h) => (
+                  <tr class="border-t border-ink-200">
+                    <th scope="row" class="px-2 py-2 font-semibold">{h} %</th>
+                    {bois.essences.map((e) => <td class="px-2 py-2 tabular-nums">{fmt(arrondi10(stere(e, h / 100).masse), 0)} kg</td>)}
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </Fragment>
+      </Graphique>
+
+      <div class="flex flex-col gap-6">
+        <Graphique
+          id="essence"
+          titre="Selon l’essence"
+          lead={`Chaleur contenue dans un stère, à ${defaults.humidite} % d’humidité.`}
+          html={boisParEssence(defaults.humidite / 100, defaults.essence)}
+        >
+          <Fragment slot="tableau">
+            <p class="mb-3 text-sm text-ink-600">Énergie d’un stère, en kWh, selon l’humidité.</p>
+            <table class="w-full text-left text-sm">
+              <thead class="text-ink-900">
+                <tr>
+                  <th scope="col" class="px-2 py-2">Humidité</th>
+                  {bois.essences.map((e) => <th scope="col" class="px-2 py-2 font-semibold">{e.label}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  humidites.map((h) => (
+                    <tr class="border-t border-ink-200">
+                      <th scope="row" class="px-2 py-2 font-semibold">{h} %</th>
+                      {bois.essences.map((e) => <td class="px-2 py-2 tabular-nums">{fmt(arrondi10(stere(e, h / 100).kwh), 0)}</td>)}
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </Fragment>
+        </Graphique>
+
+        <Graphique
+          id="longueur"
+          titre="Recoupé, le tas rétrécit"
+          lead="Volume d’un stère (1 m³ de bûches de 1 m) une fois les bûches recoupées : plus courtes, elles se rangent mieux."
+          html={stereRecoupe('50')}
+        >
+          <p class="mt-5 text-ink-700">Pour comparer deux offres, demandez le volume en m³ apparents (MAB) et la longueur des bûches.</p>
+        </Graphique>
+      </div>
+    </div>
+
+    <div class="mt-6 rounded-3xl bg-ember-50 p-6 sm:p-8">
+      <h3 class="text-2xl">À retenir</h3>
+      <ul class="mt-4 grid gap-4 text-ink-800 md:grid-cols-3">
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Du bois à {bois.humiditeIdeale} % d’humidité, {bois.humiditeMax} % au plus.</strong> {bois.humiditeIdeale} % est l’idéal (ADEME, NF Bois de chauffage), {bois.humiditeMax} % le plafond réglementaire d’un bois « sec ».</span>
+        </li>
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Attention à l’humidimètre.</strong> La plupart affichent 25 % pour un bois à 20 % ici : c’est une autre façon de compter.</span>
+        </li>
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Un bois sec est léger et sonne clair.</strong> Il présente de petites fissures qui partent du centre (ADEME).</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="container-page pb-16">
+    <div class="prose-fk max-w-3xl">
+      <h2>Comment on calcule, pour les curieux</h2>
+      <h3>Stère, m³ apparent et kilos</h3>
+      <p>
+        Le <strong>stère</strong> correspond à 1 m³ de bûches de 1 m de long, empilées avec leurs vides. Ce n’est plus une unité légale depuis 1978,
+        mais il reste très courant. Le <strong>mètre cube apparent</strong> (MAB) mesure le tas tel qu’il est livré, une fois les bûches recoupées :
+        c’est l’unité de référence pour la vente du bois bûche.
+      </p>
+      <p>
+        Le poids dépend de l’essence et surtout de l’eau contenue dans le bois. Un chêne fraîchement abattu contient environ 39 % d’eau : il faut
+        l’évaporer avant que le bois ne chauffe.
+      </p>
+      <h3>L’énergie du bois</h3>
+      <p>
+        Nous estimons la quantité de bois sec dans un stère d’après la densité de l’essence (FCBA) et environ 0,6 m³ de bois plein par stère, vides
+        compris (ADEME). Un kilo de bois parfaitement sec donne 5 kWh pour les feuillus et 5,3 kWh pour les résineux ; on retire l’énergie
+        nécessaire pour évaporer l’eau qu’il contient (CIBE). Pour un stère de chêne à 20 %, on retrouve ainsi la valeur officielle de 1 680 kWh.
+      </p>
+      <h3>Ce qui chauffe vraiment la pièce</h3>
+      <p>
+        Pour le bilan dans le poêle, nous prenons le rendement d’un poêle à bûches récent avec du bois sec, {fmt(systeme('poele-bois').rendement * 100, 0)} %
+        (poêle Flamme Verte, méthode officielle du DPE). Avec du bois à {bois.bucheHumide.humidite} %, l’ADEME indique environ
+        {' '}{fmt(bois.bucheHumide.perteRendement * 100, 0)} % de rendement en moins : nous l’appliquons tel quel. Entre les deux, aucune source ne donne
+        de chiffre fiable, c’est pourquoi le graphique ne compare que ces deux cas.
+      </p>
+      <p>
+        Pour en tirer le meilleur, le bois doit brûler dans un appareil performant. Découvrez nos <a href="/poele-a-bois/">poêles à bois</a> et nos
+        {' '}<a href="/inserts-cheminees/">inserts</a>.
+      </p>
+    </div>
+  </section>
+</OutilLayout>
+
+<script>
+  import { bois, energies, granules } from '../../data/thermique';
+  import { pciBois, fmt } from '../../lib/thermique';
+  import { energieStere, bilanStere, boisParEssence, stereRecoupe } from '../../lib/graphiques-outils';
+
+  const graph = (id: string) => document.querySelector<HTMLElement>(`[data-graph="${id}"]`)!;
+  const lead = (id: string) => document.querySelector<HTMLElement>(`[data-graph-lead="${id}"]`)!;
+  const form = document.querySelector<HTMLFormElement>('[data-outil="bois"]');
+  if (form) {
+    const out = (key: string) => form.querySelector<HTMLElement>(`[data-out="${key}"]`)!;
+    const update = () => {
+      const d = new FormData(form);
+      const quantite = Number(d.get('quantite'));
+      const h = Number(d.get('humidite')) / 100;
+      const longueur = bois.longueurs.find((l) => l.value === d.get('longueur'))!;
+      const essence = bois.essences.find((e) => e.value === d.get('essence'))!;
+      out('humidite-val').textContent = `${Math.round(h * 100)} %`;
+      form.querySelector('#humidite')!.setAttribute('aria-valuetext', `${Math.round(h * 100)} %`);
+      graph('humidite').innerHTML = energieStere(essence);
+      lead('humidite').textContent = `Ce que devient l’énergie d’un stère de ${essence.label.toLowerCase()} dans un poêle récent.`;
+      const sec = bilanStere(essence, bois.humiditeIdeale).piece;
+      const humide = bilanStere(essence, bois.bucheHumide.humidite, bois.bucheHumide.perteRendement).piece;
+      document.querySelector('[data-humide-bilan] strong')!.textContent = `${fmt((1 - humide / sec) * 100, 0)} % de chaleur en moins`;
+      const b = bilanStere(essence, Math.round(h * 100));
+      document.querySelector('[data-humide-votre]')!.textContent = `Votre bois, à ${Math.round(h * 100)} % : ${fmt((b.evaporation / b.total) * 100, 0)} % de son énergie sert seulement à évaporer son eau.`;
+      graph('essence').innerHTML = boisParEssence(h, essence.value);
+      lead('essence').textContent = `Chaleur contenue dans un stère, à ${Math.round(h * 100)} % d’humidité.`;
+      graph('longueur').innerHTML = stereRecoupe(longueur.value);
+      const quantiteInput = form.querySelector<HTMLInputElement>('#quantite')!;
+      if (!quantiteInput.checkValidity() || quantiteInput.value === '' || !(quantite >= 0)) {
+        ['kwh', 'stere', 'mab', 'kg', 'equivalents'].forEach((k) => (out(k).textContent = '—'));
+        return;
+      }
+      const kgParStere = essence.masseSeche / (1 - h);
+      const unite = String(d.get('unite'));
+      const steres = unite === 'stere' ? quantite : unite === 'mab' ? quantite / longueur.mab : quantite / kgParStere;
+      const kg = steres * kgParStere;
+      const kwh = kg * pciBois(essence.pciAnhydre, bois.chaleurVaporisation, h);
+      const round10 = (x: number) => (x >= 100 ? Math.round(x / 10) * 10 : Math.round(x));
+      out('kwh').textContent = fmt(round10(kwh), 0);
+      out('stere').textContent = fmt(steres, 2);
+      out('mab').textContent = fmt(steres * longueur.mab, 2);
+      out('kg').textContent = `${fmt(round10(kg), 0)} kg`;
+      out('equivalents').textContent = `${fmt(kwh / energies.fioul.pci, 0)} litres de fioul ou ${fmt(kwh / granules.pci / granules.sacKg, 0)} sacs de granulés de ${granules.sacKg} kg`;
+    };
+    form.addEventListener('input', update);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    update();
+  }
+</script>

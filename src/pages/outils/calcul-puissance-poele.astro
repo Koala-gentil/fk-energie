@@ -1,0 +1,293 @@
+---
+import OutilLayout from '../../layouts/OutilLayout.astro';
+import Field from '../../components/outils/Field.astro';
+import Choices from '../../components/outils/Choices.astro';
+import Graphique from '../../components/outils/Graphique.astro';
+import Icon from '../../components/Icon.astro';
+import { isolations, maisons, climat, poele, sourcesThermique } from '../../data/thermique';
+import { deperditions, puissanceKw, fmt } from '../../lib/thermique';
+import { conseilPoele } from '../../lib/conseil-poele';
+import { jaugePoele, poeleParIsolation, surfaceParIsolation, surfacePourPoele } from '../../lib/graphiques-outils';
+import type { Faq } from '../../lib/schema';
+import hero from '../../assets/images/realisations/poele-granules-palazzetti-marianne.jpg';
+
+const defaults = { surface: 80, hauteur: 2.5, isolation: 'annees-80', poele: 8 };
+const kw = (surface: number, hauteur: number, G: number) => puissanceKw(deperditions(surface, hauteur, G), climat.tInterieure, climat.tBase);
+const G = (value: string) => isolations.find((i) => i.value === value)!.G;
+const initial = kw(defaults.surface, defaults.hauteur, G(defaults.isolation));
+
+const conseilInitial = conseilPoele(initial, 'granules', 'ouverte');
+
+const surfaces = [20, 30, 40, 50, 60, 80, 100, 120, 150];
+const puissancesPoele = [6, 8, 10, 12];
+const ex100 = kw(100, 2.5, G('annees-80'));
+const ex100Neuf = kw(100, 2.5, G('recente'));
+const Gmin = Math.min(...isolations.map((i) => i.G));
+const Gmax = Math.max(...isolations.map((i) => i.G));
+
+const faqs: Faq[] = [
+  {
+    q: 'Quelle puissance de poêle pour 100 m² ?',
+    a: `Tout dépend de l’isolation. Pour 100 m² sous 2,50 m de plafond, dans le Nord ou le Pas-de-Calais, il faut environ ${fmt(ex100)} kW dans une maison construite entre 1975 et 1988, et environ ${fmt(ex100Neuf)} kW dans une maison récente. Le calculateur ci-dessus fait le calcul pour votre logement.`,
+  },
+  {
+    q: 'Faut-il prendre un poêle plus puissant « pour être tranquille » ?',
+    a: 'Non. Selon l’ADEME, un appareil surdimensionné fonctionne le plus souvent au ralenti : il produit plus de polluants et de résidus, et sa durée de vie est réduite. Les épisodes de grand froid étant rares, mieux vaut un poêle proche du besoin réel et un autre chauffage en appoint.',
+  },
+  {
+    q: 'Le calcul est-il le même pour un poêle à bois et un poêle à granulés ?',
+    a: 'Oui : la puissance dépend des pertes de chaleur du logement, pas du combustible. La différence se fait sur la régulation : le poêle à granulés module sa puissance automatiquement, le poêle à bois se règle à la main et dépend de la charge de bûches.',
+  },
+  {
+    q: 'Quelle est la puissance maximale d’un poêle ?',
+    a: `Selon l’ADEME, les poêles domestiques font en général entre ${poele.puissanceMin} et ${poele.puissanceMax} kW. Si votre calcul dépasse ${poele.puissanceMax} kW, un poêle seul ne suffira pas à chauffer la maison par grand froid : il vaut mieux isoler d’abord, ou s’orienter vers une chaudière ou une pompe à chaleur, avec le poêle en complément.`,
+  },
+  {
+    q: 'Un poêle peut-il chauffer toute la maison ?',
+    a: 'Un poêle à air chauffe surtout la pièce où il est installé et les pièces ouvertes sur elle. Pour répartir la chaleur, il existe des poêles à granulés canalisables, qui soufflent l’air chaud vers d’autres pièces par des gaines, et des poêles hydro, raccordés aux radiateurs. Le bon choix dépend aussi de la disposition de la maison.',
+  },
+];
+---
+
+<OutilLayout
+  slug="calcul-puissance-poele"
+  seoTitle="Puissance de poêle à granulés ou à bois : calcul"
+  description="Quelle puissance de poêle à granulés ou à bois pour votre maison ? Calcul gratuit en kW selon la surface et l’isolation, pour le Nord et le Pas-de-Calais."
+  title="Quelle puissance de poêle pour votre maison ?"
+  lead="Surface, hauteur sous plafond, isolation : en quelques réponses, estimez la puissance du poêle à granulés ou à bois qu’il vous faut, avec le climat du Nord et du Pas-de-Calais."
+  faqs={faqs}
+  sources={[sourcesThermique.methode3CL, sourcesThermique.ademeBois]}
+  ogImage={hero}
+  ogImageAlt="Poêle à granulés Palazzetti Marianne installé par FK Énergie"
+  guidesFor="/poele-a-granules/"
+>
+  <section class="container-page py-12" aria-label="Calculateur">
+    <form class="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_400px]" data-outil="puissance-poele">
+      <div class="flex flex-col gap-7 rounded-3xl border border-ink-200 bg-white p-6 sm:p-8">
+        <Choices
+          name="appareil"
+          legend="Votre projet"
+          value="granules"
+          options={[
+            { value: 'granules', label: 'Poêle à granulés' },
+            { value: 'bois', label: 'Poêle à bois' },
+          ]}
+        />
+        <div class="grid gap-5 sm:grid-cols-2">
+          <Field name="surface" label="Surface à chauffer" value={defaults.surface} unit="m²" min={5} max={400} hint="Les pièces que le poêle doit chauffer, ou toute la maison." />
+          <Field name="hauteur" label="Hauteur sous plafond" value={defaults.hauteur} unit="m" min={2} max={6} step={0.05} hint="2,50 m le plus souvent." />
+        </div>
+        <Choices name="isolation" legend="Isolation de la maison" value={defaults.isolation} variant="list" options={isolations} />
+        <Choices name="maison" legend="Votre maison" value="isolee" options={maisons} />
+        <Choices
+          name="pieces"
+          legend="Le poêle doit chauffer"
+          value="ouverte"
+          options={[
+            { value: 'ouverte', label: 'Une pièce de vie ouverte' },
+            { value: 'plusieurs', label: 'Plusieurs pièces' },
+            { value: 'radiateurs', label: 'Toute la maison, avec des radiateurs' },
+          ]}
+        />
+      </div>
+
+      <div class="flex flex-col gap-5 rounded-3xl bg-ink-900 p-7 text-ink-100 lg:sticky lg:top-28">
+        <p class="font-semibold text-ember-300">Puissance nécessaire par grand froid</p>
+        <p class="-mt-3 font-display text-6xl font-semibold text-white" aria-live="polite">
+          <span data-out="kw">{fmt(initial)}</span>&nbsp;<span class="text-3xl">kW</span>
+        </p>
+        <div data-out="jauge" set:html={jaugePoele(initial)} />
+        <div class="rounded-2xl bg-ink-800 p-5">
+          <p class="text-sm text-ink-300">Notre conseil</p>
+          <p class="mt-1 text-lg font-semibold text-white" data-out="conseil" aria-live="polite">{conseilInitial.texte}</p>
+        </div>
+        <a href="/contact/?projet=granules" class="btn-primary w-full" data-out="cta">
+          Demander une étude gratuite <Icon name="arrow" class="size-4" />
+        </a>
+        <p class="text-sm text-ink-400" data-out="detail">
+          C’est ce qu’il faut le jour le plus froid de l’année ({fmt(climat.tBase)} °C dehors). Le reste de l’hiver, le poêle tourne moins fort.
+        </p>
+      </div>
+    </form>
+  </section>
+
+  <section class="container-page pb-16" aria-labelledby="graphiques-title">
+    <h2 id="graphiques-title" class="text-3xl sm:text-4xl">Votre résultat en images</h2>
+    <div class="mt-8 grid items-start gap-6 lg:grid-cols-2">
+      <Graphique
+        id="isolation"
+        titre="Même surface, autre isolation"
+        lead={`Puissance qu’il faudrait pour vos ${defaults.surface} m², selon l’époque de la maison.`}
+        html={poeleParIsolation(defaults.surface, defaults.hauteur, 'isolee', defaults.isolation)}
+      >
+        <p class="mt-5 text-ink-700">
+          L’isolation compte plus que la surface : une maison jamais isolée demande environ {fmt(Gmax / Gmin, 0)} fois plus de puissance qu’une maison
+          récente de même taille.
+        </p>
+        <Fragment slot="tableau">
+          <p class="mb-3 text-sm text-ink-600">En kW, maison non mitoyenne, 2,50 m sous plafond. En gris : plus de {poele.puissanceMax} kW.</p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="text-ink-900">
+                <tr>
+                  <th scope="col" class="px-2 py-2">Surface</th>
+                  {isolations.map((i) => <th scope="col" class="px-2 py-2 font-semibold">{i.short}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  surfaces.map((s) => (
+                    <tr class="border-t border-ink-200">
+                      <th scope="row" class="px-2 py-2 font-semibold whitespace-nowrap">{s} m²</th>
+                      {isolations.map((i) => {
+                        const v = kw(s, 2.5, i.G);
+                        return <td class:list={['px-2 py-2 tabular-nums', v > poele.puissanceMax && 'text-ink-400']}>{fmt(v)}</td>;
+                      })}
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </Fragment>
+      </Graphique>
+
+      <Graphique
+        id="surface"
+        titre="Quelle surface pour un poêle de cette puissance ?"
+        lead="Surface qu’il chauffe seul par grand froid, avec votre hauteur sous plafond."
+        html={surfaceParIsolation(defaults.poele, defaults.hauteur, 'isolee', defaults.isolation)}
+      >
+        <form slot="avant" class="mt-5" data-outil="poele-surface">
+          <Choices
+            name="kw"
+            legend="Puissance du poêle"
+            value={String(defaults.poele)}
+            options={puissancesPoele.map((p) => ({ value: String(p), label: `${p} kW` }))}
+          />
+        </form>
+        <Fragment slot="tableau">
+          <p class="mb-3 text-sm text-ink-600">Surface en m², maison non mitoyenne, 2,50 m sous plafond.</p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="text-ink-900">
+                <tr>
+                  <th scope="col" class="px-2 py-2">Poêle</th>
+                  {isolations.map((i) => <th scope="col" class="px-2 py-2 font-semibold">{i.short}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {
+                  puissancesPoele.map((p) => (
+                    <tr class="border-t border-ink-200">
+                      <th scope="row" class="px-2 py-2 font-semibold whitespace-nowrap">{p} kW</th>
+                      {isolations.map((i) => <td class="px-2 py-2 tabular-nums">{Math.round(surfacePourPoele(p, 2.5, i.G) / 5) * 5}</td>)}
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </Fragment>
+      </Graphique>
+    </div>
+
+    <div class="mt-6 rounded-3xl bg-ember-50 p-6 sm:p-8">
+      <h3 class="text-2xl">À retenir</h3>
+      <ul class="mt-4 grid gap-4 text-ink-800 md:grid-cols-3">
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Pas plus gros que nécessaire.</strong> Un poêle trop puissant tourne au ralenti : il s’encrasse, pollue plus et s’use plus vite (ADEME).</span>
+        </li>
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Le chiffre vaut pour le jour le plus froid.</strong> Le reste de l’hiver, le poêle tourne bien en dessous.</span>
+        </li>
+        <li class="flex gap-3">
+          <Icon name="check" class="mt-1 size-5 shrink-0 text-ember-700" />
+          <span><strong>Au-delà de {poele.puissanceMax} kW, un poêle seul ne suffit pas.</strong> On isole d’abord, ou on le complète par un autre chauffage.</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="container-page pb-16">
+    <div class="prose-fk max-w-3xl">
+      <h2>Comment on calcule, pour les curieux</h2>
+      <p>
+        Un poêle doit remplacer la chaleur que la maison perd par les murs, les fenêtres, le toit et l’aération, au moment le plus froid de l’hiver.
+        On l’estime avec cette formule :
+      </p>
+      <blockquote>Puissance (W) = surface × hauteur × G × (température dedans − température dehors)</blockquote>
+      <ul>
+        <li><strong>Dedans</strong> : {climat.tInterieure} °C, la température de référence du chauffage.</li>
+        <li><strong>Dehors</strong> : {fmt(climat.tBase)} °C, {climat.tBaseLabel}.</li>
+        <li>
+          <strong>G</strong> dit combien la maison perd de chaleur : de {fmt(Gmin, 2)} pour une maison récente à {fmt(Gmax, 2)} pour une maison
+          ancienne jamais isolée. Il n’existe pas de barème officiel : nous l’avons calculé pour une maison type de chaque époque, avec les valeurs
+          d’isolation par défaut de la méthode officielle du DPE.
+        </li>
+      </ul>
+      <p>
+        Le calcul ne compte pas la chaleur gratuite du soleil, des occupants et des appareils : c’est volontairement un maximum. Il ne dit pas tout non
+        plus : la disposition des pièces, l’emplacement du conduit ou la présence d’un autre chauffage comptent autant. C’est ce que nous regardons lors
+        de l’étude gratuite, chez vous. Pour choisir le combustible, lisez notre guide <a href="/conseils/poele-a-granules-ou-poele-a-bois/"
+          >poêle à granulés ou poêle à bois</a
+        >.
+      </p>
+    </div>
+  </section>
+</OutilLayout>
+
+<script>
+  import { climat, isolationDe } from '../../data/thermique';
+  import { deperditions, puissanceKw, fmt } from '../../lib/thermique';
+  import { conseilPoele, type Appareil, type Pieces } from '../../lib/conseil-poele';
+  import { jaugePoele, poeleParIsolation, surfaceParIsolation } from '../../lib/graphiques-outils';
+
+  const form = document.querySelector<HTMLFormElement>('[data-outil="puissance-poele"]');
+  const formSurface = document.querySelector<HTMLFormElement>('[data-outil="poele-surface"]');
+  const graph = (id: string) => document.querySelector<HTMLElement>(`[data-graph="${id}"]`)!;
+  if (form && formSurface) {
+    const out = (key: string) => form.querySelector<HTMLElement>(`[data-out="${key}"]`)!;
+    const piecesLabels: Record<Pieces, string> = { ouverte: 'une pièce de vie ouverte', plusieurs: 'plusieurs pièces', radiateurs: 'toute la maison par les radiateurs' };
+
+    const update = () => {
+      const d = new FormData(form);
+      const appareil = String(d.get('appareil')) as Appareil;
+      const pieces = String(d.get('pieces')) as Pieces;
+      const isolation = isolationDe(d.get('isolation'), d.get('maison'));
+      const surface = Number(d.get('surface'));
+      const hauteur = Number(d.get('hauteur'));
+      if (!form.checkValidity() || !(surface > 0 && hauteur > 0)) {
+        out('kw').textContent = '—';
+        out('detail').textContent = 'Indiquez une surface (5 à 400 m²) et une hauteur sous plafond (2 à 6 m).';
+        out('conseil').textContent = '—';
+        out('cta').setAttribute('href', `/contact/?projet=${appareil}`);
+        return;
+      }
+      const kw = puissanceKw(deperditions(surface, hauteur, isolation.G), climat.tInterieure, climat.tBase);
+      const conseil = conseilPoele(kw, appareil, pieces);
+      out('kw').textContent = fmt(kw);
+      out('jauge').innerHTML = jaugePoele(kw);
+      out('detail').textContent = `C’est ce qu’il faut le jour le plus froid de l’année (${fmt(climat.tBase)} °C dehors), soit ${fmt((kw * 1000) / surface, 0)} W par m². Le reste de l’hiver, le poêle tourne moins fort.`;
+      out('conseil').textContent = conseil.texte;
+      const params: Record<string, string> = {
+        projet: conseil.projet,
+        note: `Calculateur de puissance : ${appareil === 'bois' ? 'poêle à bois' : 'poêle à granulés'} pour ${piecesLabels[pieces]}, ${surface} m² sous ${fmt(hauteur, 2)} m, maison ${isolation.label.toLowerCase()}. Besoin estimé ${fmt(kw)} kW. ${conseil.texte}`,
+      };
+      // La surface du formulaire est celle du logement : on ne la transmet que si le poêle chauffe toute la maison.
+      if (pieces === 'radiateurs') params.surface = String(surface);
+      out('cta').setAttribute('href', `/contact/?${new URLSearchParams(params)}`);
+
+      graph('isolation').innerHTML = poeleParIsolation(surface, hauteur, d.get('maison'), String(d.get('isolation')));
+      document.querySelector('[data-graph-lead="isolation"]')!.textContent = `Puissance qu’il faudrait pour vos ${fmt(surface, 0)} m², selon l’époque de la maison.`;
+      const kwPoele = Number(new FormData(formSurface).get('kw'));
+      graph('surface').innerHTML = surfaceParIsolation(kwPoele, hauteur, d.get('maison'), String(d.get('isolation')));
+    };
+    form.addEventListener('input', update);
+    formSurface.addEventListener('change', update);
+    [form, formSurface].forEach((f) => f.addEventListener('submit', (e) => e.preventDefault()));
+    update();
+  }
+</script>
