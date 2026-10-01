@@ -87,6 +87,8 @@ export type Showroom = {
   image?: ImageMetadata;
   imageAlt?: string;
   mapsQuery: string;
+  /** Coordonnées GPS de l'adresse (Base Adresse Nationale), pour les données structurées. */
+  geo: { lat: number; lng: number };
 };
 
 export const showrooms: Showroom[] = [
@@ -112,6 +114,7 @@ export const showrooms: Showroom[] = [
     image: facadeAire,
     imageAlt: 'Façade du showroom FK Énergie, 14 rue de Paris à Aire-sur-la-Lys',
     mapsQuery: 'FK Energie 14 rue de Paris 62120 Aire-sur-la-Lys',
+    geo: { lat: 50.635318, lng: 2.391029 },
   },
   {
     slug: 'ardres',
@@ -134,6 +137,7 @@ export const showrooms: Showroom[] = [
     image: facadeArdres,
     imageAlt: 'Façade du showroom FK Énergie à Ardres (Bois-en-Ardres)',
     mapsQuery: 'FK Energie 677 avenue de la Censé Hébron 62610 Ardres',
+    geo: { lat: 50.876156, lng: 1.975381 },
   },
   {
     slug: 'rexpoede',
@@ -155,6 +159,7 @@ export const showrooms: Showroom[] = [
     image: showroomPac,
     imageAlt: 'Pompes à chaleur Atlantic et poêles Palazzetti exposés dans un showroom FK Énergie',
     mapsQuery: 'FK Energie 8 place de la Mairie 59122 Rexpoëde',
+    geo: { lat: 50.938994, lng: 2.540296 },
   },
 ];
 
@@ -175,6 +180,7 @@ export const serviceNav: NavItem[] = [
   { label: 'Entretien & ramonage', href: '/entretien-ramonage/', description: 'SAV, entretien annuel, dépannage' },
   { label: 'Aides financières', href: '/aides-financieres/', description: 'MaPrimeRénov’, CEE, TVA réduite' },
   { label: 'Nos réalisations', href: '/realisations/', description: 'Nos poses chez nos clients' },
+  { label: 'Conseils', href: '/conseils/', description: 'Guides pour bien choisir et entretenir' },
 ];
 
 export const mainNav: NavItem[] = [

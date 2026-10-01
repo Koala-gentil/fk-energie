@@ -3,6 +3,7 @@ import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import RgeLogos from './RgeLogos.astro';
 import { site, showrooms, productNav, serviceNav, openingHours, formatSlot } from '../data/site';
+import { villes, villeUrl } from '../data/villes';
 const year = new Date().getFullYear();
 ---
 
@@ -72,6 +73,15 @@ const year = new Date().getFullYear();
           ))
         }
       </ul>
+      <p class="text-[15px] leading-relaxed">
+        <a href="/installateur-chauffage/" class="font-semibold text-ink-100 hover:text-ink-50">Nous intervenons aussi à</a>
+        {villes.map((v) => (
+          <>
+            {' · '}
+            <a href={villeUrl(v)} class="hover:text-ink-50">{v.name}</a>
+          </>
+        ))}
+      </p>
     </div>
   </div>
 

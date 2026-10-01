@@ -4,13 +4,15 @@ import PageHero from '../components/PageHero.astro';
 import FeatureCard from '../components/FeatureCard.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
+import RelatedGuides from '../components/RelatedGuides.astro';
+import ServiceArea from '../components/ServiceArea.astro';
 import Icon from '../components/Icon.astro';
 import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
 import hero from '../assets/images/produits/chaudiere-granules-rtb-installation.jpg';
 
 const crumbs = [{ label: 'Chaudières', href: '/chaudieres/' }];
 const description =
-  'Installation de chaudières à granulés et à bûches (RTB) pour chauffer toute la maison et l’eau chaude. Remplacement de chaudière fioul ou gaz par un installateur RGE dans le Pas-de-Calais et le Nord.';
+  'Chaudières à granulés et à bûches RTB pour chauffer toute la maison : remplacement de chaudière fioul ou gaz par un installateur RGE, Pas-de-Calais et Nord.';
 
 const faqs: FaqItem[] = [
   {
@@ -29,11 +31,12 @@ const faqs: FaqItem[] = [
 ---
 
 <BaseLayout
-  title="Chaudière à granulés et à bois : installation RGE"
+  title="Chaudière à granulés ou à bûches : pose RGE"
+  ogImage={hero}
   description={description}
   breadcrumbs={crumbs}
   jsonLd={[
-    serviceSchema({ name: 'Installation de chaudières biomasse', description, path: '/chaudieres/', serviceType: 'Installation de chaudière à granulés' }),
+    serviceSchema({ name: 'Installation de chaudières biomasse', description, path: '/chaudieres/', serviceType: 'Installation de chaudière à granulés', brands: ['RTB'] }),
     faqSchema(faqs),
   ]}
 >
@@ -86,6 +89,8 @@ const faqs: FaqItem[] = [
     </div>
   </section>
 
+  <RelatedGuides path="/chaudieres/" />
   <Faq faqs={faqs} title="Vos questions sur les chaudières" />
+  <ServiceArea feminine what="Chaudières" />
   <CtaBand title="Remplacez votre chaudière, on vous accompagne" />
 </BaseLayout>

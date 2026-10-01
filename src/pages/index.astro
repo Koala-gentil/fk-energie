@@ -7,6 +7,7 @@ import RealisationsGrid from '../components/RealisationsGrid.astro';
 import RgeLogos from '../components/RgeLogos.astro';
 import { site, showrooms, yearsOfExperience } from '../data/site';
 import { poses } from '../data/realisations';
+import { villes, villeUrl } from '../data/villes';
 
 import heroImg from '../assets/images/realisations/poele-bois-heta-scan-line-1000.jpg';
 import polaroidImg from '../assets/images/realisations/poele-bois-lotus-orbis-2.jpg';
@@ -41,9 +42,11 @@ const timeline = [
 ---
 
 <BaseLayout
-  title="Poêles à granulés, poêles à bois & pompes à chaleur | FK Énergie"
+  title="Poêles et pompes à chaleur, Pas-de-Calais et Nord | FK Énergie"
   fullTitle
-  description={`Entreprise familiale depuis ${site.foundingYear} : vente, pose et entretien de poêles à granulés, poêles à bois, chaudières et pompes à chaleur. Showrooms à Aire-sur-la-Lys, Ardres et Rexpoëde. Étude gratuite.`}
+  description={`Entreprise familiale depuis ${site.foundingYear} : vente, pose et entretien de poêles, chaudières et pompes à chaleur. Showrooms à Aire-sur-la-Lys, Ardres et Rexpoëde.`}
+  ogImage={heroImg}
+  ogImageAlt="Poêle à bûches HETA Scan-Line 1000 installé par FK Énergie"
 >
   <!-- Hero -->
   <section class="container-page grid items-center gap-12 py-12 lg:grid-cols-2 lg:gap-16 lg:py-20">
@@ -53,7 +56,7 @@ const timeline = [
         Artisans poseurs de poêles et pompes à chaleur, <em class="font-normal text-ember-600">depuis {site.foundingYear}</em>.
       </h1>
       <p class="max-w-xl text-lg leading-relaxed text-ink-700 sm:text-xl">
-        Nous conseillons, posons et entretenons nous-mêmes votre chauffage, de Calais à Aire-sur-la-Lys.
+        Nous conseillons, posons et entretenons nous-mêmes votre chauffage dans le Pas-de-Calais et le Nord, de Calais à Aire-sur-la-Lys.
       </p>
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 lg:hidden">
         <RgeLogos size="h-12 w-auto" class="!gap-3" />
@@ -182,6 +185,13 @@ const timeline = [
       <div class="mt-8 grid gap-5 md:grid-cols-3">
         {showrooms.map((s) => <ShowroomCard showroom={s} />)}
       </div>
+      <p class="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2 text-lg text-ink-700">
+        <span>Nous intervenons aussi à</span>
+        {villes.map((v) => (
+          <a href={villeUrl(v)} class="rounded-full border border-ink-300 bg-white px-4 py-1.5 font-semibold text-ink-900 hover:border-ember-400">{v.name}</a>
+        ))}
+        <a href="/installateur-chauffage/" class="link-arrow">et alentours <Icon name="arrow" class="size-4" /></a>
+      </p>
     </div>
   </section>
 

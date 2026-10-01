@@ -1,0 +1,216 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import HoursList from '../../components/HoursList.astro';
+import RealisationsGrid from '../../components/RealisationsGrid.astro';
+import Faq from '../../components/Faq.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { showrooms, site, mapsUrl, productNav } from '../../data/site';
+import { poses } from '../../data/realisations';
+import { villes, villeUrl, type Ville } from '../../data/villes';
+import { faqSchema, serviceSchema, showroomId, type Faq as FaqItem } from '../../lib/schema';
+
+export const getStaticPaths = (() => villes.map((ville) => ({ params: { ville: ville.slug }, props: { ville } }))) satisfies GetStaticPaths;
+
+interface Props {
+  ville: Ville;
+}
+const { ville: v } = Astro.props;
+const s = showrooms.find((x) => x.slug === v.showroom)!;
+const path = villeUrl(v);
+const crumbs = [
+  { label: 'Zone d’intervention', href: '/installateur-chauffage/' },
+  { label: v.name, href: path },
+];
+
+// Poses réalisées dans la ville, puis les plus récentes.
+const localPoses = v.place ? poses.filter((p) => p.place === v.place) : [];
+const shownPoses = [...localPoses, ...poses.filter((p) => !localPoses.includes(p))].slice(0, 4);
+const others = villes.filter((x) => x.slug !== v.slug);
+// Photo d'une pose dans la ville si on en a une, sinon le showroom le plus proche.
+const heroImage = localPoses[0]?.image ?? s.image;
+const heroAlt = localPoses[0]?.alt ?? s.imageAlt;
+
+const description = `Poêle à granulés ou à bois, insert, chaudière, pompe à chaleur à ${v.name} (${v.postalCode}) : étude gratuite, pose et entretien par un installateur RGE.`;
+
+const productText: Record<string, string> = {
+  '/poele-a-granules/': 'Palazzetti : air, canalisables, gain de place ou hydro.',
+  '/poele-a-bois/': 'HETA, Lotus, Contura : bûches, poêles de masse, mixtes.',
+  '/pompes-a-chaleur/': 'Atlantic air/eau ou air/air, climatisation réversible.',
+  '/chaudieres/': 'Granulés ou bûches, pour remplacer une chaudière fioul ou gaz.',
+  '/inserts-cheminees/': 'Pour transformer une cheminée ouverte en vrai chauffage.',
+};
+
+const faqs: FaqItem[] = [
+  {
+    q: `Intervenez-vous à ${v.name} ?`,
+    a: `Oui. ${v.name} fait partie de notre zone d’intervention, comme ${v.nearby.slice(0, 3).join(', ')} et les communes voisines. Nos équipes s’y déplacent pour l’étude, la pose, l’entretien et le dépannage.`,
+  },
+  {
+    q: `Où voir des poêles en fonctionnement près de ${v.name} ?`,
+    a: `Dans notre showroom de ${s.city}, ${s.street}, à environ ${v.km} km de ${v.name} (${v.minutes} minutes de route). Il est ouvert du lundi au samedi, sans rendez-vous.`,
+  },
+  {
+    q: 'L’étude et le devis sont-ils payants ?',
+    a: 'Non : l’étude de votre projet et le devis sont gratuits. Nous venons voir votre logement pour dimensionner l’appareil et vérifier l’évacuation des fumées ou l’emplacement de la pompe à chaleur.',
+  },
+  {
+    q: `Puis-je bénéficier des aides à ${v.name} ?`,
+    a: 'Les aides (MaPrimeRénov’, primes CEE, TVA à taux réduit, éco-PTZ) sont nationales et dépendent de vos revenus, de l’équipement et du projet. FK Énergie est certifiée RGE QualiBois et QualiPAC, condition indispensable pour la plupart d’entre elles : nous faisons le point avec vous lors de l’étude.',
+  },
+];
+---
+
+<BaseLayout
+  title={`Installateur poêle et pompe à chaleur à ${v.name}`}
+  description={description}
+  ogImage={heroImage}
+  ogImageAlt={heroAlt}
+  breadcrumbs={crumbs}
+  jsonLd={[
+    serviceSchema({
+      name: `Installation de chauffage à ${v.name}`,
+      description,
+      path,
+      serviceType: 'Installation et entretien d’appareils de chauffage',
+      providerId: showroomId(s.slug),
+      areaServed: [v.name, ...v.nearby].map((name) => ({ '@type': 'City', name })),
+    }),
+    faqSchema(faqs),
+  ]}
+>
+  <PageHero
+    eyebrow={`installateur RGE près de ${v.name}`}
+    title={`Poêles, chaudières et pompes à chaleur à ${v.name}`}
+    lead={v.intro}
+    crumbs={crumbs}
+    image={heroImage}
+    imageAlt={heroAlt}
+    imageCaption={localPoses.length ? `Posé à ${v.name}` : `Showroom de ${s.city}`}
+    imageAspect={localPoses.length ? 'portrait' : 'landscape'}
+    rge={['qualibois', 'qualipac']}
+  />
+
+  <section class="container-page grid gap-8 py-16 lg:grid-cols-3" aria-labelledby="showroom-title">
+    <div class="rounded-3xl border border-ink-200 bg-white p-8 lg:col-span-2">
+      <p class="eyebrow">le plus proche</p>
+      <h2 id="showroom-title" class="mt-2 text-3xl">Notre showroom de {s.city}</h2>
+      <p class="mt-4 text-lg text-ink-700">
+        À environ <strong>{v.km} km</strong> de {v.name}, soit {v.minutes} minutes de route. Venez y voir nos appareils en exposition et en
+        parler avec ceux qui les posent.
+      </p>
+      <address class="mt-4 text-lg not-italic text-ink-700">
+        {s.street}, {s.postalCode} {s.city}
+        {s.landmark && <span class="text-ink-500"> ({s.landmark})</span>}
+      </address>
+      <div class="mt-6 flex flex-wrap gap-x-6 gap-y-3">
+        <a href={`/showrooms/${s.slug}/`} class="btn-secondary">Le showroom de {s.city} <Icon name="arrow" class="size-4" /></a>
+        <a href={mapsUrl(s)} target="_blank" rel="noopener" class="link-arrow">Itinéraire Google Maps</a>
+      </div>
+    </div>
+    <div class="rounded-3xl border border-ink-200 bg-white p-8">
+      <h2 class="flex items-center gap-3 text-2xl"><Icon name="clock" class="size-6 text-ember-600" /> Horaires</h2>
+      <HoursList class="mt-2" />
+    </div>
+  </section>
+
+  <section class="border-y border-ink-200 bg-white" aria-labelledby="offre-title">
+    <div class="container-page py-16">
+      <h2 id="offre-title" class="text-3xl sm:text-4xl">Ce que nous installons à {v.name}</h2>
+      <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          productNav.map((p) => (
+            <li>
+              <a href={p.href} class="group flex h-full flex-col gap-2 rounded-2xl border border-ink-200 bg-ink-50 p-5 transition hover:border-ember-400">
+                <span class="flex items-center justify-between gap-3 font-display text-xl font-semibold group-hover:text-ember-700">
+                  {p.label} <Icon name="arrow" class="size-4 shrink-0 text-ember-600" />
+                </span>
+                <span class="text-ink-600">{productText[p.href] ?? p.description}</span>
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href="/entretien-ramonage/" class="group flex h-full flex-col gap-2 rounded-2xl border border-ink-200 bg-ink-50 p-5 transition hover:border-ember-400">
+            <span class="flex items-center justify-between gap-3 font-display text-xl font-semibold group-hover:text-ember-700">
+              Entretien & ramonage <Icon name="arrow" class="size-4 shrink-0 text-ember-600" />
+            </span>
+            <span class="text-ink-600">Entretien annuel, ramonage avec certificat, dépannage.</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="container-page grid gap-12 py-16 lg:grid-cols-2" aria-labelledby="methode-title">
+    <div>
+      <h2 id="methode-title" class="text-3xl sm:text-4xl">Comment ça se passe</h2>
+      <ol class="mt-6 space-y-4">
+        {
+          [
+            ['Étude gratuite', `Un conseiller vient chez vous, à ${v.name}, pour comprendre vos besoins et vérifier les contraintes techniques.`],
+            ['Devis et aides', 'Un devis détaillé, et le point sur les aides auxquelles vous avez droit, à demander avant de signer.'],
+            ['Pose par nos équipes', 'Pas de sous-traitance : nos propres techniciens installent et mettent en service votre appareil.'],
+            ['Entretien et SAV', 'Nous restons votre interlocuteur pour l’entretien annuel, le ramonage et le dépannage.'],
+          ].map(([t, d], i) => (
+            <li class="flex gap-4">
+              <span class="grid size-10 shrink-0 place-items-center rounded-full bg-ember-600 font-display font-bold text-white">{i + 1}</span>
+              <span>
+                <span class="block font-display text-xl font-semibold">{t}</span>
+                <span class="mt-1 block text-ink-700">{d}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <div>
+      <h2 class="text-3xl sm:text-4xl">Autour de {v.name}</h2>
+      <p class="mt-4 text-lg text-ink-700">Nous intervenons aussi dans les communes voisines :</p>
+      <ul class="mt-6 flex flex-wrap gap-2">
+        {v.nearby.map((c) => <li class="rounded-full border border-ember-100 bg-ember-50 px-4 py-2 font-semibold text-ember-800">{c}</li>)}
+      </ul>
+      <p class="mt-8 text-ink-700">
+        Certifiés <strong>RGE QualiBois</strong> et <strong>RGE QualiPAC</strong>, nous installons depuis {site.foundingYear} dans le Pas-de-Calais et
+        le Nord. <a href="/entreprise/" class="font-semibold text-ember-700 underline decoration-ember-300 underline-offset-2">Découvrir l’entreprise</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="container-page pb-16" aria-labelledby="poses-title">
+    <h2 id="poses-title" class="text-3xl sm:text-4xl">Nos dernières poses</h2>
+    {localPoses.length > 0 && <p class="mt-3 text-lg text-ink-700">Dont {localPoses.length > 1 ? `${localPoses.length} chantiers` : 'un chantier'} à {v.name}, en premier ci-dessous.</p>}
+    <div class="mt-8"><RealisationsGrid items={shownPoses} /></div>
+    <a href="/realisations/" class="link-arrow mt-8">Tout le carnet de poses <Icon name="arrow" class="size-4" /></a>
+  </section>
+
+  <Faq faqs={faqs} title={`Vos questions, à ${v.name}`} />
+
+  <section class="container-page pb-4" aria-labelledby="autres-villes">
+    <h2 id="autres-villes" class="text-2xl">Nous intervenons aussi à</h2>
+    <ul class="mt-4 flex flex-wrap gap-2">
+      {
+        others.map((o) => (
+          <li>
+            <a href={villeUrl(o)} class="inline-block rounded-full border border-ink-200 bg-white px-4 py-2 font-semibold hover:border-ember-400">
+              {o.name}
+            </a>
+          </li>
+        ))
+      }
+      {
+        showrooms.map((x) => (
+          <li>
+            <a href={`/showrooms/${x.slug}/`} class="inline-block rounded-full border border-ink-200 bg-white px-4 py-2 font-semibold hover:border-ember-400">
+              {x.city}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <CtaBand title={`Un projet de chauffage à ${v.name} ?`} />
+</BaseLayout>

@@ -1,0 +1,41 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import Icon from './Icon.astro';
+
+interface Props {
+  /** Page courante : affiche les guides qui la citent dans `related`. */
+  path?: string;
+  /** Guide à exclure (page d'un guide). */
+  exclude?: string;
+  title?: string;
+  limit?: number;
+}
+const { path, exclude, title = 'Nos conseils', limit = 3 } = Astro.props;
+const all = (await getCollection('conseils')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const guides = all.filter((g) => g.id !== exclude && (!path || g.data.related.includes(path))).slice(0, limit);
+---
+
+{
+  guides.length > 0 && (
+    <section class="container-page py-16" aria-labelledby="guides-title">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <h2 id="guides-title" class="text-3xl sm:text-4xl">{title}</h2>
+        <a href="/conseils/" class="link-arrow">Tous nos guides <Icon name="arrow" class="size-4" /></a>
+      </div>
+      <ul class="mt-8 grid gap-6 md:grid-cols-3">
+        {guides.map((g) => (
+          <li>
+            <a href={`/conseils/${g.id}/`} class="group flex h-full flex-col overflow-hidden rounded-3xl border border-ink-200 bg-white transition hover:shadow-xl hover:shadow-ink-900/5">
+              <Image src={g.data.image} alt="" widths={[400, 640]} sizes="(min-width: 768px) 400px, 100vw" class="aspect-[16/9] w-full object-cover" />
+              <span class="flex flex-1 flex-col gap-2 p-6">
+                <span class="text-sm font-semibold text-ember-700">{g.data.category}</span>
+                <span class="font-display text-xl leading-snug font-semibold text-ink-900 group-hover:text-ember-700">{g.data.title}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}

@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { showrooms } from '../../data/site';
+import { communes } from '../../data/communes';
+import { villes, villeUrl } from '../../data/villes';
+
+const crumbs = [{ label: 'Zone d’intervention', href: '/installateur-chauffage/' }];
+const groups = showrooms.map((s) => ({
+  showroom: s,
+  communes: communes.filter((c) => c.showroom === s.slug),
+  villes: villes.filter((v) => v.showroom === s.slug),
+}));
+---
+
+<BaseLayout
+  title="Zone d’intervention : Pas-de-Calais et Nord"
+  description="FK Énergie pose et entretient poêles, chaudières et pompes à chaleur autour d’Aire-sur-la-Lys, Ardres et Rexpoëde : Saint-Omer, Calais, Dunkerque…"
+  ogImage={showrooms[0].image}
+  pageType="CollectionPage"
+  breadcrumbs={crumbs}
+>
+  <PageHero
+    title="Notre zone d’intervention"
+    lead="Depuis nos trois showrooms, nos équipes posent et entretiennent votre chauffage dans le Pas-de-Calais et le Nord, de la Côte d’Opale à la Flandre et à l’Artois."
+    crumbs={crumbs}
+  />
+
+  <section class="container-page py-16">
+    <div class="grid gap-6 lg:grid-cols-3">
+      {
+        groups.map((g) => (
+          <article class="flex flex-col gap-5 rounded-3xl border border-ink-200 bg-white p-8">
+            <div>
+              <p class="text-sm font-semibold text-ember-700">Depuis le showroom de</p>
+              <h2 class="text-3xl">
+                <a href={`/showrooms/${g.showroom.slug}/`} class="hover:text-ember-700">{g.showroom.city}</a>
+              </h2>
+              <p class="mt-1 text-ink-600">{g.showroom.street}, {g.showroom.postalCode} {g.showroom.city}</p>
+            </div>
+            {g.villes.length > 0 && (
+              <ul class="flex flex-col gap-2">
+                {g.villes.map((v) => (
+                  <li>
+                    <a href={villeUrl(v)} class="link-arrow">
+                      Installateur chauffage à {v.name} <Icon name="arrow" class="size-4" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <ul class="flex flex-wrap gap-2">
+              {g.communes.map((c) => (
+                <li class="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[15px] font-semibold">
+                  {c.name} <span class="font-normal text-ink-500">{c.cp}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </div>
+    <p class="mt-10 max-w-3xl text-lg text-ink-700">
+      Votre commune n’apparaît pas ? Appelez-nous ou faites votre <a href="/contact/" class="font-semibold text-ember-700 underline decoration-ember-300 underline-offset-2">demande d’étude</a> :
+      nous vous dirons si nous pouvons intervenir chez vous.
+    </p>
+  </section>
+
+  <CtaBand />
+</BaseLayout>

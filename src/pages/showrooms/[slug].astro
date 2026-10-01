@@ -8,8 +8,10 @@ import RealisationsGrid from '../../components/RealisationsGrid.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
 import { showrooms, site, mapsUrl, productNav, type Showroom } from '../../data/site';
-import { realisations } from '../../data/realisations';
+import { poses } from '../../data/realisations';
+import { villes, villeUrl } from '../../data/villes';
 import { showroomSchema } from '../../lib/schema';
+import { absoluteImage } from '../../lib/images';
 
 export const getStaticPaths = (() => showrooms.map((showroom) => ({ params: { slug: showroom.slug }, props: { showroom } }))) satisfies GetStaticPaths;
 
@@ -23,13 +25,21 @@ const crumbs = [
 ];
 const others = showrooms.filter((o) => o.slug !== s.slug);
 const email = s.email ?? site.email;
+const schemaImage = s.image ? await absoluteImage(s.image) : undefined;
+// Poses du secteur d'abord, puis les plus récentes.
+const area = [s.city, ...s.nearby];
+const localPoses = [...poses.filter((p) => p.place && area.includes(p.place)), ...poses.filter((p) => !p.place || !area.includes(p.place))].slice(0, 4);
+const localVilles = villes.filter((v) => v.showroom === s.slug);
 ---
 
 <BaseLayout
-  title={`Showroom ${s.city} (${s.postalCode}) : poêles et pompes à chaleur`}
-  description={`Showroom FK Énergie, ${s.street} à ${s.city} : poêles à granulés et à bois, inserts, chaudières, pompes à chaleur. Installateur RGE, étude gratuite.`}
+  title={`FK Énergie ${s.city} : poêles et pompes à chaleur`}
+  fullTitle
+  description={`Showroom FK Énergie, ${s.street}, ${s.postalCode} ${s.city} : poêles à granulés et à bois, inserts, chaudières et pompes à chaleur. Horaires et accès.`}
+  ogImage={s.image}
+  ogImageAlt={s.imageAlt}
   breadcrumbs={crumbs}
-  jsonLd={[showroomSchema(s)]}
+  jsonLd={[showroomSchema(s, schemaImage)]}
 >
   <PageHero
     eyebrow={s.isNew ? 'tout nouveau, ouvert en 2026' : undefined}
@@ -99,15 +109,34 @@ const email = s.email ?? site.email;
           Depuis notre showroom de {s.city}, nos équipes interviennent pour la pose, l’entretien et le dépannage de votre chauffage dans tout le secteur :
         </p>
         <ul class="mt-6 flex flex-wrap gap-2">
-          {[s.city, ...s.nearby].map((c) => <li class="rounded-full bg-ember-50 px-4 py-2 font-semibold text-ember-800 border border-ember-100">{c}</li>)}
+          {[s.city, ...s.nearby].map((c) => {
+            const v = localVilles.find((x) => x.name === c);
+            return v ? (
+              <li><a href={villeUrl(v)} class="inline-block rounded-full bg-ember-50 px-4 py-2 font-semibold text-ember-800 underline decoration-ember-300 underline-offset-2 border border-ember-100 hover:border-ember-400">{c}</a></li>
+            ) : (
+              <li class="rounded-full bg-ember-50 px-4 py-2 font-semibold text-ember-800 border border-ember-100">{c}</li>
+            );
+          })}
         </ul>
+        {
+          localVilles.length > 0 && (
+            <p class="mt-6 text-ink-600">
+              Voir aussi : {localVilles.map((v, i) => (
+                <>
+                  {i > 0 && ', '}
+                  <a href={villeUrl(v)} class="font-semibold text-ember-700 underline decoration-ember-300 underline-offset-2">installateur chauffage à {v.name}</a>
+                </>
+              ))}
+            </p>
+          )
+        }
       </div>
     </div>
   </section>
 
   <section class="container-page py-16" aria-labelledby="real-title">
     <h2 id="real-title" class="text-3xl">Quelques-unes de nos réalisations</h2>
-    <div class="mt-8"><RealisationsGrid items={realisations.slice(0, 4)} /></div>
+    <div class="mt-8"><RealisationsGrid items={localPoses} /></div>
   </section>
 
   <section class="container-page pb-4" aria-labelledby="autres-title">

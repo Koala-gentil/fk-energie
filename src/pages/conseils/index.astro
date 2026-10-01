@@ -1,0 +1,69 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { site } from '../../data/site';
+
+const crumbs = [{ label: 'Conseils', href: '/conseils/' }];
+const guides = (await getCollection('conseils')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const list = {
+  '@type': 'ItemList',
+  itemListElement: guides.map((g, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: new URL(`/conseils/${g.id}/`, site.url).toString(),
+    name: g.data.title,
+  })),
+};
+---
+
+<BaseLayout
+  title="Conseils : poêle, chaudière, pompe à chaleur"
+  description="Nos guides pour choisir, installer et entretenir votre poêle, chaudière ou pompe à chaleur : réglementation, comparatifs et bons gestes, sources à l’appui."
+  ogImage={guides[0]?.data.image}
+  pageType="CollectionPage"
+  pageExtra={{ mainEntity: list }}
+  breadcrumbs={crumbs}
+>
+  <PageHero
+    eyebrow="les conseils de l’atelier"
+    title="Bien choisir et bien entretenir son chauffage"
+    lead="Les questions qu’on nous pose le plus souvent en showroom, avec des réponses claires et les textes officiels à l’appui."
+    crumbs={crumbs}
+    cta={false}
+  />
+
+  <section class="container-page py-16">
+    <ul class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {
+        guides.map((g, i) => (
+          <li>
+            <article class="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-ink-200 bg-white transition hover:shadow-xl hover:shadow-ink-900/5">
+              <Image
+                src={g.data.image}
+                alt={g.data.imageAlt}
+                widths={[400, 640, 900]}
+                sizes="(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw"
+                class="aspect-[16/10] w-full object-cover"
+                loading={i < 3 ? 'eager' : 'lazy'}
+              />
+              <div class="flex flex-1 flex-col gap-3 p-6">
+                <p class="text-sm font-semibold text-ember-700">{g.data.category}</p>
+                <h2 class="text-2xl leading-snug">
+                  <a href={`/conseils/${g.id}/`} class="after:absolute after:inset-0 group-hover:text-ember-700">
+                    {g.data.title}
+                  </a>
+                </h2>
+                <p class="text-ink-600">{g.data.description}</p>
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <CtaBand title="Une question sur votre projet ?" text="Posez-la à nos conseillers, en showroom, par téléphone ou via le formulaire." />
+</BaseLayout>

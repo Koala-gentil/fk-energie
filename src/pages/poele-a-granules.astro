@@ -6,6 +6,8 @@ import FeatureCard from '../components/FeatureCard.astro';
 import RealisationsGrid from '../components/RealisationsGrid.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
+import RelatedGuides from '../components/RelatedGuides.astro';
+import ServiceArea from '../components/ServiceArea.astro';
 import Icon from '../components/Icon.astro';
 import { byCategory } from '../data/realisations';
 import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
@@ -14,7 +16,7 @@ import detail from '../assets/images/produits/poele-granules-detail.jpg';
 
 const crumbs = [{ label: 'Poêles à granulés', href: '/poele-a-granules/' }];
 const description =
-  'Vente et installation de poêles à granulés Palazzetti : air, canalisables, gain de place et hydro. Installateur RGE QualiBois à Aire-sur-la-Lys, Ardres et Rexpoëde. Étude et devis gratuits.';
+  'Poêles à granulés Palazzetti air, canalisables, gain de place ou hydro : vente et pose par un installateur RGE à Aire-sur-la-Lys, Ardres et Rexpoëde.';
 
 const faqs: FaqItem[] = [
   {
@@ -27,21 +29,22 @@ const faqs: FaqItem[] = [
   },
   {
     q: 'Quel entretien pour un poêle à granulés ?',
-    a: 'Un nettoyage simple et régulier du brasero et du cendrier par vos soins, et un entretien annuel par un professionnel, avec le ramonage obligatoire du conduit. Nous proposons l’entretien des appareils que nous installons.',
+    a: 'Un nettoyage simple et régulier du brasero et du cendrier par vos soins, et un entretien annuel obligatoire par un professionnel, avec le ramonage du conduit. Nous proposons l’entretien des appareils que nous installons.',
   },
   {
     q: 'Le poêle à granulés est-il éligible aux aides ?',
-    a: 'Oui, lorsqu’il est performant et posé par un installateur RGE comme FK Énergie (QualiBois), il peut ouvrir droit à MaPrimeRénov’, aux primes CEE et à la TVA à taux réduit, selon votre situation.',
+    a: 'Posé par un installateur RGE comme FK Énergie (QualiBois), un poêle performant peut ouvrir droit aux primes énergie (CEE) et à la TVA à taux réduit, selon votre situation. Depuis le 1er septembre 2026, MaPrimeRénov’ ne le finance plus seul, seulement dans le cadre d’une rénovation d’ampleur.',
   },
 ];
 ---
 
 <BaseLayout
-  title="Poêle à granulés Palazzetti : vente et installation RGE"
+  title="Poêle à granulés Palazzetti : vente et pose RGE"
+  ogImage={hero}
   description={description}
   breadcrumbs={crumbs}
   jsonLd={[
-    serviceSchema({ name: 'Installation de poêles à granulés', description, path: '/poele-a-granules/', serviceType: 'Installation de poêle à granulés' }),
+    serviceSchema({ name: 'Installation de poêles à granulés', description, path: '/poele-a-granules/', serviceType: 'Installation de poêle à granulés', brands: ['Palazzetti'] }),
     faqSchema(faqs),
   ]}
 >
@@ -129,6 +132,8 @@ const faqs: FaqItem[] = [
     <a href="/realisations/" class="btn-secondary mt-8">Voir toutes nos réalisations <Icon name="arrow" class="size-4" /></a>
   </section>
 
+  <RelatedGuides path="/poele-a-granules/" />
   <Faq faqs={faqs} title="Vos questions sur les poêles à granulés" />
+  <ServiceArea what="Poêles à granulés" />
   <CtaBand title="Votre poêle à granulés, posé par des pros RGE" />
 </BaseLayout>

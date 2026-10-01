@@ -42,8 +42,10 @@ src/
   data/site.ts            ← coordonnées, showrooms, horaires, navigation (source unique)
   data/realisations.ts    ← carnet des poses : photo, date, commune (photos dans assets/images/realisations)
   data/communes.ts        ← communes du formulaire et showroom le plus proche
+  data/villes.ts          ← pages locales /installateur-chauffage/<ville>/ (distance, communes voisines)
+  content/conseils/       ← guides pratiques en Markdown (/conseils/), sources obligatoires
   data/redirects.json     ← 317 redirections 301 des anciennes URL (archives 2017-2026)
-  lib/schema.ts           ← données structurées schema.org (Organization, HVACBusiness, FAQ…)
+  lib/schema.ts           ← données structurées schema.org (Organization, HVACBusiness, Service, Article, FAQ…)
   layouts/BaseLayout.astro← <head> SEO : title, description, canonical, Open Graph, JSON-LD
   components/             ← Header, Footer, PageHero, ContactForm, Faq…
   pages/                  ← une page = un fichier (URL avec slash final)
@@ -71,8 +73,18 @@ research/                 ← fiche entreprise et recherches (brief du projet)
 - Les autres anciennes URL (catalogue produits, sous-pages, site 2019-2022…) sont redirigées en **301** vers la page équivalente.
   Les redirections sont injectées après le build, car l'adaptateur Vercel les place sinon après sa règle de slash final et elles
   ne s'appliquent jamais (voir le commentaire du script).
-- Pages locales par showroom (`/showrooms/aire-sur-la-lys/`, `/ardres/`, `/rexpoede/`) avec données structurées `HVACBusiness`.
-- `sitemap-index.xml` généré automatiquement, `robots.txt`, balises canonical et Open Graph sur chaque page, FAQ balisées en `FAQPage`.
+- Pages locales par showroom (`/showrooms/aire-sur-la-lys/`, `/ardres/`, `/rexpoede/`) avec données structurées `HVACBusiness`
+  (adresse, coordonnées GPS, horaires, photo, prestations). Leur titre reprend le nom de la fiche Google (« FK Énergie Ardres »).
+- Pages par ville sans showroom (`/installateur-chauffage/saint-omer/`, `calais`, `hazebrouck`, `dunkerque`, `bethune`), reliées
+  au showroom le plus proche, et page « Zone d'intervention » (`/installateur-chauffage/`). Les anciennes URL « près de Calais /
+  Saint-Omer / Hazebrouck » y sont redirigées. Pour ajouter une ville : une entrée dans `src/data/villes.ts`, avec un texte
+  d'introduction propre (pas de copier-coller entre villes, Google pénalise les pages « satellites »).
+- Guides `/conseils/` (Markdown dans `src/content/conseils/`) : chaque guide cite ses sources officielles (frontmatter `sources`)
+  et apparaît automatiquement sur les pages listées dans `related`. Balisage `Article` + `FAQPage`.
+- Chaque page : titre ≤ 60 caractères et description ≤ 160 (le build affiche `[seo]` en cas de dépassement), canonical, image
+  Open Graph propre à la page (recadrée en 1200 × 630 au build), nœud `WebPage` relié à l'organisation et au fil d'Ariane.
+- Carnet de poses balisé en `ImageGallery` (date, commune et auteur de chaque photo) pour Google Images.
+- `sitemap-index.xml` généré automatiquement, `robots.txt`, polices du titre et du texte préchargées.
 - Après la mise en ligne : déclarer le sitemap dans Google Search Console, mettre à jour les fiches Google Business Profile
   (lien vers la page du showroom concerné) et créer la fiche de Rexpoëde.
 
@@ -84,6 +96,9 @@ research/                 ← fiche entreprise et recherches (brief du projet)
 - [ ] Nom de la directrice de publication (mentions légales : « Sylvie Faltin », selon l'ancien site).
 - [ ] Médiateur de la consommation (obligatoire pour les ventes aux particuliers) : à ajouter aux mentions légales.
 - [ ] Villes de la zone d'intervention (`areaServed` et `nearby` dans `site.ts`) et rattachement commune → showroom (`communes.ts`).
+- [ ] Pages villes (`villes.ts`) : confirmer les 5 villes ciblées et leurs communes voisines ; idéalement ajouter dans
+  `realisations.ts` la commune des poses (champ `place`), qui s'affichent alors en tête de la page de la ville.
+- [ ] Relire les guides `/conseils/` (réglementation sourcée, mais à valider par un professionnel de l'entreprise).
 - [ ] Photo de l'équipe (section « Une entreprise de famille » de l'accueil, actuellement la façade d'Aire) et communes des poses sans lieu.
 - [ ] Renouvellement QualiBois « Eau » (expire le 08/12/2026).
 - [ ] Autorisation d'utiliser les photos de chantiers clients (issues de la page Facebook).

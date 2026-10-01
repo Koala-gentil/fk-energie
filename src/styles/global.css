@@ -123,4 +123,28 @@
   .prose-fk strong {
     @apply text-ink-900;
   }
+  .prose-fk > :first-child {
+    @apply mt-0;
+  }
+  .prose-fk ul + p,
+  .prose-fk ol + p,
+  .prose-fk table + p {
+    @apply mt-4;
+  }
+  .prose-fk ol {
+    @apply mt-4 list-decimal space-y-2 pl-6 marker:font-semibold marker:text-ember-700;
+  }
+  .prose-fk blockquote {
+    @apply my-6 rounded-2xl border-l-4 border-ember-400 bg-ember-50 px-5 py-4 text-ink-800;
+  }
+  .prose-fk table {
+    @apply my-6 block w-full overflow-x-auto text-base;
+  }
+  .prose-fk th,
+  .prose-fk td {
+    @apply border-b border-ink-200 px-3 py-2.5 text-left align-top;
+  }
+  .prose-fk th {
+    @apply bg-ink-100 font-semibold text-ink-900;
+  }
 }

@@ -945,7 +945,7 @@
  },
  "/cheminee-avec-insert-pres-d-hazebrouck-9": {
   "status": 301,
-  "destination": "/inserts-cheminees/"
+  "destination": "/installateur-chauffage/hazebrouck/"
  },
  "/contact-3": {
   "status": 301,
@@ -981,15 +981,15 @@
  },
  "/installateurs-de-poeles-a-granules-pres-de-calais-2": {
   "status": 301,
-  "destination": "/poele-a-granules/"
+  "destination": "/installateur-chauffage/calais/"
  },
  "/installation-chaudiere-pres-de-saint-omer-8": {
   "status": 301,
-  "destination": "/chaudieres/"
+  "destination": "/installateur-chauffage/saint-omer/"
  },
  "/installation-poele-a-granules-saint-omer/": {
   "status": 301,
-  "destination": "/poele-a-granules/"
+  "destination": "/installateur-chauffage/saint-omer/"
  },
  "/mentions-legales-5": {
   "status": 301,
@@ -1265,6 +1265,6 @@
  },
  "/vente-de-poeles-a-bois-pres-de-saint-omer-7": {
   "status": 301,
-  "destination": "/poele-a-bois/"
+  "destination": "/installateur-chauffage/saint-omer/"
  }
 }

@@ -3,33 +3,34 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
+import RelatedGuides from '../components/RelatedGuides.astro';
 import Icon from '../components/Icon.astro';
 import { faqSchema, type Faq as FaqItem } from '../lib/schema';
 
 const crumbs = [{ label: 'Aides financières', href: '/aides-financieres/' }];
 const description =
-  'MaPrimeRénov’, primes CEE, TVA à 5,5 %, éco-PTZ : les aides pour financer votre poêle, chaudière ou pompe à chaleur posé par un installateur RGE. FK Énergie vous accompagne.';
+  'MaPrimeRénov’, primes CEE, TVA à 5,5 %, éco-PTZ : les aides pour financer un poêle, une chaudière ou une pompe à chaleur posés par un installateur RGE.';
 
 const aides = [
   {
     title: 'MaPrimeRénov’',
-    text: 'L’aide de l’État à la rénovation énergétique, versée par l’Anah. Son montant dépend de vos revenus et du type d’équipement installé.',
-    link: { label: 'france-renov.gouv.fr', href: 'https://france-renov.gouv.fr/aides/maprimerenov' },
+    text: 'L’aide de l’État à la rénovation énergétique, versée par l’Anah. En « parcours par geste », elle finance la pompe à chaleur air/eau. Depuis le 1er septembre 2026, poêles, inserts et chaudières bois ou granulés ne sont plus aidés que dans une rénovation d’ampleur.',
+    link: { label: 'service-public.gouv.fr', href: 'https://www.service-public.gouv.fr/particuliers/vosdroits/F35083' },
   },
   {
     title: 'Primes énergie (CEE)',
     text: 'Les certificats d’économies d’énergie permettent de recevoir une prime des fournisseurs d’énergie, cumulable avec MaPrimeRénov’.',
-    link: { label: 'economie.gouv.fr', href: 'https://www.economie.gouv.fr/particuliers/prime-energie-cee' },
+    link: { label: 'france-renov.gouv.fr', href: 'https://france-renov.gouv.fr/aides/cee' },
   },
   {
     title: 'TVA à taux réduit',
-    text: 'Pour les logements de plus de 2 ans, la TVA peut être réduite à 5,5 % sur les équipements performants et leur pose par un professionnel.',
-    link: { label: 'service-public.fr', href: 'https://www.service-public.fr/particuliers/vosdroits/F36436' },
+    text: 'Pour les logements achevés depuis plus de 2 ans, la TVA peut être réduite à 5,5 % sur les équipements performants et leur pose par un professionnel.',
+    link: { label: 'impots.gouv.fr', href: 'https://www.impots.gouv.fr/professionnel/questions/quel-taux-de-tva-appliquer-pour-les-travaux-realises-dans-les-logements' },
   },
   {
     title: 'Éco-prêt à taux zéro',
     text: 'Un prêt sans intérêts, accordé par les banques partenaires, pour financer le reste à charge de vos travaux.',
-    link: { label: 'service-public.fr', href: 'https://www.service-public.fr/particuliers/vosdroits/F19905' },
+    link: { label: 'service-public.fr', href: 'https://www.service-public.gouv.fr/particuliers/vosdroits/F19905' },
   },
 ];
 
@@ -37,6 +38,10 @@ const faqs: FaqItem[] = [
   {
     q: 'Pourquoi faut-il un installateur RGE ?',
     a: 'La plupart des aides (MaPrimeRénov’, CEE, éco-PTZ) ne sont accordées que si les travaux sont réalisés par une entreprise certifiée RGE pour le type de travaux concerné. FK Énergie est certifiée RGE QualiBois (poêles, chaudières et inserts bois et granulés) et RGE QualiPAC (pompes à chaleur).',
+  },
+  {
+    q: 'MaPrimeRénov’ finance-t-elle encore les poêles à bois et à granulés ?',
+    a: 'Plus seuls : depuis le 1er septembre 2026, les équipements de chauffage indépendants au bois ou aux granulés ne sont plus éligibles au parcours « par geste » de MaPrimeRénov’. Ils restent finançables dans le cadre d’une rénovation d’ampleur, et peuvent bénéficier des primes CEE et de la TVA à taux réduit selon les conditions en vigueur.',
   },
   {
     q: 'Quand faut-il faire la demande d’aide ?',
@@ -109,6 +114,7 @@ const faqs: FaqItem[] = [
     </div>
   </section>
 
+  <RelatedGuides path="/aides-financieres/" />
   <Faq faqs={faqs} title="Vos questions sur les aides" />
   <CtaBand title="Estimons ensemble vos aides" />
 </BaseLayout>

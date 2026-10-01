@@ -1,0 +1,38 @@
+---
+import Icon from './Icon.astro';
+import { showrooms } from '../data/site';
+import { villes, villeUrl } from '../data/villes';
+
+interface Props {
+  /** Ce qui est posé, au pluriel (ex. « Poêles à granulés »). */
+  what: string;
+  /** Accord au féminin (« posées »). */
+  feminine?: boolean;
+}
+const { what, feminine = false } = Astro.props;
+---
+
+<section class="container-page pb-4" aria-labelledby="secteur-title">
+  <div class="flex flex-col gap-4 rounded-3xl border border-ink-200 bg-white p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <h2 id="secteur-title" class="flex items-center gap-3 text-2xl"><Icon name="pin" class="size-6 shrink-0 text-ember-600" /> {what} {feminine ? 'posées' : 'posés'} dans le Pas-de-Calais et le Nord</h2>
+      <p class="mt-2 text-ink-700">
+        Depuis nos showrooms de {showrooms.map((s, i) => (
+          <>
+            {i > 0 && (i === showrooms.length - 1 ? ' et ' : ', ')}
+            <a href={`/showrooms/${s.slug}/`} class="font-semibold text-ember-700 underline decoration-ember-300 underline-offset-2">{s.city}</a>
+          </>
+        ))}, et notamment à :
+      </p>
+    </div>
+    <ul class="flex flex-wrap gap-2 lg:max-w-md lg:justify-end">
+      {
+        villes.map((v) => (
+          <li>
+            <a href={villeUrl(v)} class="inline-block rounded-full border border-ink-200 bg-ink-50 px-4 py-2 font-semibold hover:border-ember-400">{v.name}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

@@ -5,6 +5,8 @@ import PageHero from '../components/PageHero.astro';
 import FeatureCard from '../components/FeatureCard.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
+import RelatedGuides from '../components/RelatedGuides.astro';
+import ServiceArea from '../components/ServiceArea.astro';
 import Icon from '../components/Icon.astro';
 import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
 import hero from '../assets/images/produits/showroom-pompe-a-chaleur-atlantic.jpg';
@@ -12,7 +14,7 @@ import pellet from '../assets/images/realisations/poele-granules-palazzetti-vivi
 
 const crumbs = [{ label: 'Pompes à chaleur', href: '/pompes-a-chaleur/' }];
 const description =
-  'Installation de pompes à chaleur Atlantic air/eau et air/air (climatisation réversible) par un installateur RGE QualiPAC. Aire-sur-la-Lys, Ardres, Rexpoëde. Étude et devis gratuits.';
+  'Pompes à chaleur Atlantic air/eau et air/air (climatisation réversible) posées par un installateur RGE QualiPAC dans le Pas-de-Calais et le Nord.';
 
 const faqs: FaqItem[] = [
   {
@@ -36,10 +38,11 @@ const faqs: FaqItem[] = [
 
 <BaseLayout
   title="Pompe à chaleur air/eau et air/air Atlantic"
+  ogImage={hero}
   description={description}
   breadcrumbs={crumbs}
   jsonLd={[
-    serviceSchema({ name: 'Installation de pompes à chaleur', description, path: '/pompes-a-chaleur/', serviceType: 'Installation de pompe à chaleur' }),
+    serviceSchema({ name: 'Installation de pompes à chaleur', description, path: '/pompes-a-chaleur/', serviceType: 'Installation de pompe à chaleur', brands: ['Atlantic'] }),
     faqSchema(faqs),
   ]}
 >
@@ -107,6 +110,8 @@ const faqs: FaqItem[] = [
     </div>
   </section>
 
+  <RelatedGuides path="/pompes-a-chaleur/" />
   <Faq faqs={faqs} title="Vos questions sur les pompes à chaleur" />
+  <ServiceArea feminine what="Pompes à chaleur" />
   <CtaBand title="Passez à la pompe à chaleur avec un pro RGE QualiPAC" />
 </BaseLayout>

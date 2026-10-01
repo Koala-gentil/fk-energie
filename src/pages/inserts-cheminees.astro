@@ -5,13 +5,15 @@ import PageHero from '../components/PageHero.astro';
 import FeatureCard from '../components/FeatureCard.astro';
 import Faq from '../components/Faq.astro';
 import CtaBand from '../components/CtaBand.astro';
+import RelatedGuides from '../components/RelatedGuides.astro';
+import ServiceArea from '../components/ServiceArea.astro';
 import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
 import hero from '../assets/images/produits/insert-cheminee-showroom.jpg';
 import side from '../assets/images/showrooms/showroom-aire-interieur-2.jpg';
 
 const crumbs = [{ label: 'Inserts & cheminées', href: '/inserts-cheminees/' }];
 const description =
-  'Transformez votre cheminée ouverte en véritable chauffage : inserts bois et granulés, foyers fermés et habillages Palazzetti. Pose par un installateur RGE QualiBois. Devis gratuit.';
+  'Inserts bois et granulés, foyers fermés et habillages : transformez votre cheminée ouverte en vrai chauffage. Pose RGE QualiBois, devis gratuit.';
 
 const faqs: FaqItem[] = [
   {
@@ -31,10 +33,11 @@ const faqs: FaqItem[] = [
 
 <BaseLayout
   title="Insert et foyer de cheminée : installation"
+  ogImage={hero}
   description={description}
   breadcrumbs={crumbs}
   jsonLd={[
-    serviceSchema({ name: 'Installation d’inserts et foyers de cheminée', description, path: '/inserts-cheminees/', serviceType: 'Installation d’insert de cheminée' }),
+    serviceSchema({ name: 'Installation d’inserts et foyers de cheminée', description, path: '/inserts-cheminees/', serviceType: 'Installation d’insert de cheminée', brands: ['Palazzetti'] }),
     faqSchema(faqs),
   ]}
 >
@@ -87,6 +90,8 @@ const faqs: FaqItem[] = [
     </div>
   </section>
 
+  <RelatedGuides path="/inserts-cheminees/" />
   <Faq faqs={faqs} title="Vos questions sur les inserts" />
+  <ServiceArea what="Inserts et foyers" />
   <CtaBand title="Redonnez vie à votre cheminée" />
 </BaseLayout>

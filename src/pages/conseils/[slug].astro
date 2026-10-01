@@ -1,0 +1,121 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Faq from '../../components/Faq.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import RelatedGuides from '../../components/RelatedGuides.astro';
+import Icon from '../../components/Icon.astro';
+import { productNav, serviceNav, site } from '../../data/site';
+import { articleSchema, faqSchema } from '../../lib/schema';
+import { absoluteImage } from '../../lib/images';
+
+export const getStaticPaths = (async () =>
+  (await getCollection('conseils')).map((guide) => ({ params: { slug: guide.id }, props: { guide } }))) satisfies GetStaticPaths;
+
+interface Props {
+  guide: CollectionEntry<'conseils'>;
+}
+const { guide } = Astro.props;
+const { data } = guide;
+const { Content } = await render(guide);
+
+const url = new URL(`/conseils/${guide.id}/`, site.url).toString();
+const crumbs = [
+  { label: 'Conseils', href: '/conseils/' },
+  { label: data.title, href: `/conseils/${guide.id}/` },
+];
+const words = (guide.body ?? '').split(/\s+/).length;
+const minutes = Math.max(1, Math.round(words / 220));
+const formatDate = (d: Date) => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+const links = [...productNav, ...serviceNav];
+const relatedPages = data.related.map((href) => links.find((l) => l.href === href) ?? { label: 'Contact', href }).filter((l) => l.href !== '/contact/');
+---
+
+<BaseLayout
+  title={data.seoTitle}
+  description={data.description}
+  ogImage={data.image}
+  ogImageAlt={data.imageAlt}
+  breadcrumbs={crumbs}
+  article={{ published: data.pubDate, modified: data.updatedDate, section: data.category }}
+  jsonLd={[
+    articleSchema({
+      url,
+      headline: data.title,
+      description: data.description,
+      image: await absoluteImage(data.image),
+      datePublished: data.pubDate,
+      dateModified: data.updatedDate,
+      section: data.category,
+    }),
+    ...(data.faq.length ? [faqSchema(data.faq)] : []),
+  ]}
+>
+  <PageHero eyebrow={data.category.toLowerCase()} title={data.title} lead={data.description} crumbs={crumbs} image={data.image} imageAlt={data.imageAlt} imageAspect="landscape" cta={false}>
+    <p class="flex flex-wrap items-center gap-x-4 gap-y-1 text-ink-600">
+      <span>Par l’équipe {site.name}</span>
+      <span aria-hidden="true">·</span>
+      <time datetime={(data.updatedDate ?? data.pubDate).toISOString().slice(0, 10)}>
+        {data.updatedDate ? `Mis à jour le ${formatDate(data.updatedDate)}` : `Publié le ${formatDate(data.pubDate)}`}
+      </time>
+      <span aria-hidden="true">·</span>
+      <span>{minutes} min de lecture</span>
+    </p>
+  </PageHero>
+
+  <div class="container-page grid gap-12 py-16 lg:grid-cols-12">
+    <article class="prose-fk lg:col-span-8">
+      <Content />
+    </article>
+
+    <aside class="flex flex-col gap-6 lg:col-span-4">
+      <div class="rounded-3xl bg-ember-100 p-6 lg:sticky lg:top-28">
+        <p class="font-display text-2xl font-semibold">Un projet ? Parlons-en.</p>
+        <p class="mt-2 text-ink-700">Étude gratuite chez vous ou dans l’un de nos trois showrooms, par des installateurs RGE.</p>
+        <a href="/contact/" class="btn-primary mt-5 w-full">Demander une étude</a>
+        <a href={site.phoneHref} class="link-arrow mt-4"><Icon name="phone" class="size-5 text-ember-600" /> {site.phone}</a>
+        {
+          relatedPages.length > 0 && (
+            <div class="mt-6 border-t border-ember-200 pt-5">
+              <p class="font-semibold text-ink-900">À voir aussi</p>
+              <ul class="mt-3 space-y-2">
+                {relatedPages.map((l) => (
+                  <li>
+                    <a href={l.href} class="inline-flex items-center gap-2 font-semibold text-ember-800 hover:underline">
+                      <Icon name="arrow" class="size-4" /> {l.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+      </div>
+    </aside>
+  </div>
+
+  {data.faq.length > 0 && <Faq faqs={data.faq} title="En bref" />}
+
+  <section class="container-page pb-8" aria-labelledby="sources-title">
+    <div class="rounded-3xl border border-ink-200 bg-white p-6 sm:p-8">
+      <h2 id="sources-title" class="text-2xl">Sources</h2>
+      <ol class="mt-4 list-decimal space-y-2 pl-6 text-ink-700 marker:text-ink-500">
+        {
+          data.sources.map((s) => (
+            <li>
+              <a href={s.url} target="_blank" rel="noopener" class="underline decoration-ink-300 underline-offset-2 hover:text-ember-700">{s.label}</a>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="mt-4 text-sm text-ink-600">
+        La réglementation et les aides évoluent : en cas de doute, référez-vous aux textes officiels ou demandez-nous conseil.
+      </p>
+    </div>
+  </section>
+
+  <RelatedGuides exclude={guide.id} title="Autres conseils" />
+  <CtaBand />
+</BaseLayout>

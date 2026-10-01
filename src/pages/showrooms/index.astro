@@ -6,15 +6,19 @@ import HoursList from '../../components/HoursList.astro';
 import Icon from '../../components/Icon.astro';
 import { showrooms, site } from '../../data/site';
 import { showroomSchema } from '../../lib/schema';
+import { absoluteImage } from '../../lib/images';
 
 const crumbs = [{ label: 'Nos showrooms', href: '/showrooms/' }];
+const schemas = await Promise.all(showrooms.map(async (s) => showroomSchema(s, s.image ? await absoluteImage(s.image) : undefined)));
 ---
 
 <BaseLayout
-  title="Nos showrooms : Aire-sur-la-Lys, Ardres et Rexpoëde"
-  description="Visitez les showrooms FK Énergie à Aire-sur-la-Lys (62), Ardres (62) et Rexpoëde (59) : poêles à granulés, poêles à bois, inserts et pompes à chaleur en exposition. Ouverts du lundi au samedi."
+  title="Showrooms : Aire-sur-la-Lys, Ardres, Rexpoëde"
+  description="Poêles à granulés, poêles à bois, inserts et pompes à chaleur en exposition à Aire-sur-la-Lys, Ardres et Rexpoëde. Ouvert du lundi au samedi."
+  ogImage={showrooms[0].image}
+  pageType="CollectionPage"
   breadcrumbs={crumbs}
-  jsonLd={showrooms.map(showroomSchema)}
+  jsonLd={schemas}
 >
   <PageHero
     title="3 showrooms pour voir, comparer et choisir"

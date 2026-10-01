@@ -6,13 +6,21 @@ import CtaBand from '../components/CtaBand.astro';
 import Icon from '../components/Icon.astro';
 import { carnet } from '../data/realisations';
 import { site } from '../data/site';
+import { imageObjectSchema } from '../lib/schema';
+import { absoluteImage } from '../lib/images';
 
 const crumbs = [{ label: 'Nos réalisations', href: '/realisations/' }];
+const images = await Promise.all(
+  carnet.map(async (r) => imageObjectSchema({ url: await absoluteImage(r.image), caption: r.alt, date: r.date, place: r.place })),
+);
 ---
 
 <BaseLayout
-  title="Nos réalisations : poêles à bois et à granulés installés"
-  description="Découvrez en photos les poêles à granulés et poêles à bois installés par FK Énergie chez nos clients du Pas-de-Calais et du Nord : Palazzetti, HETA, Lotus, Contura…"
+  title="Réalisations : poêles à bois et à granulés posés"
+  description="En photos, les poêles à granulés et à bois posés par FK Énergie chez nos clients du Pas-de-Calais et du Nord : Palazzetti, HETA, Lotus, Contura…"
+  ogImage={carnet[0].image}
+  pageType="ImageGallery"
+  pageExtra={{ image: images }}
   breadcrumbs={crumbs}
 >
   <PageHero
