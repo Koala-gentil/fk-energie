@@ -78,7 +78,7 @@ research/                 ← fiche entreprise et recherches (brief du projet)
 
 ## À valider avec le client avant la mise en ligne
 
-- [ ] Logo : le logo a été **redessiné en SVG** d'après le logo 2026 (`src/components/Logo.astro`). Récupérer le fichier source si possible.
+- [ ] Logo : le logo officiel (photo de profil Facebook 2026, 1254 px) est **détouré** dans `src/assets/brand/` (versions fond clair, fond sombre et badge rond). Récupérer le fichier source vectoriel si possible.
 - [ ] Rexpoëde : horaires (actuellement identiques aux autres showrooms), e-mail, photo de la façade.
 - [ ] E-mails publiés : `fkenergie@orange.fr` et `ardres.fkenergie@gmail.com`.
 - [ ] Nom de la directrice de publication (mentions légales : « Sylvie Faltin », selon l'ancien site).

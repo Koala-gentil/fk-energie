@@ -1,35 +1,29 @@
 ---
 /**
- * Logo FK Énergie redessiné en vectoriel : cartouches « F » encre et « K » braise,
- * suivis du nom en Fraunces.
+ * Logo officiel FK Énergie (photo de profil 2026), détouré sur fond transparent.
+ * - tone « dark » : pour les fonds clairs (texte « NERGIE » en encre)
+ * - tone « light » : pour les fonds sombres (texte blanc, version d'origine)
+ * Sources : src/assets/brand/, générées depuis assets/raw/facebook/profil_01.jpg.
  */
+import { Image } from 'astro:assets';
+import logoClair from '../assets/brand/logo-fond-clair.png';
+import logoSombre from '../assets/brand/logo-fond-sombre.png';
+
 interface Props {
   tone?: 'dark' | 'light';
+  /** Hauteur du logo, en classe Tailwind (ex. « h-14 »). */
   class?: string;
-  showWordmark?: boolean;
+  eager?: boolean;
 }
-const { tone = 'dark', class: className = '', showWordmark = true } = Astro.props;
-const uid = `fk-${Math.random().toString(36).slice(2, 8)}`;
+const { tone = 'dark', class: className = 'h-14', eager = false } = Astro.props;
+const src = tone === 'light' ? logoSombre : logoClair;
 ---
 
-<span class:list={['inline-flex items-center gap-3', className]}>
-  <svg viewBox="0 0 200 100" class="h-[1.1em] w-auto shrink-0" aria-hidden="true">
-    <defs>
-      <linearGradient id={`${uid}-k`} x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#E9772E"></stop>
-        <stop offset="1" stop-color="#C94C16"></stop>
-      </linearGradient>
-    </defs>
-    <rect x="4" y="4" width="92" height="92" rx="22" fill={tone === 'light' ? '#F5EFE6' : '#2A201A'}></rect>
-    <rect x="104" y="4" width="92" height="92" rx="22" fill={`url(#${uid}-k)`}></rect>
-    <path fill={tone === 'light' ? '#2A201A' : '#F5EFE6'} d="M30 22H76L70 37H48V45H66L61 59H48V78H30Z"></path>
-    <path fill="#FFF8F1" d="M130 22H148V46L166 22H188L162 51L189 78H166L148 58V78H130Z"></path>
-  </svg>
-  {
-    showWordmark && (
-      <span class:list={['font-display leading-none font-semibold tracking-tight', tone === 'light' ? 'text-ink-50' : 'text-ink-900']}>
-        FK Énergie
-      </span>
-    )
-  }
-</span>
+<Image
+  src={src}
+  alt="FK Énergie"
+  widths={[120, 180, 240, 360]}
+  sizes="180px"
+  class:list={['w-auto', className]}
+  loading={eager ? 'eager' : 'lazy'}
+/>
