@@ -117,7 +117,7 @@ const aidesTelephone: Record<Outil, string> = {
 const accueil =
   'Voici une maison d’exemple : cliquez sur une pièce pour la modifier, ou partez d’un modèle plus proche de chez vous (menu « ⋯ »).';
 /** Aide de l'outil « Choisir » à l'étape du chauffage. */
-const aideChauffage = 'Cliquez sur un appareil pour le régler, sur une porte pour l’ouvrir ou la fermer. Sous chaque appareil : puissance moyenne fournie / puissance maximale.';
+const aideChauffage = 'Cliquez sur un appareil pour le régler, sur une porte pour l’ouvrir ou la fermer. Sous chaque appareil : puissance moyenne fournie à la température dehors choisie / puissance maximale, en rouge s’il est à fond.';
 
 const couleurs: Record<TypePiece, string> = {
   sejour: 'var(--color-ember-100)',
@@ -472,20 +472,33 @@ if (racine) {
     return jour;
   };
   const moyenne = (a: number[]) => a.reduce((x, y) => x + y, 0) / Math.max(1, a.length);
-  /** Températures affichées : moyenne de la journée. */
-  /** Puissance moyenne fournie sur la journée / puissance maximale de chaque appareil (kW), et de la chaudière. */
-  const etiquettesAppareils = (jour: Jour) => {
+  type Etiquette = { texte: string; aFond: boolean };
+  /** Radiateur à fond : il donne tout ce qu'il peut (selon la température de l'eau) et sa pièce reste sous son réglage. */
+  const radiateurAFond = (e: Radiateur, sim: Simulation) => {
+    const r = sim.emetteurs.get(e.id);
+    return r?.capacite !== undefined && r.puissance >= r.capacite - 1 && (sim.temperatures.get(e.piece) ?? Infinity) < e.consigne - 0.5;
+  };
+  /**
+   * Puissance moyenne fournie sur la journée / puissance maximale de chaque appareil (kW), et de la chaudière ; « à fond »
+   * quand l'appareil ne peut pas donner plus (pour un radiateur à eau : avec l'eau de ce jour-là, moins chaude que 75 °C).
+   */
+  const etiquettesAppareils = (jour: Jour, sim: Simulation | null) => {
     const k = (w: number) => nf1.format(w / 1000);
-    const textes = new Map<string, string>();
+    const textes = new Map<string, Etiquette>();
     let eauHydro = 0;
     for (const e of plan.emetteurs) {
       const moy = moyenne(jour.puissances.get(e.id) ?? []);
       if (e.genre === 'poele' && e.nature === 'hydro') eauHydro += (moy * e.partEau) / 100;
-      textes.set(e.id, `${k(moy)} / ${k(e.genre === 'poele' ? e.puissance * 1000 : e.puissance)} kW`);
+      const aFond = !!sim && (e.genre === 'radiateur' ? radiateurAFond(e, sim) : sim.emetteurs.get(e.id)?.regime === 'maximum');
+      textes.set(e.id, { texte: `${k(moy)} / ${k(e.genre === 'poele' ? e.puissance * 1000 : e.puissance)} kW${aFond ? ' · à fond' : ''}`, aFond });
     }
-    if (plan.central.generateur !== 'aucun') textes.set('central', `${k(Math.max(0, moyenne(jour.puissanceCentral) - eauHydro))} / ${k(plan.central.puissance * 1000)} kW`);
+    if (plan.central.generateur !== 'aucun') {
+      const aFond = !!sim?.generateurLimite;
+      textes.set('central', { texte: `${k(Math.max(0, moyenne(jour.puissanceCentral) - eauHydro))} / ${k(plan.central.puissance * 1000)} kW${aFond ? ' · à fond' : ''}`, aFond });
+    }
     return textes;
   };
+  /** Températures affichées : moyenne de la journée. */
   const tempsAffichees = (jour: Jour) => new Map([...jour.temperatures].map(([id, a]) => [id, moyenne(a)]));
 
   /** Couleur d'une pièce selon sa température : bleu froid, crème vers 19 °C, orange au-delà de 21 °C. */
@@ -511,7 +524,7 @@ if (racine) {
 
   // --- Dessin d'un niveau (aussi utilisé pour l'export en image) ---------------------------------------------------
   /** `valeurs` : puissance ou température sous le nom de chaque pièce (pas à l'étape du plan, où l'on dessine). */
-  type OptionsDessin = { interactif: boolean; calcul: Calcul; temps: Map<string, number> | null; valeurs?: boolean; etiquettes?: Map<string, string> | null };
+  type OptionsDessin = { interactif: boolean; calcul: Calcul; temps: Map<string, number> | null; valeurs?: boolean; etiquettes?: Map<string, Etiquette> | null };
   function dessinerNiveau(cible: SVGSVGElement, n: number, o: OptionsDessin) {
     const murs = classerMurs(plan, n);
     // Ce qui se choisit sur le plan dépend de l'étape : le dessin au plan, les appareils au chauffage
@@ -604,18 +617,66 @@ if (racine) {
 
     // Puissance de chaque appareil, du côté de la pièce
     if (o.etiquettes) {
-      const etiquette = (id: string, x: number, y: number, ancre: 'start' | 'middle' | 'end') => {
-        const texte = o.etiquettes!.get(id);
-        if (texte)
-          cible.append(el('text', { x, y, 'text-anchor': ancre, 'font-size': 0.5, 'font-weight': 700, fill: 'var(--color-ink-800)', stroke: 'var(--color-white)', 'stroke-width': 0.2, 'paint-order': 'stroke', 'pointer-events': 'none' }, texte));
+      type Place = { x: number; y: number; ancre: 'start' | 'middle' | 'end' };
+      /**
+       * Étiquette sur une pastille claire, à la première place proposée qui reste dans la pièce (sinon la première) :
+       * à côté de l'appareil plutôt que vers le centre, où sont le nom et la température de la pièce.
+       */
+      const etiquette = (id: string, piece: Piece, places: Place[]) => {
+        const etq = o.etiquettes!.get(id);
+        if (!etq) return;
+        const texte = etq.texte;
+        const largeur = texte.length * 0.27 + 0.3;
+        const boite = (pl: Place) => ({ gauche: pl.ancre === 'start' ? pl.x - 0.15 : pl.ancre === 'end' ? pl.x - largeur + 0.15 : pl.x - largeur / 2, haut: pl.y - 0.48 });
+        const dedans = (pl: Place) => {
+          const b = boite(pl);
+          return b.gauche >= piece.x + 0.15 && b.gauche + largeur <= piece.x + piece.w - 0.15 && b.haut >= piece.y + 0.15 && b.haut + 0.66 <= piece.y + piece.h - 0.15;
+        };
+        const choisie = places.find(dedans) ?? places[0];
+        const b = boite(choisie);
+        // Appareil à fond : pastille rouge
+        cible.append(el('rect', { x: b.gauche, y: b.haut, width: largeur, height: 0.66, rx: 0.33, fill: etq.aFond ? 'var(--color-danger-50)' : 'var(--color-white)', 'fill-opacity': 0.94, stroke: etq.aFond ? 'var(--color-danger-700)' : 'var(--color-ink-300)', 'stroke-width': etq.aFond ? 0.05 : 0.03, 'pointer-events': 'none' }));
+        cible.append(el('text', { x: choisie.x, y: choisie.y, 'text-anchor': choisie.ancre, 'font-size': 0.48, 'font-weight': 700, fill: etq.aFond ? 'var(--color-danger-700)' : 'var(--color-ink-800)', 'pointer-events': 'none' }, texte));
       };
-      if (c.piece && c.generateur !== 'aucun' && pieceDe(c.piece)?.niveau === n) etiquette('central', c.x!, c.y! + 1.4, 'middle');
+      const pieceC = c.piece ? pieceDe(c.piece) : undefined;
+      if (pieceC && c.generateur !== 'aucun' && pieceC.niveau === n) {
+        const demi = c.generateur === 'pac' ? 1 : 0.65;
+        const bas = c.generateur === 'pac' ? 0.7 : 0.8;
+        etiquette('central', pieceC, [
+          { x: c.x! + demi + 0.25, y: c.y! + 0.17, ancre: 'start' },
+          { x: c.x! - demi - 0.25, y: c.y! + 0.17, ancre: 'end' },
+          { x: c.x!, y: c.y! + bas + 0.6, ancre: 'middle' },
+          { x: c.x!, y: c.y! - bas - 0.3, ancre: 'middle' },
+        ]);
+      }
       for (const e of plan.emetteurs) {
         const p = pieceDe(e.piece);
         if (!p || p.niveau !== n) continue;
-        if (e.genre === 'poele') etiquette(e.id, e.x, e.y + 1.3, 'middle');
-        else if (e.sens === 'h') etiquette(e.id, e.x, e.y > p.y + p.h / 2 ? e.y - 0.5 : e.y + 0.95, 'middle');
-        else etiquette(e.id, e.x > p.x + p.w / 2 ? e.x - 0.5 : e.x + 0.5, e.y + 0.18, e.x > p.x + p.w / 2 ? 'end' : 'start');
+        if (e.genre === 'poele')
+          etiquette(e.id, p, [
+            { x: e.x + 0.95, y: e.y + 0.17, ancre: 'start' },
+            { x: e.x - 0.95, y: e.y + 0.17, ancre: 'end' },
+            { x: e.x, y: e.y + 1.25, ancre: 'middle' },
+            { x: e.x, y: e.y - 0.95, ancre: 'middle' },
+          ]);
+        // Radiateur : le long de son mur, d'un côté ou de l'autre, sinon juste à l'intérieur de la pièce
+        else if (e.sens === 'h') {
+          const interieur = e.y > p.y + p.h / 2 ? e.y - 0.55 : e.y + 0.95;
+          etiquette(e.id, p, [
+            { x: e.x + 1.05, y: e.y + 0.17, ancre: 'start' },
+            { x: e.x - 1.05, y: e.y + 0.17, ancre: 'end' },
+            { x: e.x, y: interieur, ancre: 'middle' },
+            { x: Math.max(p.x + 0.2, e.x - 0.8), y: interieur, ancre: 'start' },
+            { x: Math.min(p.x + p.w - 0.2, e.x + 0.8), y: interieur, ancre: 'end' },
+          ]);
+        } else {
+          const interieurX = e.x > p.x + p.w / 2 ? { x: e.x - 0.45, ancre: 'end' as const } : { x: e.x + 0.45, ancre: 'start' as const };
+          etiquette(e.id, p, [
+            { ...interieurX, y: e.y + 0.17 },
+            { x: e.x > p.x + p.w / 2 ? e.x + 0.1 : e.x - 0.1, y: e.y + 1.4, ancre: interieurX.ancre },
+            { x: e.x > p.x + p.w / 2 ? e.x + 0.1 : e.x - 0.1, y: e.y - 1.05, ancre: interieurX.ancre },
+          ]);
+        }
       }
     }
 
@@ -755,7 +816,7 @@ if (racine) {
       svg.append(fantome);
     }
 
-    const etiquettes = (etape === 'chauffage' || etape === 'resultat') && jour ? etiquettesAppareils(jour) : null;
+    const etiquettes = (etape === 'chauffage' || etape === 'resultat') && jour ? etiquettesAppareils(jour, simulation) : null;
     dessinerNiveau(svg, niveau, { interactif: true, calcul, temps, valeurs: etape !== 'plan', etiquettes });
 
     // Aperçus de dessin
@@ -1050,7 +1111,7 @@ if (racine) {
     if (aEau && !aChauffageEau(plan)) lignes.push(messageSansEau);
     else if (aEau)
       lignes.push(
-        `Les radiateurs à eau reçoivent ${kw(sim.puissanceCentral)}, avec une eau à ${degres(sim.tEau ?? 0)} en moyenne${sim.generateurLimite ? ` : ${nomSourceEau()} ${tropJuste()}` : ''}.`,
+        `Par ${degres(tExt)} dehors, les radiateurs à eau reçoivent ${kw(sim.puissanceCentral)}, avec une eau à ${degres(sim.tEau ?? 0)} en moyenne${sim.generateurLimite ? ` : ${nomSourceEau()} ${tropJuste()}` : ''}.`,
       );
     const electrique = lesRadiateurs.filter((e) => e.nature === 'electrique').reduce((s2, e) => s2 + (sim.emetteurs.get(e.id)?.puissance ?? 0), 0);
     if (lesRadiateurs.some((e) => e.nature === 'electrique')) lignes.push(`Les radiateurs électriques fournissent ${kw(electrique)}.`);
@@ -1076,6 +1137,11 @@ if (racine) {
         else if (surdimensionne(gf, e)) lignesGf.push(`Même par grand froid (${tBaseTexte}), le poêle de « ${nomPiece} » fonctionnerait encore au ralenti : il est surdimensionné.`);
       }
       // (poêles hydro seuls : leur ligne le dit déjà)
+      if (aEau && plan.central.generateur !== 'aucun') {
+        // Ce que fournit la chaudière ou la PAC (les poêles hydro servent l'eau en premier) : c'est par grand froid qu'on la dimensionne
+        const eauHydroGf = lesPoeles.reduce((s2, e) => s2 + (gf.emetteurs.get(e.id)?.eau ?? 0), 0);
+        lignesGf.unshift(`Par grand froid (${tBaseTexte}), ${nomGenerateur()} fournirait ${kw(Math.max(0, gf.puissanceCentral - eauHydroGf))} sur ses ${fmt(plan.central.puissance)} kW${lesPoeles.length ? `, ${lesPoeles.length > 1 ? 'les poêles faisant' : 'le poêle faisant'} le reste` : ''} : c’est ce jour-là qu’on la dimensionne.`);
+      }
       if (aEau && gf.generateurLimite && plan.central.generateur !== 'aucun') lignesGf.push(`Par grand froid, ${nomSourceEau()} ${tropJuste()} pour tous les radiateurs.`);
       // Pièces équipées de radiateurs qui restent sous leur réglage
       const froides = calcul.pieces.filter((r) => {
@@ -1396,7 +1462,7 @@ if (racine) {
     panneau.querySelector('[data-resultat-emetteur]')!.textContent = !aEau
       ? 'Aucun radiateur à eau pour l’instant : posez-en avec l’outil « Radiateur », ou d’un coup dans chaque pièce.'
       : simulation
-        ? `Par ${degres(tExt)} dehors, ${pac ? 'elle' : 'elle'} fournit ${kw(simulation.puissanceCentral)} aux radiateurs, avec une eau à ${degres(simulation.tEau ?? 0)} en moyenne${simulation.generateurLimite ? ` : avec ${fmt(c.puissance)} kW, elle est trop juste` : ''}.`
+        ? `Par ${degres(tExt)} dehors, elle fournit ${kw(simulation.puissanceCentral)} aux radiateurs, avec une eau à ${degres(simulation.tEau ?? 0)} en moyenne${simulation.generateurLimite ? ` : avec ${fmt(c.puissance)} kW, elle est trop juste` : ''}.${tExt > parametres.tBase ? ` Par grand froid (${tBaseTexte}), il lui faudrait fournir ${kw(simulerGrandFroid(calcul).puissanceCentral)} : c’est ce chiffre qui fixe sa puissance.` : ''}`
         : '';
     const type = panneau.querySelector<HTMLSelectElement>('[data-f="generateur"]')!;
     type.value = c.generateur;
@@ -1499,7 +1565,10 @@ if (racine) {
       if (eau && !aChauffageEau(plan)) resultat = messageSansEau;
       else if (r && simulation && tPiece !== undefined) {
         resultat = `Par ${degres(tExt)} dehors, il fournit ${watts(r.puissance)}${r.capacite !== undefined ? ` sur ${watts(r.capacite)} possibles` : ''}${eau && simulation.tEau !== null ? ` avec une eau à ${degres(simulation.tEau)}` : ''}.`;
-        if (r.capacite !== undefined && r.puissance >= r.capacite - 1 && tPiece < e.consigne - 0.5) resultat += ` Il est à fond et la pièce reste à ${degres(tPiece)}.`;
+        if (radiateurAFond(e, simulation))
+          resultat += eau
+            ? ` Il est à fond et la pièce reste à ${degres(tPiece)} : ses ${watts(e.puissance)} sont donnés pour une eau à 75 °C, et l’eau n’est qu’à ${degres(simulation.tEau ?? 0)} par ce temps. Pour plus de chaleur : un radiateur plus grand, ou une eau plus chaude (réglage de la chaudière).`
+            : ` Il est à fond et la pièce reste à ${degres(tPiece)} : il faudrait un radiateur plus puissant.`;
       }
       panneau.querySelector('[data-resultat-emetteur]')!.textContent = resultat;
       const nature = panneau.querySelector<HTMLSelectElement>('[data-f="nature-radiateur"]')!;
@@ -1822,9 +1891,15 @@ if (racine) {
     const calcul = calculer();
     const avecTemperatures = temperaturesVisibles();
     const jourImage = avecTemperatures ? simulerJournee(calcul) : null;
-    dessinerNiveau(cible, n, { interactif: false, calcul, temps: jourImage ? tempsAffichees(jourImage) : null, etiquettes: jourImage ? etiquettesAppareils(jourImage) : null });
-    const titre = `${nomDuNiveau(n)} · ${avecTemperatures ? 'températures moyennes' : 'puissance de chauffage nécessaire'} · haut du plan : ${directions[plan.nord]}`;
+    dessinerNiveau(cible, n, { interactif: false, calcul, temps: jourImage ? tempsAffichees(jourImage) : null, etiquettes: jourImage ? etiquettesAppareils(jourImage, simuler(calcul)) : null });
+    const tExt = conditions(calcul).tExterieure;
+    const titre = `${nomDuNiveau(n)} · ${avecTemperatures ? `températures moyennes par ${degres(tExt)} dehors` : `puissance nécessaire par ${tBaseTexte} dehors`} · haut du plan : ${directions[plan.nord]}`;
     cible.append(el('text', { x: vb.x + 1, y: vb.y + 1.6, 'font-size': Math.min(1.1, (vb.w - 2) / (titre.length * 0.55)), 'font-weight': 700, fill: 'var(--color-ink-900)' }, titre));
+    // Les puissances des appareils dépendent du temps qu'il fait : on le dit sous le titre
+    if (avecTemperatures) {
+      const legende = `Sous chaque appareil : puissance moyenne fournie par ${degres(tExt)} dehors / puissance maximale (en rouge : à fond). La puissance à prévoir se lit par grand froid (${tBaseTexte}).`;
+      cible.append(el('text', { x: vb.x + 1, y: vb.y + 2.7, 'font-size': Math.min(0.62, (vb.w - 2) / (legende.length * 0.5)), fill: 'var(--color-ink-700)' }, legende));
+    }
     const source = resoudreCouleurs(new XMLSerializer().serializeToString(cible));
     const image = new Image();
     image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(source)}`;
