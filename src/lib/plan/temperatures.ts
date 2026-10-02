@@ -387,7 +387,8 @@ function reseau(
             fourni += puissance * f;
           } else {
             const capacite =
-              em.nature === 'electrique'
+              // Électrique ou unité de PAC air/air : sa puissance, quelle que soit l'eau
+              em.nature === 'electrique' || em.nature === 'split'
                 ? em.puissance
                 : tEau === null
                   ? 0

@@ -24,6 +24,17 @@ puissance « Prated » des fiches (donnée pour −10 °C en climat moyen). Eau 
 Son détail règle le type (chaudière ou pompe à chaleur), la puissance et l'eau au départ, et propose de mettre un radiateur
 à eau dans chaque pièce chauffée qui n'en a pas.
 
+## Pompe à chaleur air/air (ajoutée le 2 octobre 2026)
+
+Outil « PAC air/air » : une unité intérieure murale (split) par pièce, posée contre un mur comme un radiateur. Elle souffle de
+l'air chaud et suit son réglage, comme un radiateur électrique : elle donne jusqu'à sa puissance, son thermostat limite la
+chaleur au réglage. Puissance proposée : le besoin de la pièce par grand froid, arrondi aux 100 W.
+
+Puissance à saisir : la puissance de chauffage « Pdesignh » des fiches, donnée pour la température de calcul Tdesignh de
+**−10 °C** en climat moyen (règlement (UE) 206/2012, annexe II, tableau 3 : https://www.legislation.gov.uk/eur/2012/206/annex/II/adopted).
+Simplification : le calcul garde cette puissance quel que soit le temps (une PAC air/air donne davantage par temps doux) ;
+l'unité extérieure (puissance totale d'un multisplit) n'est pas modélisée.
+
 ## Poêle hydro (ajouté le 1er octobre 2026)
 
 Poêle à granulés qui chauffe l'eau des radiateurs. Il cède une part de sa puissance à l'eau, le reste chauffant sa pièce.

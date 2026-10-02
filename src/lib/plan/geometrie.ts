@@ -67,10 +67,12 @@ export const naturesPoele: { value: NaturePoele; label: string }[] = [
   { value: 'hydro', label: 'Poêle à granulés hydro (chauffe les radiateurs)' },
   { value: 'bois', label: 'Poêle à bois' },
 ];
-export type NatureRadiateur = 'eau' | 'electrique';
+/** Radiateur à eau, radiateur électrique, ou unité intérieure murale d'une pompe à chaleur air/air (split). */
+export type NatureRadiateur = 'eau' | 'electrique' | 'split';
 export const naturesRadiateur: { value: NatureRadiateur; label: string }[] = [
   { value: 'eau', label: 'Radiateur à eau (chauffage central)' },
   { value: 'electrique', label: 'Radiateur électrique' },
+  { value: 'split', label: 'Unité intérieure de PAC air/air (split)' },
 ];
 
 /** Poêle posé dans une pièce (centre en cases), régulé sur sa consigne dans cette pièce. */

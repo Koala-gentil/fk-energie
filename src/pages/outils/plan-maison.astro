@@ -120,7 +120,7 @@ const simulateur = '/outils/plan-maison/simulateur/';
       <ol>
         <li><strong>Plan</strong> : partez d’un modèle (plain-pied, maison à étage, maison de ville) ou dessinez vos pièces sur la grille, chaque case mesurant 50 cm de côté. Placez fenêtres et portes sur les murs, déclarez les murs mitoyens et, pour une maison à étage, ajoutez l’étage et l’escalier.</li>
         <li><strong>Maison</strong> : époque de construction, matière des murs, isolants et leur épaisseur, vitrage, ventilation. Si vous ne savez pas, choisissez « Je ne sais pas » : le calcul reprend les valeurs par défaut de l’époque. Chaque pièce affiche la puissance qu’il lui faut, et le détail de ses pertes quand vous cliquez dessus.</li>
-        <li><strong>Chauffage</strong> : un ou plusieurs poêles, des radiateurs à eau (chaudière, pompe à chaleur) ou électriques, chacun avec sa puissance et son réglage. Le plan affiche la température de chaque pièce, pour la température dehors que vous choisissez.</li>
+        <li><strong>Chauffage</strong> : un ou plusieurs poêles, des radiateurs à eau (chaudière, pompe à chaleur air/eau, poêle hydro) ou électriques, des unités murales de pompe à chaleur air/air, chacun avec sa puissance et son réglage. Le plan affiche la température de chaque pièce, pour la température dehors que vous choisissez.</li>
         <li><strong>Résultat</strong> : le bilan pièce par pièce, et l’envoi de votre plan à FK Énergie pour une étude gratuite.</li>
       </ol>
       <h2>Ce que le calcul prend en compte</h2>
@@ -177,6 +177,7 @@ const simulateur = '/outils/plan-maison/simulateur/';
         <li>Un <a href="/poele-a-granules/">poêle à granulés canalisable</a>, qui envoie une partie de sa chaleur par des gaines vers une ou deux pièces proches.</li>
         <li>Des radiateurs d’appoint réglés plus bas dans les chambres, que le poêle soulage.</li>
         <li>Pour un chauffage central, une <a href="/outils/dimensionnement-pompe-a-chaleur/">pompe à chaleur air/eau sur vos radiateurs</a>.</li>
+        <li>Une <a href="/pompes-a-chaleur/">pompe à chaleur air/air</a>, avec une unité murale dans les pièces que le poêle atteint mal.</li>
       </ul>
 
       <h2>Faut-il un poêle de la puissance de toute la maison ?</h2>

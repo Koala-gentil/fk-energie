@@ -33,8 +33,9 @@ const outils = [
   { value: 'mitoyen', label: 'Mur mitoyen', etapes: 'plan', d: 'M3 4h18v16H3zM3 10l6-6M3 16L15 4M7 20L21 6M13 20l8-8' },
   { value: 'poele', label: 'Poêle', etapes: 'chauffage', d: 'M12 2v3M6 5h12v12H6zM7.5 17v4M16.5 17v4M12 8.5c1.5 1.4 2.2 2.5 2.2 3.5a2.2 2.2 0 01-4.4 0c0-1 .7-2.1 2.2-3.5z' },
   { value: 'radiateur', label: 'Radiateur', etapes: 'chauffage', d: 'M4 7h16v10H4zM8 7v10M12 7v10M16 7v10M6 17v2M18 17v2' },
+  { value: 'split', label: 'PAC air/air', etapes: 'chauffage', d: 'M2 5h20v8a1 1 0 01-1 1H3a1 1 0 01-1-1zM5 11h14M7 17.5c.8.9.8 2.1 0 3M12 17.5c.8.9.8 2.1 0 3M17 17.5c.8.9.8 2.1 0 3' },
   { value: 'chaudiere', label: 'Chaudière', etapes: 'chauffage', d: 'M5 2h14v14H5zM5 11h14M8.5 13.5h3M15.5 13.5h.01M12 4.5c1.4 1.7 2.1 2.8 2.1 3.6a2.1 2.1 0 01-4.2 0c0-.8.7-1.9 2.1-3.6zM8 16v5M12 16v5M16 16v5' },
-  { value: 'pac', label: 'Pompe à chaleur', etapes: 'chauffage', d: 'M2 5h20v13H2zM5 18v2M19 18v2M5 11.5a4 4 0 108 0a4 4 0 10-8 0M9 11.5V8.5M9 11.5l2.6 1.5M9 11.5l-2.6 1.5M16 9h3M16 12h3M16 15h3' },
+  { value: 'pac', label: 'PAC air/eau', etapes: 'chauffage', d: 'M2 5h20v13H2zM5 18v2M19 18v2M5 11.5a4 4 0 108 0a4 4 0 10-8 0M9 11.5V8.5M9 11.5l2.6 1.5M9 11.5l-2.6 1.5M16 9h3M16 12h3M16 15h3' },
 ];
 const icones = {
   annuler: 'M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 010 11H11',
@@ -146,16 +147,17 @@ const legende = [
   { classe: 'size-4 rounded bg-[repeating-linear-gradient(45deg,var(--color-ink-200)_0_3px,var(--color-ink-400)_3px_4px)]', texte: 'Pièce non chauffée' },
   { classe: 'size-4 rounded bg-ink-900', texte: 'Poêle (goutte bleue : poêle hydro, qui chauffe l’eau des radiateurs)' },
   { classe: 'h-2 w-6 rounded-sm border border-ink-700 bg-white', texte: 'Radiateur à eau (gris : électrique)' },
+  { classe: 'h-2 w-7 rounded border border-[#3f6f99] bg-[#e6f0f8]', texte: 'Unité intérieure de pompe à chaleur air/air (split)' },
   { classe: 'h-2 w-6 rounded-sm border border-ink-700 bg-danger-300', texte: 'Appareil en rouge : à fond, il ne peut pas donner plus (chiffre à côté : puissance fournie en moyenne)' },
   { classe: 'h-5 w-4 rounded-sm border-2 border-ink-800 bg-white', texte: 'Chaudière (avec une goutte bleue)' },
-  { classe: 'h-4 w-6 rounded-sm border-2 border-ink-800 bg-white', texte: 'Pompe à chaleur (avec son ventilateur)' },
+  { classe: 'h-4 w-6 rounded-sm border-2 border-ink-800 bg-white', texte: 'Pompe à chaleur air/eau (avec son ventilateur), qui chauffe l’eau des radiateurs' },
   { classe: 'h-5 w-4 rounded-sm border border-ink-700', texte: 'Escalier (en pointillé à l’étage)' },
   { classe: 'h-0 w-7 border-t border-dashed border-ink-400', texte: 'Pièces du niveau du dessous' },
 ];
 const raccourcis = [
   ['Flèches', 'déplacer la pièce choisie'],
   ['Suppr', 'supprimer l’élément choisi'],
-  ['Échap', 'désélectionner, ou abandonner un geste'],
+  ['Échap', 'revenir à l’outil « Choisir », désélectionner, ou abandonner un geste'],
   ['Ctrl + Z', 'annuler'],
   ['Ctrl + Maj + Z', 'rétablir'],
   ['Ctrl + molette', 'zoomer'],
@@ -426,7 +428,7 @@ const dialogueLarge =
           <form id="pan-poele" data-section="chauffage" hidden class="flex flex-col gap-4" data-chauffage>
             <!-- Sur téléphone, le volet replié montre d'abord le résultat -->
             <h2 class="hidden font-display text-2xl font-semibold lg:block">Votre chauffage</h2>
-            <p class="text-ink-600" data-poele-absent>Posez un ou plusieurs poêles, des radiateurs, une chaudière ou une pompe à chaleur avec les outils <span class="lg:hidden">en bas de l’écran</span><span class="hidden lg:inline">à gauche</span>, puis lisez la température de chaque pièce sur le plan.</p>
+            <p class="text-ink-600" data-poele-absent>Posez un ou plusieurs poêles, des radiateurs, des unités de PAC air/air, une chaudière ou une PAC air/eau avec les outils <span class="lg:hidden">en bas de l’écran</span><span class="hidden lg:inline">à gauche</span>, puis lisez la température de chaque pièce sur le plan.</p>
             <div class="flex flex-col gap-2 rounded-2xl bg-ink-900 p-4 font-semibold text-white empty:hidden" data-etat-poele aria-live="polite"></div>
             <div data-resultat-poele></div>
             <div class="flex flex-col gap-2" data-appareils>
@@ -548,7 +550,7 @@ const dialogueLarge =
             <ol class="flex list-decimal flex-col gap-2 pl-5 text-ink-700">
               <li>Plan : outil « Pièce », cliquez-glissez sur la grille ; outil « Fenêtre, porte », approchez le pointeur d’un mur, puis cliquez.</li>
               <li>Maison : époque, murs, isolation, fenêtres, ventilation. Chaque pièce affiche la puissance qu’il lui faut.</li>
-              <li>Chauffage : outils « Poêle », « Radiateur », « Chaudière » et « Pompe à chaleur », puis réglez chaque appareil. La température de chaque pièce s’affiche sur le plan ; réglez la température dehors au-dessus du plan.</li>
+              <li>Chauffage : outils « Poêle », « Radiateur », « PAC air/air » (unités murales qui soufflent de l’air chaud), « Chaudière » et « PAC air/eau » (qui chauffe l’eau des radiateurs), puis réglez chaque appareil. La température de chaque pièce s’affiche sur le plan ; réglez la température dehors au-dessus du plan.</li>
               <li>Résultat : le bilan pièce par pièce, et l’envoi de votre plan pour une étude.</li>
             </ol>
             <h3 class="mt-2 font-bold">Au clavier</h3>

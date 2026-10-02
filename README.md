@@ -94,7 +94,7 @@ research/                 ← fiche entreprise et recherches (brief du projet)
   le plan montre les surfaces, puis la puissance nécessaire, puis les températures.
   Étape Résultat : dimensionnement des radiateurs pièce par pièce (nombre d'éléments ou longueur) d'après les catalogues
   de `data/radiateurs.ts` (fonte Idéal, Zehnder Charleston, Purmo) ; voir `research/dimensionnement-radiateurs.md`.
-  Chauffage : poêles (plusieurs possibles, dont poêle hydro qui chauffe l'eau des radiateurs) et radiateurs à eau ou électriques placés pièce par pièce, chauffage central
+  Chauffage : poêles (plusieurs possibles, dont poêle hydro qui chauffe l'eau des radiateurs), unités de PAC air/air et radiateurs à eau ou électriques placés pièce par pièce, chauffage central
   (chaudière ou PAC, loi d'eau) ; hypothèses dans `research/regulation-poele.md`, `research/chauffage-central.md`.
   Journée type de janvier heure par heure (EN ISO 13790), soleil par fenêtre et inertie selon la 3CL : `research/soleil-inertie.md`.
 - Guides `/conseils/` (Markdown dans `src/content/conseils/`) : chaque guide cite ses sources officielles (frontmatter `sources`)

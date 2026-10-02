@@ -66,7 +66,7 @@ const STOCKAGE = 'fk-plan-maquette';
 const ROUGE_A_FOND = 'var(--color-danger-300)';
 const NS = 'http://www.w3.org/2000/svg';
 
-type Outil = 'selection' | 'piece' | TypeOuverture | 'mitoyen' | 'escalier' | 'poele' | 'radiateur' | 'chaudiere' | 'pac';
+type Outil = 'selection' | 'piece' | TypeOuverture | 'mitoyen' | 'escalier' | 'poele' | 'radiateur' | 'split' | 'chaudiere' | 'pac';
 /** Étapes du simulateur : chacune a ses outils, ce que montre le plan et son panneau. */
 type Etape = 'plan' | 'maison' | 'chauffage' | 'resultat';
 const ETAPES: Etape[] = ['plan', 'maison', 'chauffage', 'resultat'];
@@ -74,7 +74,7 @@ const ETAPES: Etape[] = ['plan', 'maison', 'chauffage', 'resultat'];
 const outilsEtape: Record<Etape, Outil[]> = {
   plan: ['selection', 'piece', 'fenetre', 'porte-fenetre', 'porte', 'escalier', 'mitoyen'],
   maison: ['selection'],
-  chauffage: ['selection', 'poele', 'radiateur', 'chaudiere', 'pac'],
+  chauffage: ['selection', 'poele', 'radiateur', 'split', 'chaudiere', 'pac'],
   resultat: ['selection'],
 };
 type Selection = { genre: 'piece' | 'ouverture' | 'escalier' | 'emetteur' | 'generateur'; id: string } | null;
@@ -99,6 +99,7 @@ const aides: Record<Outil, string> = {
   escalier: 'Cliquez-glissez (ou faites glisser le doigt) dans une pièce pour dessiner la trémie de l’escalier qui monte à l’étage.',
   poele: 'Placez le poêle dans une pièce chauffée (aperçu vert), puis cliquez. Vous pouvez en mettre plusieurs.',
   radiateur: 'Approchez le pointeur du mur où poser le radiateur (aperçu vert), puis cliquez : sa puissance est proposée d’après le besoin de la pièce.',
+  split: 'Approchez le pointeur du mur où poser l’unité intérieure de la pompe à chaleur air/air (aperçu vert), puis cliquez : sa puissance est proposée d’après le besoin de la pièce.',
   chaudiere: 'Cliquez dans une pièce (chaufferie, garage, cellier…) pour y poser la chaudière, puis réglez-la dans le détail.',
   pac: 'Cliquez dans une pièce (garage, cellier, buanderie…) pour y poser le module intérieur de la pompe à chaleur air/eau, puis réglez-la dans le détail.',
 };
@@ -113,6 +114,7 @@ const aidesTelephone: Record<Outil, string> = {
   escalier: 'Faites glisser le doigt dans une pièce pour dessiner la trémie de l’escalier.',
   poele: 'Touchez une pièce chauffée pour y installer un poêle.',
   radiateur: 'Touchez une pièce près du mur où poser le radiateur.',
+  split: 'Touchez une pièce près du mur où poser l’unité de PAC air/air.',
   chaudiere: 'Touchez une pièce pour y poser la chaudière.',
   pac: 'Touchez une pièce pour y poser la pompe à chaleur.',
 };
@@ -166,7 +168,7 @@ if (racine) {
   let outil: Outil = 'selection';
   let etape: Etape = 'plan';
   let glisser: Glisser = null;
-  type ApercuAppareil = { appareil: 'poele' | 'radiateur' | 'chaudiere' | 'pac'; x: number; y: number; sens: 'h' | 'v'; ok: boolean };
+  type ApercuAppareil = { appareil: 'poele' | 'radiateur' | 'split' | 'chaudiere' | 'pac'; x: number; y: number; sens: 'h' | 'v'; ok: boolean };
   let survol: (Omit<Ouverture, 'id'> & { ok: boolean }) | { mitoyen: string[] } | ApercuAppareil | null = null;
   let vue: Vue = { x: 0, y: 0, w: COLS, h: ROWS };
   /** L'utilisateur a-t-il zoomé ou déplacé la vue ? Sinon, elle se recadre sur la maison quand le plan change de taille. */
@@ -703,8 +705,19 @@ if (racine) {
     g.append(el('path', { d: `M${x} ${y - 0.45} C${x + 0.45} ${y - 0.05} ${x + 0.35} ${y + 0.45} ${x} ${y + 0.45} C${x - 0.35} ${y + 0.45} ${x - 0.45} ${y} ${x} ${y - 0.45} Z`, fill: 'var(--color-ember-400)', 'pointer-events': 'none' }));
     if (hydro) goutte(g, x + 0.62, y + 0.55, 0.32);
   }
-  /** Radiateur le long d'un mur : corps et ailettes (à eau), corps plein et éclair (électrique). */
+  /**
+   * Radiateur le long d'un mur : corps et ailettes (à eau), corps plein et éclair (électrique). Unité de PAC air/air :
+   * boîtier mural plus long, bleuté, avec sa grille de soufflage côté pièce.
+   */
   function dessinRadiateur(g: SVGGElement, x: number, y: number, sens: 'h' | 'v', nature: Radiateur['nature'], sel: boolean, couleur?: string) {
+    if (nature === 'split') {
+      const [w, h] = sens === 'h' ? [2, 0.55] : [0.55, 2];
+      g.append(el('rect', { x: x - w / 2, y: y - h / 2, width: w, height: h, rx: 0.2, fill: couleur ?? '#e6f0f8', stroke: sel ? 'var(--color-ember-600)' : '#3f6f99', 'stroke-width': sel ? 0.14 : 0.07 }));
+      const trait = { stroke: '#3f6f99', 'stroke-width': 0.05, 'stroke-linecap': 'round', 'pointer-events': 'none' };
+      for (const d of [-0.35, 0, 0.35])
+        g.append(sens === 'h' ? el('line', { x1: x - 0.75, y1: y + d * 0.4, x2: x + 0.75, y2: y + d * 0.4, ...trait }) : el('line', { x1: x + d * 0.4, y1: y - 0.75, x2: x + d * 0.4, y2: y + 0.75, ...trait }));
+      return;
+    }
     const [w, h] = sens === 'h' ? [1.6, 0.5] : [0.5, 1.6];
     const electrique = nature === 'electrique';
     g.append(el('rect', { x: x - w / 2, y: y - h / 2, width: w, height: h, rx: 0.12, fill: couleur ?? (electrique ? 'var(--color-ink-200)' : 'var(--color-white)'), stroke: sel ? 'var(--color-ember-600)' : 'var(--color-ink-700)', 'stroke-width': sel ? 0.14 : 0.07 }));
@@ -837,7 +850,8 @@ if (racine) {
       const g = el('g', { 'pointer-events': 'none', opacity: 0.75 });
       const couleur = survol.ok ? 'var(--color-moss-100)' : 'var(--color-danger-50)';
       if (survol.appareil === 'poele') dessinPoele(g, survol.x, survol.y, false, survol.ok ? 'var(--color-moss-700)' : 'var(--color-danger-700)');
-      else if (survol.appareil === 'radiateur') dessinRadiateur(g, survol.x, survol.y, survol.sens, aChauffageEau(plan) ? 'eau' : 'electrique', false, couleur);
+      else if (survol.appareil === 'radiateur' || survol.appareil === 'split')
+        dessinRadiateur(g, survol.x, survol.y, survol.sens, survol.appareil === 'split' ? 'split' : aChauffageEau(plan) ? 'eau' : 'electrique', false, couleur);
       else dessinChaudiere(g, survol.x, survol.y, survol.appareil, false, couleur);
       g.append(el('rect', { x: survol.x - 1, y: survol.y - 1, width: 2, height: 2, rx: 0.4, fill: 'none', stroke: survol.ok ? 'var(--color-moss-700)' : 'var(--color-danger-700)', 'stroke-width': 0.08, 'stroke-dasharray': '0.25 0.15' }));
       svg.append(g);
@@ -1038,7 +1052,7 @@ if (racine) {
     const ou = `« ${pieceDe(e.piece)?.nom ?? ''} »`;
     return e.genre === 'poele'
       ? `${nomsPoele[e.nature]} de ${fmt(e.puissance)} kW, ${ou}`
-      : `${e.nature === 'eau' ? 'Radiateur à eau' : 'Radiateur électrique'} de ${watts(e.puissance)}, ${ou}`;
+      : `${e.nature === 'eau' ? 'Radiateur à eau' : e.nature === 'split' ? 'PAC air/air' : 'Radiateur électrique'} de ${watts(e.puissance)}, ${ou}`;
   };
   /** Ce que fait un poêle au jour choisi. */
   const textePoele = (e: Poele, sim: Simulation, tExt: number) => {
@@ -1120,7 +1134,9 @@ if (racine) {
         `Par ${degres(tExt)} dehors, les radiateurs à eau reçoivent ${kw(sim.puissanceCentral)}, avec une eau à ${degres(sim.tEau ?? 0)} en moyenne${sim.generateurLimite ? ` : ${nomSourceEau()} ${tropJuste()}` : ''}.`,
       );
     const electrique = lesRadiateurs.filter((e) => e.nature === 'electrique').reduce((s2, e) => s2 + (sim.emetteurs.get(e.id)?.puissance ?? 0), 0);
-    if (lesRadiateurs.some((e) => e.nature === 'electrique')) lignes.push(`Les radiateurs électriques fournissent ${kw(electrique)}.`);
+    if (lesRadiateurs.some((e) => e.nature === 'electrique')) lignes.push(`Par ${degres(tExt)} dehors, les radiateurs électriques fournissent ${kw(electrique)}.`);
+    const splits = lesRadiateurs.filter((e) => e.nature === 'split');
+    if (splits.length) lignes.push(`Par ${degres(tExt)} dehors, ${splits.length > 1 ? 'les unités de PAC air/air fournissent' : 'l’unité de PAC air/air fournit'} ${kw(splits.reduce((s2, e) => s2 + (sim.emetteurs.get(e.id)?.puissance ?? 0), 0))}.`);
     const signatureEtat = lignes.join('\n');
     if (etatPoele.dataset.texte !== signatureEtat) {
       etatPoele.dataset.texte = signatureEtat;
@@ -1186,7 +1202,7 @@ if (racine) {
       const ems = plan.emetteurs.filter((e) => e.piece === r.piece.id);
       // Puissance moyenne sur la journée de chaque appareil de la pièce
       const chauffage = ems.length
-        ? ems.map((e) => `${e.genre === 'poele' ? 'poêle' : 'radiateur'} ${watts(jour ? moyenne(jour.puissances.get(e.id) ?? []) : (sim.emetteurs.get(e.id)?.puissance ?? 0))}`).join(' · ')
+        ? ems.map((e) => `${e.genre === 'poele' ? 'poêle' : e.nature === 'split' ? 'PAC air/air' : 'radiateur'} ${watts(jour ? moyenne(jour.puissances.get(e.id) ?? []) : (sim.emetteurs.get(e.id)?.puissance ?? 0))}`).join(' · ')
         : '—';
       const t = jour?.temperatures.get(r.piece.id) ?? [sim.temperatures.get(r.piece.id) ?? 0];
       const ecart = Math.max(...t) - Math.min(...t) >= 0.5 ? `de ${Math.round(Math.min(...t))} à ${Math.round(Math.max(...t))}` : '';
@@ -1441,7 +1457,7 @@ if (racine) {
   /** Puissance proposée pour un radiateur : besoin de la pièce par grand froid, avec l'eau du chauffage central. */
   const puissanceConseillee = (pieceId: string, nature: Radiateur['nature'], calcul: Calcul) => {
     const besoin = calcul.pieces.find((r) => r.piece.id === pieceId)?.puissance ?? 1000;
-    if (nature === 'electrique') return Math.max(100, Math.ceil(besoin / 100) * 100);
+    if (nature === 'electrique' || nature === 'split') return Math.max(100, Math.ceil(besoin / 100) * 100);
     const ecart = regulation.ecartDepartRetour[plan.central.generateur === 'pac' ? 'pac' : 'chaudiere'];
     const facteur = Math.pow(Math.max(plan.central.depart - ecart / 2 - parametres.tInterieure, 1) / 50, regulation.nRadiateur);
     return Math.min(10000, Math.max(100, Math.ceil(besoin / facteur / 100) * 100));
@@ -1554,27 +1570,35 @@ if (racine) {
     } else {
       const eau = e.nature === 'eau';
       panneau.innerHTML = `
-        <div><p class="font-display text-2xl leading-tight font-semibold">Radiateur</p><p class="text-sm text-ink-600" data-sous-titre></p></div>
+        <div><p class="font-display text-2xl leading-tight font-semibold">${e.nature === 'split' ? 'PAC air/air' : 'Radiateur'}</p><p class="text-sm text-ink-600" data-sous-titre></p></div>
         <p class="rounded-2xl bg-ink-900 p-4 text-sm font-semibold text-white empty:hidden" data-resultat-emetteur></p>
         ${choix('nature-radiateur', naturesRadiateur)}
         <div class="grid grid-cols-2 gap-3">
-          ${nombre('puissance-radiateur', eau ? 'Puissance nominale (W)' : 'Puissance (W)', e.puissance, 100, 10000, 50)}
+          ${nombre('puissance-radiateur', eau ? 'Puissance nominale (W)' : e.nature === 'split' ? 'Puissance à −10 °C (W)' : 'Puissance (W)', e.puissance, 100, 10000, 50)}
           ${nombre('consigne-radiateur', 'Réglé à (°C)', e.consigne, 10, 28, 0.5)}
         </div>
-        <p class="-mt-1 text-sm text-ink-600">${eau ? 'Puissance donnée par le fabricant pour une eau à 75 °C (régime 75/65/20 de la norme EN 442). Le robinet thermostatique limite la chaleur au réglage.' : 'Puissance de l’appareil. Son thermostat limite la chaleur au réglage.'}</p>
+        <p class="-mt-1 text-sm text-ink-600">${
+          eau
+            ? 'Puissance donnée par le fabricant pour une eau à 75 °C (régime 75/65/20 de la norme EN 442). Le robinet thermostatique limite la chaleur au réglage.'
+            : e.nature === 'split'
+              ? 'Unité intérieure murale : elle souffle de l’air chaud et suit son réglage. Prenez sur la fiche la puissance de chauffage « Pdesignh », donnée pour −10 °C dehors (climat moyen, règlement 206/2012) : la puissance mise en avant, mesurée par temps plus doux, est souvent plus élevée. Le calcul garde cette puissance quel que soit le temps.'
+              : 'Puissance de l’appareil. Son thermostat limite la chaleur au réglage.'
+        }</p>
         <div class="flex flex-wrap gap-x-4 gap-y-2" data-actions-emetteur></div>
-        <button type="button" data-action="supprimer" class="btn-secondary min-h-11 self-start text-danger-700">Supprimer le radiateur</button>`;
+        <button type="button" data-action="supprimer" class="btn-secondary min-h-11 self-start text-danger-700">Supprimer ${e.nature === 'split' ? 'l’unité' : 'le radiateur'}</button>`;
       panneau.querySelector('[data-sous-titre]')!.textContent = `Dans « ${nomPiece} »`;
       const r = simulation?.emetteurs.get(e.id);
       const tPiece = simulation?.temperatures.get(e.piece);
       let resultat = '';
       if (eau && !aChauffageEau(plan)) resultat = messageSansEau;
       else if (r && simulation && tPiece !== undefined) {
-        resultat = `Par ${degres(tExt)} dehors, il fournit ${watts(r.puissance)}${r.capacite !== undefined ? ` sur ${watts(r.capacite)} possibles` : ''}${eau && simulation.tEau !== null ? ` avec une eau à ${degres(simulation.tEau)}` : ''}.`;
+        // L'unité de PAC air/air est au féminin
+        const il = e.nature === 'split' ? 'elle' : 'il';
+        resultat = `Par ${degres(tExt)} dehors, ${il} fournit ${watts(r.puissance)}${r.capacite !== undefined ? ` sur ${watts(r.capacite)} possibles` : ''}${eau && simulation.tEau !== null ? ` avec une eau à ${degres(simulation.tEau)}` : ''}.`;
         if (radiateurAFond(e, simulation))
           resultat += eau
             ? ` Il est à fond et la pièce reste à ${degres(tPiece)} : ses ${watts(e.puissance)} sont donnés pour une eau à 75 °C, et l’eau n’est qu’à ${degres(simulation.tEau ?? 0)} par ce temps. Pour plus de chaleur : un radiateur plus grand, ou une eau plus chaude (réglage de la chaudière).`
-            : ` Il est à fond et la pièce reste à ${degres(tPiece)} : il faudrait un radiateur plus puissant.`;
+            : ` ${il === 'elle' ? 'Elle' : 'Il'} est à fond et la pièce reste à ${degres(tPiece)} : il faudrait ${e.nature === 'split' ? 'une unité' : 'un radiateur'} plus puissant${e.nature === 'split' ? 'e' : ''}.`;
       }
       panneau.querySelector('[data-resultat-emetteur]')!.textContent = resultat;
       const nature = panneau.querySelector<HTMLSelectElement>('[data-f="nature-radiateur"]')!;
@@ -1868,7 +1892,8 @@ if (racine) {
     if (calcul.pieces.length) lignes.push(texteDimensionnement(calcul));
     noteDemande = lignes.join('\n').slice(0, 3000);
     // Projet proposé : le premier poêle, sinon le générateur du chauffage central
-    projetDemande = lesPoeles.length ? (lesPoeles[0].nature === 'bois' ? 'bois' : 'granules') : plan.central.generateur === 'pac' ? 'pac' : plan.central.generateur === 'chaudiere' ? 'chaudiere' : 'granules';
+    const avecSplit = plan.emetteurs.some((e) => e.genre === 'radiateur' && e.nature === 'split');
+    projetDemande = lesPoeles.length ? (lesPoeles[0].nature === 'bois' ? 'bois' : 'granules') : plan.central.generateur === 'pac' || avecSplit ? 'pac' : plan.central.generateur === 'chaudiere' ? 'chaudiere' : 'granules';
   }
 
   // --- Export en image (pièces jointes de la demande, téléchargement) ----------------------------------------------
@@ -2049,6 +2074,8 @@ if (racine) {
   });
   document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape' && !menu.hidden) {
+      // Échap ferme seulement le menu (pas d'autre effet sur le plan)
+      ev.preventDefault();
       fermerMenu();
       boutonMenu.focus();
     }
@@ -2093,14 +2120,14 @@ if (racine) {
 
   const auDemiPas = (v: number) => Math.round(v * 2) / 2;
   /** Emplacement d'un appareil au point visé : pièce, position (radiateur contre le mur le plus proche), et validité. */
-  function positionAppareil(appareil: 'poele' | 'radiateur' | 'chaudiere' | 'pac', x: number, y: number) {
+  function positionAppareil(appareil: 'poele' | 'radiateur' | 'split' | 'chaudiere' | 'pac', x: number, y: number) {
     const p = pieceSous(plan, niveau, x, y);
     const dans = (marge: number, piece: Piece) => ({
       x: borne(auDemiPas(x), piece.x + marge, piece.x + piece.w - marge),
       y: borne(auDemiPas(y), piece.y + marge, piece.y + piece.h - marge),
     });
     if (!p) return { piece: undefined, x: auDemiPas(x), y: auDemiPas(y), sens: 'h' as const, ok: false };
-    if (appareil === 'radiateur') return { piece: p, ...placerRadiateur(p, x, y), ok: estChauffee(p.type) };
+    if (appareil === 'radiateur' || appareil === 'split') return { piece: p, ...placerRadiateur(p, x, y), ok: estChauffee(p.type) };
     if (appareil === 'poele') return { piece: p, ...dans(0.7, p), sens: 'h' as const, ok: estChauffee(p.type) };
     return { piece: p, ...dans(0.75, p), sens: 'h' as const, ok: true };
   }
@@ -2135,9 +2162,10 @@ if (racine) {
     modifier({ ...plan, emetteurs: [...plan.emetteurs, poele] });
   }
   /** Ajoute un radiateur dimensionné sur le besoin de la pièce : à eau s'il y a un chauffage central, électrique sinon. */
-  function ajouterRadiateur(p: Piece, x: number, y: number, ouvrir = true) {
-    if (!estChauffee(p.type)) return signaler('Un radiateur se pose dans une pièce chauffée.');
-    const nature: Radiateur['nature'] = aChauffageEau(plan) ? 'eau' : 'electrique';
+  /** Radiateur (à eau s'il y a de quoi chauffer l'eau, électrique sinon) ou unité de PAC air/air. */
+  function ajouterRadiateur(p: Piece, x: number, y: number, ouvrir = true, choisie?: Radiateur['nature']) {
+    if (!estChauffee(p.type)) return signaler(choisie === 'split' ? 'Une unité de PAC air/air se pose dans une pièce chauffée.' : 'Un radiateur se pose dans une pièce chauffée.');
+    const nature: Radiateur['nature'] = choisie ?? (aChauffageEau(plan) ? 'eau' : 'electrique');
     const radiateur: Radiateur = { id: nouvelId('rad'), genre: 'radiateur', piece: p.id, ...placerRadiateur(p, x, y), nature, puissance: puissanceConseillee(p.id, nature, calculer()), consigne: parametres.tInterieure };
     if (ouvrir) selection = { genre: 'emetteur', id: radiateur.id };
     modifier({ ...plan, emetteurs: [...plan.emetteurs, radiateur] });
@@ -2197,7 +2225,7 @@ if (racine) {
 
   function actualiserSurvol(x: number, y: number) {
     const mur = murProche(x, y);
-    if (outil === 'poele' || outil === 'radiateur' || outil === 'chaudiere' || outil === 'pac') {
+    if (outil === 'poele' || outil === 'radiateur' || outil === 'split' || outil === 'chaudiere' || outil === 'pac') {
       const pos = positionAppareil(outil, x, y);
       survol = { appareil: outil, x: pos.x, y: pos.y, sens: pos.sens, ok: pos.ok };
       return;
@@ -2218,13 +2246,13 @@ if (racine) {
 
   /** Action d'un outil « au clic » (poêle, ouvertures, murs mitoyens), appliquée au relâchement du pointeur. */
   function appliquerOutil(x: number, y: number) {
-    if (outil === 'poele' || outil === 'radiateur' || outil === 'chaudiere' || outil === 'pac') {
+    if (outil === 'poele' || outil === 'radiateur' || outil === 'split' || outil === 'chaudiere' || outil === 'pac') {
       survol = null;
       const pos = positionAppareil(outil, x, y);
       if (!pos.piece)
-        return signaler(outil === 'chaudiere' || outil === 'pac' ? `Cliquez dans une pièce pour y poser ${outil === 'pac' ? 'la pompe à chaleur' : 'la chaudière'}.` : `Cliquez dans une pièce chauffée pour y ${outil === 'poele' ? 'installer un poêle' : 'poser un radiateur'}.`);
+        return signaler(outil === 'chaudiere' || outil === 'pac' ? `Cliquez dans une pièce pour y poser ${outil === 'pac' ? 'la pompe à chaleur' : 'la chaudière'}.` : `Cliquez dans une pièce chauffée pour y ${outil === 'poele' ? 'installer un poêle' : outil === 'split' ? 'poser une unité de PAC air/air' : 'poser un radiateur'}.`);
       if (outil === 'chaudiere' || outil === 'pac') return poserChaudiere(pos.piece, pos.x, pos.y, outil);
-      return outil === 'poele' ? installerPoele(pos.piece, x, y) : ajouterRadiateur(pos.piece, x, y);
+      return outil === 'poele' ? installerPoele(pos.piece, x, y) : ajouterRadiateur(pos.piece, x, y, true, outil === 'split' ? 'split' : undefined);
     }
     actualiserSurvol(x, y);
     const vise = survol && 'appareil' in survol ? null : survol;
@@ -2499,16 +2527,24 @@ if (racine) {
   );
 
   // --- Clavier ----------------------------------------------------------------------------------------------------
-  // Raccourcis du plan : seulement quand le plan a le focus (après un clic dessus, ou avec Tab)
-  svg.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape') {
-      const g = glisser;
-      if (!g) return selection ? selectionner(null) : undefined;
+  // Échap, où que soit le focus (sauf dans une fenêtre ou le menu, qui se ferment) : abandonne le geste en cours, sinon
+  // revient à l'outil « Choisir », sinon désélectionne
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Escape' || ev.defaultPrevented || !menu.hidden || racine!.querySelector('dialog[open]')) return;
+    // Dans un champ du panneau, Échap ne fait rien d'autre (on ne ferme pas le détail en cours de saisie)
+    if ((ev.target as HTMLElement).closest?.('input, select, textarea')) return;
+    const g = glisser;
+    if (g) {
       // Geste en cours : il est abandonné et la pièce revient à sa place
       glisser = null;
       if (((g.genre === 'deplacer' || g.genre === 'emetteur' || g.genre === 'generateur') && g.moved) || g.genre === 'redim') return annuler();
       return rendre();
     }
+    if (outil !== 'selection') return choisirOutil('selection');
+    if (selection) selectionner(null);
+  });
+  // Raccourcis du plan : seulement quand le plan a le focus (après un clic dessus, ou avec Tab)
+  svg.addEventListener('keydown', (ev) => {
     if (!selection || glisser) return;
     if (ev.key === 'Delete' || ev.key === 'Backspace') {
       // On supprime ce que l'étape permet de modifier : le dessin au plan, les appareils au chauffage
