@@ -41,7 +41,7 @@ sources:
     url: "https://agirpourlatransition.ademe.fr/particuliers/amenager-maison/chauffer/chauffage-bois-moins-consommer-moins-polluer"
 ---
 
-Tout dépend de ce que vous avez déjà chez vous. Si votre maison a un chauffage central avec radiateurs à eau ou plancher chauffant, la pompe à chaleur air/eau s’y raccorde et peut aussi produire votre eau chaude. Si vous vous chauffez avec des radiateurs électriques, la pompe à chaleur air/air, avec ses unités murales, évite de créer tout un réseau d’eau chaude, mais elle ne chauffe pas l’eau sanitaire et ne bénéficie plus de MaPrimeRénov’ par geste.
+Tout dépend de ce que vous avez déjà chez vous. Si votre maison a un chauffage central avec radiateurs à eau ou plancher chauffant, la pompe à chaleur air/eau s’y raccorde et peut aussi produire votre eau chaude. Si vous vous chauffez avec des radiateurs électriques, la pompe à chaleur air/air, avec ses unités murales, évite de créer tout un réseau d’eau chaude, mais elle ne chauffe pas l’eau sanitaire et n’est pas éligible à MaPrimeRénov’.
 
 ## Comment fonctionne une pompe à chaleur ?
 
@@ -62,11 +62,11 @@ Retenez surtout ceci : une PAC est d’autant plus efficace que l’écart de te
 
 La chaleur passe par un circuit d’eau. L’ADEME liste les émetteurs adaptés :
 
-- le **plancher chauffant basse température**, dont la surface ne dépasse jamais 28 °C ; sa pose est plutôt adaptée au neuf ;
+- le **plancher chauffant basse température**, dont la surface ne doit pas dépasser 28 °C ; sa pose est plutôt adaptée au neuf ;
 - les **radiateurs basse température**, qui fonctionnent avec une eau de 30 à 50 °C ; vos anciens radiateurs peuvent souvent convenir s’ils sont assez dimensionnés ;
 - les **ventilo-convecteurs à eau**.
 
-Si vous avez une chaudière au fioul ou au gaz, la PAC air/eau peut donc reprendre votre réseau existant, après vérification de la puissance des radiateurs. Notre outil [pompe à chaleur et radiateurs](/outils/dimensionnement-pompe-a-chaleur/) vous en donne une première estimation.
+Si vous avez une chaudière au fioul ou au gaz, la PAC air/eau peut donc reprendre votre réseau existant, après vérification de la puissance des radiateurs. Notre outil [pompe à chaleur et radiateurs](/outils/dimensionnement-pompe-a-chaleur/) vous en donne une première estimation. Pour comparer avec une chaudière à granulés, lisez notre guide [remplacer sa chaudière fioul](/conseils/remplacer-chaudiere-fioul/).
 
 ### Avec une PAC air/air
 
@@ -97,7 +97,7 @@ Côté réglementation, Service Public rappelle que :
 - le boîtier doit respecter le PLU de votre commune, et une **déclaration préalable** peut être nécessaire selon qu’il modifie l’aspect extérieur et qu’il est visible ou non depuis l’espace public ou un immeuble voisin ;
 - en copropriété, l’installation doit être autorisée en assemblée générale.
 
-## Aides en 2026 : ce qui a changé
+## Aides en 2026 : MaPrimeRénov’, CEE et Coup de pouce
 
 - **MaPrimeRénov’ par geste** : France Rénov’ indique qu’elle finance l’installation d’une pompe à chaleur **air/eau ou géothermique**, par une entreprise RGE. La PAC air/air n’en fait pas partie.
 - **Primes CEE** : France Rénov’ cite à la fois les PAC air/eau et les PAC air/air parmi les travaux standards. La bonification « Coup de pouce chauffage », pour remplacer une chaudière au gaz, au charbon ou au fioul, concerne notamment les PAC air/eau ; les PAC air/air ne figurent pas dans la liste. Depuis le 1er septembre 2026, Service Public précise que le modèle de PAC doit avoir reçu un **agrément de l’État** (certification européenne et fabrication dans l’Espace économique européen).

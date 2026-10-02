@@ -26,7 +26,7 @@ const faqs: Faq[] = [
   },
   {
     q: 'Faut-il un poêle de la puissance de toute la maison ?',
-    a: 'Non. La puissance totale du bilan est celle qu’il faudrait pour chauffer chaque pièce à 19 °C par grand froid. Un poêle installé dans le séjour ne répartit pas sa chaleur de façon égale : choisi sur cette puissance totale, il surchaufferait sa pièce. Le simulateur montre ce qu’il donne réellement pièce par pièce.',
+    a: 'Non. La puissance totale du bilan est celle qu’il faudrait pour chauffer chaque pièce à 19 °C par grand froid. Un poêle installé dans le séjour ne répartit pas sa chaleur de façon égale : choisi sur cette puissance totale, il tournerait au ralenti la plupart du temps (il s’encrasse et pollue davantage) sans mieux chauffer les chambres. Le simulateur montre ce qu’il donne réellement pièce par pièce.',
   },
   {
     q: 'Comment est calculée la puissance nécessaire dans chaque pièce ?',
@@ -182,8 +182,8 @@ const simulateur = '/outils/plan-maison/simulateur/';
       <h2>Faut-il un poêle de la puissance de toute la maison ?</h2>
       <p>
         Non. La puissance totale du bilan est celle qu’il faudrait pour chauffer chaque pièce à {climat.tInterieure} °C par grand froid. Un poêle installé
-        dans le séjour ne répartit pas sa chaleur de façon égale : choisi sur cette puissance totale, il surchaufferait sa pièce. Pour choisir la
-        puissance, voyez notre <a href="/outils/calcul-puissance-poele/">calcul de puissance de poêle</a>.
+        dans le séjour ne répartit pas sa chaleur de façon égale : choisi sur cette puissance totale, il tournerait au ralenti la plupart du temps (il s’encrasse et pollue davantage) sans mieux chauffer les chambres. Pour choisir la
+        puissance, voyez notre <a href="/outils/calcul-puissance-poele/">calcul de puissance de poêle</a> et notre guide <a href="/conseils/quelle-puissance-de-poele-a-granules/">quelle puissance de poêle à granulés</a>.
       </p>
       <p>
         Pour aller plus loin, comparez les <a href="/poele-a-granules/">poêles à granulés</a> et les <a href="/poele-a-bois/">poêles à bois</a>, et

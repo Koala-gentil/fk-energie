@@ -27,7 +27,7 @@ const faqs: FaqItem[] = [
     a: 'Oui. Les pompes à chaleur actuelles fonctionnent par grand froid, avec un rendement qui diminue lorsque la température baisse. C’est pourquoi le dimensionnement réalisé lors de l’étude est essentiel. L’association avec un poêle à granulés est une solution très confortable.',
   },
   {
-    q: 'Faut-il un installateur certifié ?',
+    q: 'Faut-il un installateur RGE ?',
     a: 'Pour bénéficier des aides (MaPrimeRénov’, CEE…), la pose doit être réalisée par un professionnel RGE QualiPAC. C’est le cas de FK Énergie. La manipulation des fluides frigorigènes nécessite aussi une attestation de capacité.',
   },
   {
@@ -49,12 +49,13 @@ const faqs: FaqItem[] = [
 >
   <PageHero
     title="Pompes à chaleur : chaud l’hiver, frais l’été"
-    lead="Installateurs certifiés RGE QualiPAC, nous posons des pompes à chaleur Atlantic, marque française, pour chauffer toute votre maison et la rafraîchir en été."
+    lead="Qualifiés RGE QualiPAC, nous posons des pompes à chaleur Atlantic, marque française, pour chauffer toute votre maison et la rafraîchir en été."
     crumbs={crumbs}
     imageCaption="Atlantic, dans notre showroom"
     image={hero}
     imageAlt="Pompes à chaleur Atlantic air/air exposées dans un showroom FK Énergie"
     rge={['qualipac']}
+    ctaHref="/contact/?projet=pac"
   />
 
   <section class="container-page py-20" aria-labelledby="types-title">
@@ -115,5 +116,5 @@ const faqs: FaqItem[] = [
   <RelatedGuides path="/pompes-a-chaleur/" />
   <Faq faqs={faqs} title="Vos questions sur les pompes à chaleur" />
   <ServiceArea feminine what="Pompes à chaleur" />
-  <CtaBand title="Passez à la pompe à chaleur avec un pro RGE QualiPAC" />
+  <CtaBand title="Passez à la pompe à chaleur avec un pro RGE QualiPAC" ctaHref="/contact/?projet=pac" />
 </BaseLayout>

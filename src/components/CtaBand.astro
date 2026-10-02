@@ -5,10 +5,14 @@ import { site } from '../data/site';
 interface Props {
   title?: string;
   text?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
 }
 const {
   title = 'Parlons de votre projet',
   text = 'Étude et devis gratuits, chez vous ou dans l’un de nos trois showrooms.',
+  ctaLabel = 'Demander une étude',
+  ctaHref = '/contact/',
 } = Astro.props;
 ---
 
@@ -19,7 +23,7 @@ const {
       <p class="text-lg text-ink-700">{text}</p>
     </div>
     <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
-      <a href="/contact/" class="btn-primary">Demander une étude</a>
+      <a href={ctaHref} class="btn-primary">{ctaLabel}</a>
       <a href={site.phoneHref} class="link-arrow"><Icon name="phone" class="size-5 text-ember-600" /> {site.phone}</a>
     </div>
   </div>

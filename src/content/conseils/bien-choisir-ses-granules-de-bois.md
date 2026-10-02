@@ -60,14 +60,14 @@ Voici les seuils des catégories les plus exigeantes, tels qu’ils figurent dan
 | Diamètre | 6 ± 1 mm ou 8 ± 1 mm | 6 ± 1 mm |
 | Longueur | 3,15 à 40 mm | 3,15 à 40 mm |
 | Humidité | ≤ 10 % | ≤ 10 % |
-| Cendres (sur sec) | ≤ 0,70 % | ≤ 0,7 % |
+| Cendres (sur sec) | ≤ 0,7 % | ≤ 0,7 % |
 | Durabilité mécanique | ≥ 98 % | ≥ 98 % (diamètre 6 mm) |
 | Fines (< 3,15 mm) | ≤ 1 % en vrac, ≤ 0,5 % en sac | ≤ 1 % en vrac, ≤ 0,5 % en sac |
 | Pouvoir calorifique inférieur | ≥ 4,6 kWh/kg | ≥ 4,6 kWh/kg |
 
 Que signifient ces valeurs ?
 
-- **L’humidité** : l’ADEME rappelle qu’un bois humide est moins efficace et plus polluant, et fixe à 10 % le maximum pour les granulés.
+- **L’humidité** : l’ADEME rappelle qu’un bois humide est moins efficace et plus polluant, et fixe à 10 % le maximum pour les granulés (voir notre guide [bois humide](/conseils/humidite-du-bois-et-combustion/)).
 - **Le taux de cendres** : c’est la part du granulé qui ne brûle pas et reste dans le creuset et le cendrier.
 - **Les fines** : ce sont les poussières et petits morceaux de granulés cassés. L’ADEME conseille de nettoyer plus souvent le réservoir quand les sacs contiennent des résidus effrités.
 - **La durabilité mécanique** : c’est la résistance du granulé, qui limite la formation de fines lors du transport et des manipulations.
@@ -104,7 +104,7 @@ Selon l’ADEME, plusieurs symptômes doivent vous alerter :
 - **des résidus durs au fond du creuset**, aussi appelé brasero (on parle de mâchefers) : ils viennent généralement d’un manque d’air, mais un granulé de mauvaise qualité peut en être la cause ;
 - **une vitre qui noircit** alors que le poêle ne tourne pas à allure réduite : mauvais réglage, encrassement ou granulés de mauvaise qualité ;
 - **un encrassement rapide** et davantage de suie, surtout si l’appareil fonctionne souvent au ralenti avec des granulés de moindre qualité ;
-- **des difficultés d’allumage**, liées à un creuset sale. L’ADEME prévient qu’un allumage raté peut provoquer un feu couvant qui produit du monoxyde de carbone.
+- **des allumages ratés** : le plus souvent un creuset encrassé, ce qu’un granulé chargé en cendres ou en fines accélère. L’ADEME prévient qu’un allumage raté peut provoquer un feu couvant qui produit du monoxyde de carbone.
 
 Si ces signes apparaissent, nettoyez le creuset et les entrées d’air, essayez un autre granulé certifié et, si le problème persiste, faites appel à un professionnel.
 
@@ -116,4 +116,4 @@ Pour la garantie, vérifiez dans la notice et les conditions de garantie de votr
 
 ## Avec FK Énergie
 
-Entreprise familiale depuis 2008 et installateur RGE QualiBois, FK Énergie pose et entretient les poêles à granulés Palazzetti et les chaudières à granulés RTB et NBE avec ses propres équipes. Lors de l’entretien, nous vérifions les réglages de votre appareil et répondons à vos questions sur le combustible. Pour une étude gratuite ou un conseil, [contactez-nous](/contact/) ou passez dans l’un de nos trois showrooms, à Aire-sur-la-Lys, Ardres ou Rexpoëde.
+Entreprise familiale depuis 2008 et installateur RGE QualiBois, FK Énergie pose et entretient les poêles à granulés Palazzetti et les chaudières à granulés RTB (conçues par NBE) avec ses propres équipes. Lors de l’entretien, nous vérifions les réglages de votre appareil et répondons à vos questions sur le combustible. Pour une étude gratuite ou un conseil, [contactez-nous](/contact/) ou passez dans l’un de nos trois showrooms, à Aire-sur-la-Lys, Ardres ou Rexpoëde.

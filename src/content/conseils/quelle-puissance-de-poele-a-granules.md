@@ -10,8 +10,8 @@ imageAlt: "Poêle à granulés Palazzetti installé par FK Énergie à Licques, 
 faq:
   - q: "Un poêle à granulés plus puissant chauffe-t-il mieux la maison ?"
     a: "Non, tant qu’un poêle plus petit suffit à tenir la température demandée. Le thermostat règle la flamme sur la consigne : un poêle de 13 kW donne à peu près les mêmes températures qu’un 6 kW, mais il tourne au ralenti ou s’arrête et redémarre sans cesse. La puissance ne fait la différence que par grand froid."
-  - q: "Quelle puissance de poêle à granulés pour une maison de 100 m² ?"
-    a: "Tout dépend de l’isolation. L’ADEME cite environ 12 kW pour une maison mal isolée, 5 à 9 kW pour une maison isolée et 5 kW au plus pour une maison récente (RT 2012, RE 2020). Notre calculateur de puissance donne une estimation pour votre maison, et nous vérifions sur place avant de conseiller un modèle."
+  - q: "Faut-il choisir la puissance pour toute la maison ou pour la pièce du poêle ?"
+    a: "Pour la zone que le poêle chauffe vraiment, par grand froid. Choisi sur le besoin de toute la maison, il tourne au ralenti sans mieux chauffer les chambres. Notre calculateur de puissance donne une estimation, et nous la vérifions chez vous avant de conseiller un modèle."
   - q: "À quelle température régler un poêle à granulés ?"
     a: "L’ADEME conseille 20 à 21 °C dans les pièces de vie occupées. Si le poêle doit aussi chauffer les chambres, il faut le régler plus haut : dans notre exemple de maison à étage bien isolée, environ 23 °C au séjour pour avoir 18 °C dans les chambres par 3 °C dehors."
   - q: "Pourquoi mes chambres à l’étage restent-elles froides avec un poêle à granulés ?"
@@ -153,4 +153,6 @@ Dans une maison moins isolée, c’est encore plus net. Avec les valeurs par dé
 3. **Pour l’étage, ne comptez pas sur la puissance** : prévoyez un poêle canalisable ou un appoint dans les chambres.
 4. **Mieux vaut un poêle un peu juste avec un appoint** pour les quelques jours de grand froid qu’un poêle trop gros qui tourne au ralenti tout l’hiver.
 
-Le bon choix dépend aussi de la disposition de la maison, de la place du poêle et du conduit. Nos techniciens RGE QualiBois font ce calcul chez vous ou dans l’un de nos showrooms avant de vous conseiller un modèle.
+## Avec FK Énergie
+
+Le bon choix dépend aussi de la disposition de la maison, de la place du poêle et du conduit. Nos techniciens font ce calcul chez vous avant de conseiller un modèle : l’étude est gratuite. Un poêle canalisable fonctionne dans notre [showroom d’Aire-sur-la-Lys](/showrooms/aire-sur-la-lys/) : venez le voir, ou [demandez une étude](/contact/?projet=granules).

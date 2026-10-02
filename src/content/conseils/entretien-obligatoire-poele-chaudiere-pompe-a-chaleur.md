@@ -9,7 +9,7 @@ image: "../../assets/images/realisations/poele-bois-heta-scan-line-1000.jpg"
 imageAlt: "Poêle à bûches HETA Scan-Line 1000 installé par FK Énergie"
 faq:
   - q: "L’entretien annuel d’un poêle à bois ou à granulés est-il obligatoire ?"
-    a: "Oui. Depuis le 1er octobre 2023, le code de la santé publique impose l’entretien des appareils de chauffage à combustion au moins tous les douze mois, en plus du ramonage du conduit. Seuls les foyers ouverts (cheminées à foyer ouvert) sont dispensés d’entretien, pas de ramonage."
+    a: "Oui. Depuis le 1er octobre 2023, le code de la santé publique impose l’entretien des appareils de chauffage à combustion au moins tous les douze mois, en plus du ramonage du conduit. Seules les cheminées à foyer ouvert sont dispensées d’entretien, mais leur conduit doit quand même être ramoné."
   - q: "Combien de ramonages par an dans le Nord et dans le Pas-de-Calais ?"
     a: "La règle nationale impose au moins un ramonage tous les douze mois. Le règlement sanitaire départemental du Nord prévoit deux ramonages par an, dont un pendant la période d’utilisation ; celui du Pas-de-Calais prévoit au moins un ramonage par an."
   - q: "L’entretien d’une pompe à chaleur est-il obligatoire ?"
@@ -49,7 +49,7 @@ sources:
     url: "https://www.hauts-de-france.ars.sante.fr/les-risques-lies-au-monoxyde-de-carbone"
 ---
 
-Oui, entretenir son chauffage est une obligation légale, et pas seulement pour la chaudière. Depuis le 1er octobre 2023, un poêle à bois ou à granulés doit être entretenu au moins une fois par an et son conduit ramoné ; une chaudière (fioul, gaz, bois ou granulés) doit être entretenue chaque année ; une pompe à chaleur de 4 à 70 kW au moins tous les deux ans. Voici ce que disent les textes, appareil par appareil, avec les règles propres au Nord et au Pas-de-Calais.
+Entretenir son chauffage est une obligation légale, et pas seulement pour la chaudière. Depuis le 1er octobre 2023, un poêle à bois ou à granulés doit être entretenu au moins une fois par an et son conduit ramoné ; une chaudière (fioul, gaz, bois ou granulés) doit être entretenue chaque année ; une pompe à chaleur de 4 à 70 kW au moins tous les deux ans. Voici ce que disent les textes, appareil par appareil, avec les règles propres au Nord et au Pas-de-Calais.
 
 ## Depuis 2023, des règles nationales d’entretien et de ramonage
 
@@ -98,7 +98,7 @@ Un arrêté du 20 juillet 2023 précise le contenu de la visite. On y trouve not
 - pour un poêle à granulés, la vérification que la puissance réglée par défaut correspond aux besoins de chauffage du logement ;
 - des conseils d’utilisation (combustible, stockage, fréquence de nettoyage, améliorations possibles).
 
-Entre deux visites, le nettoyage courant (cendres, vitre, brasier) reste à faire vous-même selon la notice du fabricant. Retrouvez nos prestations d’[entretien et de ramonage](/entretien-ramonage/).
+Entre deux visites, le nettoyage courant (cendres, vitre, creuset) reste à faire vous-même selon la notice du fabricant. Retrouvez nos prestations d’[entretien et de ramonage](/entretien-ramonage/).
 
 ## Chaudière : un entretien chaque année
 
@@ -147,4 +147,4 @@ Maux de tête, fatigue, nausées, surtout s’ils touchent plusieurs personnes d
 
 ## Avec FK Énergie
 
-Entreprise familiale depuis 2008, FK Énergie est qualifiée RGE QualiBois et QualiPAC. Nos propres équipes posent et entretiennent poêles, chaudières et pompes à chaleur, et assurent le ramonage avec remise de l’attestation. Pour un nouvel équipement, l’étude est gratuite. Rencontrez-nous dans nos showrooms d’Aire-sur-la-Lys, d’Ardres et de Rexpoëde, ou [contactez-nous](/contact/) pour planifier votre entretien.
+Entreprise familiale depuis 2008, FK Énergie est qualifiée RGE QualiBois et QualiPAC. Nos propres équipes posent et entretiennent poêles, chaudières et pompes à chaleur, et assurent le ramonage avec remise de l’attestation. Pour un appareil que nous n’avons pas installé, précisez-nous la marque et le modèle. Pour un nouvel équipement, l’étude est gratuite. Rencontrez-nous dans nos showrooms d’Aire-sur-la-Lys, d’Ardres et de Rexpoëde, ou [contactez-nous](/contact/) pour planifier votre entretien.

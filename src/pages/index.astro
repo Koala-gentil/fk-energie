@@ -21,7 +21,7 @@ import imgFamille from '../assets/images/showrooms/facade-aire-sur-la-lys.jpg';
 const needs: { label: string; icon: IconName; projet: string }[] = [
   { label: 'Voir de vraies flammes', icon: 'flame', projet: 'bois' },
   { label: 'Ne plus m’en occuper', icon: 'clock', projet: 'granules' },
-  { label: 'Avoir frais l’été aussi', icon: 'snowflake', projet: 'pac' },
+  { label: 'Être au frais l’été aussi', icon: 'snowflake', projet: 'pac' },
   { label: 'Chauffer toute la maison', icon: 'home', projet: 'chaudiere' },
 ];
 
@@ -37,7 +37,8 @@ const timeline = [
   { year: '2008', text: 'Création de l’entreprise, en juillet' },
   { year: '2011', text: '300 m² d’exposition à Aire-sur-la-Lys' },
   { year: '2018', text: 'Ouverture du showroom d’Ardres' },
-  { year: '2026', text: 'Rexpoëde, et les pompes à chaleur' },
+  { year: '2024', text: 'Qualification RGE QualiPAC : les pompes à chaleur' },
+  { year: '2026', text: 'Ouverture du showroom de Rexpoëde' },
 ];
 ---
 
@@ -60,7 +61,7 @@ const timeline = [
       </p>
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 lg:hidden">
         <RgeLogos size="h-12 w-auto" class="!gap-3" />
-        <p class="text-sm font-semibold text-ink-700">Installateur certifié RGE</p>
+        <p class="text-sm font-semibold text-ink-700">Installateur qualifié RGE</p>
       </div>
 
       <div class="-mx-4 border-y border-ink-200 bg-white px-4 py-5 sm:mx-0 sm:rounded-3xl sm:border sm:p-6 sm:shadow-lg sm:shadow-ink-900/5">
@@ -105,7 +106,7 @@ const timeline = [
         <figcaption class="absolute bottom-2 left-3 font-hand text-lg sm:text-2xl">Aire-sur-la-Lys, mars 2026</figcaption>
       </figure>
       <div class="absolute right-4 bottom-6 hidden w-48 rotate-3 rounded-2xl bg-white p-4 shadow-xl shadow-ink-900/20 lg:block">
-        <p class="text-center text-xs font-bold tracking-wide text-ink-600 uppercase">Installateur certifié</p>
+        <p class="text-center text-xs font-bold tracking-wide text-ink-600 uppercase">Installateur qualifié RGE</p>
         <RgeLogos size="w-full h-auto" class="mt-2 flex-col !gap-2.5 [&>li]:w-full" />
       </div>
     </div>
@@ -203,7 +204,7 @@ const timeline = [
     <div class="flex flex-col gap-5 rounded-[2rem] bg-ember-100 px-6 py-8 sm:px-10 lg:flex-row lg:items-center lg:justify-between">
       <div class="flex flex-col gap-4">
         <h2 class="text-3xl sm:text-4xl">On monte vos dossiers d’aides avec vous</h2>
-        <p class="max-w-2xl text-lg text-ink-700">Nos certifications RGE ouvrent droit aux aides pour vos travaux de chauffage au bois, aux granulés et pour les pompes à chaleur.</p>
+        <p class="max-w-2xl text-lg text-ink-700">Nos qualifications RGE QualiBois et QualiPAC sont la condition pour obtenir les aides : primes CEE et TVA réduite pour les poêles et chaudières, MaPrimeRénov’ en plus pour la pompe à chaleur air/eau.</p>
         <RgeLogos size="h-14 w-auto" />
         <ul class="flex flex-wrap gap-2">
           {['MaPrimeRénov’', 'Primes CEE', 'TVA 5,5 %', 'Éco-PTZ'].map((a) => <li class="rounded-full bg-white px-4 py-1.5 font-semibold">{a}</li>)}

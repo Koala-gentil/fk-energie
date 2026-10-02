@@ -31,14 +31,14 @@ const aides = [
   {
     title: 'Éco-prêt à taux zéro',
     text: 'Un prêt sans intérêts, accordé par les banques partenaires, pour financer le reste à charge de vos travaux.',
-    link: { label: 'service-public.fr', href: 'https://www.service-public.gouv.fr/particuliers/vosdroits/F19905' },
+    link: { label: 'service-public.gouv.fr', href: 'https://www.service-public.gouv.fr/particuliers/vosdroits/F19905' },
   },
 ];
 
 const faqs: FaqItem[] = [
   {
     q: 'Pourquoi faut-il un installateur RGE ?',
-    a: 'La plupart des aides (MaPrimeRénov’, CEE, éco-PTZ) ne sont accordées que si les travaux sont réalisés par une entreprise certifiée RGE pour le type de travaux concerné. FK Énergie est certifiée RGE QualiBois (poêles, chaudières et inserts bois et granulés) et RGE QualiPAC (pompes à chaleur).',
+    a: 'La plupart des aides (MaPrimeRénov’, CEE, éco-PTZ) ne sont accordées que si les travaux sont réalisés par une entreprise qualifiée RGE pour le type de travaux concerné. FK Énergie est qualifiée RGE QualiBois (poêles, chaudières et inserts bois et granulés) et RGE QualiPAC (pompes à chaleur).',
   },
   {
     q: 'MaPrimeRénov’ finance-t-elle encore les poêles à bois et à granulés ?',
@@ -63,7 +63,7 @@ const faqs: FaqItem[] = [
 >
   <PageHero
     title="Financez votre chauffage grâce aux aides"
-    lead="Entreprise certifiée RGE QualiBois et QualiPAC, FK Énergie vous permet de bénéficier des aides à la rénovation énergétique, et vous accompagne dans vos démarches."
+    lead="Entreprise qualifiée RGE QualiBois et QualiPAC, FK Énergie vous ouvre droit aux aides à la rénovation énergétique et vous accompagne dans vos démarches."
     crumbs={crumbs}
     rge={['qualibois', 'qualipac']}
   />
@@ -104,7 +104,7 @@ const faqs: FaqItem[] = [
       </div>
       <ol class="space-y-4">
         {
-          ['Étude gratuite de votre projet et estimation des aides', 'Demande d’aides avant la signature du devis', 'Installation par nos équipes certifiées RGE', 'Transmission des factures et attestations pour le versement'].map((t, i) => (
+          ['Étude gratuite de votre projet et estimation des aides', 'Demande d’aides avant la signature du devis', 'Installation par nos équipes', 'Transmission des factures et attestations pour le versement'].map((t, i) => (
             <li class="flex items-center gap-4 rounded-2xl bg-ink-50 p-5 border border-ink-200">
               <span class="grid size-10 shrink-0 place-items-center rounded-full bg-ember-600 font-display font-bold text-white">{i + 1}</span>
               <span class="font-semibold text-ink-900">{t}</span>

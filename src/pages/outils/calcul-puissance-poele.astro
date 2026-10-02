@@ -53,7 +53,7 @@ const faqs: Faq[] = [
   slug="calcul-puissance-poele"
   seoTitle="Puissance de poêle à granulés ou à bois : calcul"
   description="Quelle puissance de poêle à granulés ou à bois pour votre maison ? Calcul gratuit en kW selon la surface et l’isolation, pour le Nord et le Pas-de-Calais."
-  title="Quelle puissance de poêle pour votre maison ?"
+  title="Calcul de la puissance d’un poêle à granulés ou à bois"
   lead="Surface, hauteur sous plafond, isolation : en quelques réponses, estimez la puissance du poêle à granulés ou à bois qu’il vous faut, avec le climat du Nord et du Pas-de-Calais."
   faqs={faqs}
   sources={[sourcesThermique.methode3CL, sourcesThermique.ademeBois]}
@@ -74,7 +74,7 @@ const faqs: Faq[] = [
           ]}
         />
         <div class="grid gap-5 sm:grid-cols-2">
-          <Field name="surface" label="Surface à chauffer" value={defaults.surface} unit="m²" min={5} max={400} hint="Les pièces que le poêle doit chauffer, ou toute la maison." />
+          <Field name="surface" label="Surface à chauffer" value={defaults.surface} unit="m²" min={5} max={400} hint="La pièce du poêle et les pièces ouvertes sur elle. Toute la maison seulement avec un poêle canalisable ou hydro." />
           <Field name="hauteur" label="Hauteur sous plafond" value={defaults.hauteur} unit="m" min={2} max={6} step={0.05} hint="2,50 m le plus souvent." />
         </div>
         <Choices name="isolation" legend="Isolation de la maison" value={defaults.isolation} variant="list" options={isolations} />
@@ -86,7 +86,7 @@ const faqs: Faq[] = [
           options={[
             { value: 'ouverte', label: 'Une pièce de vie ouverte' },
             { value: 'plusieurs', label: 'Plusieurs pièces' },
-            { value: 'radiateurs', label: 'Toute la maison, avec des radiateurs' },
+            { value: 'radiateurs', label: 'Toute la maison, par les radiateurs à eau (poêle hydro)' },
           ]}
         />
       </div>

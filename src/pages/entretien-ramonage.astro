@@ -54,6 +54,8 @@ const faqs: FaqItem[] = [
     crumbs={crumbs}
     image={hero}
     imageAlt="Poêle à granulés en fonctionnement entretenu par FK Énergie"
+    ctaLabel="Demander un entretien"
+    ctaHref="/contact/?projet=entretien"
   />
 
   <section class="container-page py-20">
@@ -95,5 +97,5 @@ const faqs: FaqItem[] = [
 
   <RelatedGuides path="/entretien-ramonage/" />
   <Faq faqs={faqs} title="Vos questions sur l’entretien" />
-  <CtaBand title="Besoin d’un entretien ou d’un dépannage ?" text="Appelez-nous ou envoyez-nous votre demande en précisant la marque et le modèle de votre appareil." />
+  <CtaBand title="Besoin d’un entretien ou d’un dépannage ?" text="Appelez-nous ou envoyez-nous votre demande en précisant la marque et le modèle de votre appareil." ctaLabel="Demander un entretien" ctaHref="/contact/?projet=entretien" />
 </BaseLayout>

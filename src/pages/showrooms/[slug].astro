@@ -7,7 +7,7 @@ import ShowroomCard from '../../components/ShowroomCard.astro';
 import RealisationsGrid from '../../components/RealisationsGrid.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
-import { showrooms, site, mapsUrl, productNav, type Showroom } from '../../data/site';
+import { deVille, showrooms, site, mapsUrl, productNav, type Showroom } from '../../data/site';
 import { poses } from '../../data/realisations';
 import { villes, villeUrl } from '../../data/villes';
 import { showroomSchema } from '../../lib/schema';
@@ -106,7 +106,7 @@ const localVilles = villes.filter((v) => v.showroom === s.slug);
         <p class="eyebrow">Zone d’intervention</p>
         <h2 class="mt-3 text-3xl">Nous installons à {s.city} et dans les environs</h2>
         <p class="mt-4 text-lg text-ink-600">
-          Depuis notre showroom de {s.city}, nos équipes interviennent pour la pose, l’entretien et le dépannage de votre chauffage dans tout le secteur :
+          Depuis notre showroom {deVille(s.city)}, nos équipes interviennent pour la pose, l’entretien et le dépannage de votre chauffage dans tout le secteur :
         </p>
         <ul class="mt-6 flex flex-wrap gap-2">
           {[s.city, ...s.nearby].map((c) => {
@@ -146,5 +146,5 @@ const localVilles = villes.filter((v) => v.showroom === s.slug);
     </div>
   </section>
 
-  <CtaBand title={`Un projet de chauffage près de ${s.city} ?`} />
+  <CtaBand title={`Un projet de chauffage près ${deVille(s.city)} ?`} />
 </BaseLayout>

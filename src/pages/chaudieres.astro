@@ -18,7 +18,7 @@ const description =
 const faqs: FaqItem[] = [
   {
     q: 'Pourquoi remplacer ma chaudière fioul par une chaudière à granulés ?',
-    a: 'La chaudière à granulés utilise une énergie renouvelable et généralement moins chère que le fioul, tout en gardant votre réseau de radiateurs. Son remplacement fait partie des travaux fortement aidés lorsqu’il est réalisé par un installateur RGE.',
+    a: 'La chaudière à granulés utilise une énergie renouvelable et généralement moins chère que le fioul, tout en gardant votre réseau de radiateurs. Posée par un installateur RGE, elle peut bénéficier des primes CEE et de la TVA à taux réduit. Depuis le 1er septembre 2026, MaPrimeRénov’ ne la finance plus que dans le cadre d’une rénovation d’ampleur.',
   },
   {
     q: 'Faut-il beaucoup de place pour une chaudière à granulés ?',
@@ -49,6 +49,7 @@ const faqs: FaqItem[] = [
     image={hero}
     imageAlt="Chaudière à granulés RTB installée chez un client par FK Énergie"
     rge={['qualibois']}
+    ctaHref="/contact/?projet=chaudiere"
   />
 
   <section class="container-page grid gap-12 py-20 lg:grid-cols-12">
@@ -62,7 +63,7 @@ const faqs: FaqItem[] = [
         <li><strong>Rendement élevé</strong> : jusqu’à 90 %.</li>
         <li><strong>Tout le logement chauffé</strong> : radiateurs, plancher chauffant et eau chaude sanitaire.</li>
         <li><strong>Moins d’entretien</strong> qu’un poêle, grâce au nettoyage automatique.</li>
-        <li><strong>Des aides importantes</strong> pour le remplacement d’une chaudière fossile.</li>
+        <li><strong>Des aides</strong> pour remplacer une chaudière fioul ou gaz : primes CEE et TVA à taux réduit.</li>
       </ul>
       <h2>Chaudières à granulés RTB</h2>
       <p>
@@ -94,5 +95,5 @@ const faqs: FaqItem[] = [
   <RelatedGuides path="/chaudieres/" />
   <Faq faqs={faqs} title="Vos questions sur les chaudières" />
   <ServiceArea feminine what="Chaudières" />
-  <CtaBand title="Remplacez votre chaudière, on vous accompagne" />
+  <CtaBand title="Remplacez votre chaudière, on vous accompagne" ctaHref="/contact/?projet=chaudiere" />
 </BaseLayout>

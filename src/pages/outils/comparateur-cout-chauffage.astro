@@ -181,22 +181,22 @@ const faqs: Faq[] = [
 
       <Graphique
         titre="Le prix de la chaleur"
-        lead="Ce que coûte la même quantité de chaleur (1 kWh) avec chaque chauffage, pertes de l’appareil comprises. Plus la barre est courte, moins c’est cher."
+        lead="Ce que coûte la même quantité de chaleur (1 kWh) avec chaque chauffage, pertes de l’appareil et de l’installation comprises. Plus la barre est courte, moins c’est cher."
         html={prixChaleur(systemes)}
       >
         <p class="mt-5 text-ink-700">
-          La pompe à chaleur paie l’électricité au même prix que des radiateurs, mais elle donne environ {fmt(pac.rendement, 1)} kWh de chaleur pour
+          La pompe à chaleur paie l’électricité au même prix que des radiateurs, mais sur la saison elle restitue environ {fmt(rendementGlobal(pac), 1)} kWh de chaleur dans la maison pour
           1 kWh d’électricité : le reste, elle le prend dans l’air extérieur.
         </p>
         <Fragment slot="tableau">
-          <p class="mb-3 text-sm text-ink-600">En centimes d’euro TTC par kWh, aux prix moyens par défaut. * Chauffe surtout la pièce de vie.</p>
+          <p class="mb-3 text-sm text-ink-600">En centimes d’euro TTC par kWh, aux prix moyens par défaut. * Chauffe surtout la pièce de vie. ** Appareil et installation compris (radiateurs, régulation), selon la méthode du DPE : l’appareil seul fait mieux (environ 87 % pour un poêle ou une chaudière à granulés récents).</p>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
               <thead class="text-ink-900">
                 <tr>
                   <th scope="col" class="px-2 py-2">Chauffage</th>
                   <th scope="col" class="px-2 py-2">Énergie achetée</th>
-                  <th scope="col" class="px-2 py-2">Rendement</th>
+                  <th scope="col" class="px-2 py-2">Rendement global **</th>
                   <th scope="col" class="px-2 py-2">Chaleur</th>
                 </tr>
               </thead>

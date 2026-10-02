@@ -163,6 +163,10 @@ export const showrooms: Showroom[] = [
   },
 ];
 
+/** « de » élidé devant une voyelle : « d’Aire-sur-la-Lys », « d’Ardres », « de Rexpoëde ». */
+export const prepDe = (ville: string) => (/^[aeiouyàâéèêîôû]/i.test(ville) ? 'd’' : 'de ');
+export const deVille = (ville: string) => `${prepDe(ville)}${ville}`;
+
 export const mapsUrl = (s: Showroom) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.mapsQuery)}`;
 

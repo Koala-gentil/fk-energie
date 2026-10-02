@@ -39,7 +39,7 @@ export const puissanceParIsolation = (surface: number, hauteur: number, maison: 
   );
 
 export const poeleParIsolation = (surface: number, hauteur: number, maison: unknown, choisie: string) =>
-  puissanceParIsolation(surface, hauteur, maison, choisie, { valeur: poele.puissanceMax, label: `${poele.puissanceMax} kW : à peu près le plus gros poêle du marché` });
+  puissanceParIsolation(surface, hauteur, maison, choisie, { valeur: poele.puissanceMax, label: `${poele.puissanceMax} kW : limite habituelle d’un poêle à air (ADEME : 4 à 12 kW)` });
 
 /** Surface (m²) qu'un poêle de `kw` kW chauffe par grand froid. */
 export const surfacePourPoele = (kw: number, hauteur: number, g: number) => (kw * 1000) / (hauteur * g * (climat.tInterieure - climat.tBase));

@@ -17,13 +17,16 @@ interface Props {
   /** Légende manuscrite posée sur la photo (ex. « Posé à Licques, février 2026 »). */
   imageCaption?: string;
   cta?: boolean;
+  /** Bouton principal (par défaut : demande d’étude gratuite). */
+  ctaLabel?: string;
+  ctaHref?: string;
   imageAspect?: 'portrait' | 'landscape';
   /** Logos RGE affichés sous l’accroche (ceux qui couvrent les travaux de la page). */
   rge?: Certification[];
 }
 
 const nbsp = (t?: string) => t?.replace(/ ([:;!?»])/g, '\u202f$1').replace(/« /g, '«\u202f');
-const { eyebrow, title: rawTitle, lead: rawLead, crumbs = [], image, imageAlt = '', imageCaption, cta = true, imageAspect = 'portrait', rge } = Astro.props;
+const { eyebrow, title: rawTitle, lead: rawLead, crumbs = [], image, imageAlt = '', imageCaption, cta = true, ctaLabel = 'Demander une étude gratuite', ctaHref = '/contact/', imageAspect = 'portrait', rge } = Astro.props;
 const title = nbsp(rawTitle)!;
 const lead = nbsp(rawLead);
 ---
@@ -60,11 +63,11 @@ const lead = nbsp(rawLead);
           <div class="flex flex-wrap items-center gap-x-5 gap-y-3">
             <RgeLogos certs={rge} size="h-14 w-auto sm:h-16" />
             <p class="max-w-56 text-[15px] leading-snug text-ink-700">
-              Installateur certifié, la condition pour obtenir les{' '}
+              Entreprise qualifiée RGE : la condition pour bénéficier des{' '}
               {Astro.url.pathname === '/aides-financieres/' ? (
-                'aides de l’État'
+                'aides'
               ) : (
-                <a href="/aides-financieres/" class="font-semibold text-ember-700 underline decoration-ember-300 underline-offset-2">aides de l’État</a>
+                <a href="/aides-financieres/" class="font-semibold text-ember-700 underline decoration-ember-300 underline-offset-2">aides</a>
               )}
               .
             </p>
@@ -75,8 +78,8 @@ const lead = nbsp(rawLead);
       {
         cta && (
           <div class="mt-2 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <a href="/contact/" class="btn-primary">
-              Demander une étude gratuite
+            <a href={ctaHref} class="btn-primary">
+              {ctaLabel}
             </a>
             <a href={site.phoneHref} class="link-arrow">
               <Icon name="phone" class="size-5 text-ember-600" /> {site.phone}

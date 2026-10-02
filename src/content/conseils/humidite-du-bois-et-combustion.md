@@ -9,7 +9,7 @@ image: "../../assets/images/realisations/poele-bois-heta-scan-line-1000.jpg"
 imageAlt: "Poêle à bois HETA Scan-Line installé par FK Énergie, flamme vive derrière la vitre"
 faq:
   - q: "Quel taux d’humidité pour du bois de chauffage ?"
-    a: "Pour les bûches, 23 % au maximum selon la réglementation de 2022, reprise par l’ADEME, et idéalement 20 % ou moins. Pour les granulés, 10 % au maximum, le seuil de la réglementation et du label ENplus."
+    a: "Pour les bûches, 23 % au plus : c’est le seuil réglementaire du bois « sec » depuis 2022, repris par l’ADEME. L’idéal est 20 % ou moins. Pour les granulés, 10 % au plus (réglementation et label ENplus)."
   - q: "Combien de temps faut-il faire sécher du bois de chauffage ?"
     a: "18 mois minimum après la coupe, selon l’ADEME, à l’abri de la pluie et dans un endroit aéré. Des bûches courtes et fendues sèchent plus vite que des rondins de 1 m, qui demandent plus de deux ans."
   - q: "Peut-on brûler du bois vert ?"
@@ -87,7 +87,7 @@ L’humidité du bois de chauffage s’exprime en pourcentage de la masse de la 
 
 | Combustible | Taux d’humidité maximal | Référence |
 | --- | --- | --- |
-| Bûches | 23 % | Réglementation de 2022, reprise par l’ADEME |
+| Bûches | 23 % | Seuil du bois « sec » (réglementation de 2022), repris par l’ADEME |
 | Bûches, idéalement | 20 % | ADEME, NF Bois de chauffage |
 | Granulés | 10 % | Réglementation de 2022, label ENplus |
 
@@ -100,7 +100,7 @@ Plus le bois est humide, moins un kilo de bois contient d’énergie, simplement
 | Granulés certifiés (10 % d’humidité au plus) | au moins 4,6 kWh |
 | Bûches de feuillus à 20 % | environ 3,9 kWh |
 | Bûches de feuillus à 30 % | environ 3,3 kWh |
-| Bûches de feuillus à 40 % | environ 2,8 kWh |
+| Bûches de feuillus à 40 % | environ 2,7 kWh |
 
 Si vous achetez votre bois au poids, un bois humide, c’est donc aussi de l’eau que vous payez.
 
@@ -149,8 +149,12 @@ Un bon bois ne suffit pas : la façon de faire le feu compte aussi. Les conseils
 - **Ne fermez jamais complètement les arrivées d’air**, même la nuit. Un appareil utilisé à allure réduite, entrées d’air fermées, émet jusqu’à 2 fois plus de particules.
 - **Ne surchargez pas le foyer** : mieux vaut ajouter régulièrement de petites charges.
 
-## Dans la métropole lilloise, la qualité de l’air en jeu
+## Foyers ouverts : ce qui change dans la région
 
 Le chauffage au bois est la première source de particules fines en France : 60 % des émissions de PM2,5 en 2024, selon le Citepa. Sur la Métropole européenne de Lille, c’est près de 70 %, selon la préfecture, qui précise que ces particules « proviennent essentiellement d’appareils trop anciens, mal utilisés ou mal entretenus ».
 
-À compter du **1er novembre 2026**, il ne sera plus possible d’utiliser une cheminée à foyer ouvert dans toutes les communes de la MEL, en chauffage principal comme en appoint. Les poêles, inserts et foyers fermés ne sont pas concernés. C’est le bon moment pour passer à un [insert](/inserts-cheminees/), un [poêle à bois](/poele-a-bois/) ou un [poêle à granulés](/poele-a-granules/) récent : bien alimenté en bois sec, il chauffe mieux et pollue beaucoup moins.
+À compter du **1er novembre 2026**, il ne sera plus possible d’utiliser une cheminée à foyer ouvert dans les 95 communes de la MEL, en chauffage principal comme en appoint. Les poêles, inserts et foyers fermés ne sont pas concernés. Cette interdiction ne vise que la métropole lilloise, mais partout ailleurs le constat est le même : un foyer ouvert chauffe mal et pollue beaucoup. Un [insert](/inserts-cheminees/), un [poêle à bois](/poele-a-bois/) ou un [poêle à granulés](/poele-a-granules/) récent, alimenté en bois sec, chauffe mieux et pollue beaucoup moins.
+
+## Avec FK Énergie
+
+Installateur RGE QualiBois depuis 2008, FK Énergie pose et entretient inserts, poêles à bois et poêles à granulés avec ses propres équipes. Dans nos showrooms d’Aire-sur-la-Lys, d’Ardres et de Rexpoëde, nous vous conseillons aussi sur le combustible adapté à votre appareil. [Contactez-nous](/contact/) pour une étude gratuite.

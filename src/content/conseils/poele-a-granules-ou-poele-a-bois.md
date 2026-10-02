@@ -13,9 +13,9 @@ faq:
   - q: "Quelle est l’autonomie d’un poêle à granulés ?"
     a: "L’ADEME indique des réservoirs de 15 à 50 kg, soit une autonomie d’un à cinq jours selon les besoins de chauffage du logement. Un poêle à bûches, lui, a une autonomie de quelques heures."
   - q: "Le label Flamme Verte existe-t-il toujours ?"
-    a: "Oui. Depuis 2020, seuls les appareils de l’ancienne classe 7 étoiles sont labellisés : la mention « labellisé Flamme Verte » correspond désormais à ce niveau, avec des critères renforcés depuis le 1er janvier 2025."
+    a: "Oui. Depuis 2020, il n’a plus qu’un niveau, équivalent à l’ancienne classe 7 étoiles, et ses critères ont été renforcés au 1er janvier 2025."
   - q: "Peut-on encore avoir MaPrimeRénov’ pour un poêle ?"
-    a: "Depuis le 1er septembre 2026, MaPrimeRénov’ par geste ne finance plus les équipements de chauffage indépendants au bois ou à la biomasse, selon Service Public. D’autres aides comme les CEE peuvent exister : vérifiez votre situation sur france-renov.gouv.fr."
+    a: "Plus seul : depuis le 1er septembre 2026, MaPrimeRénov’ par geste ne finance plus les poêles, inserts et chaudières au bois ou aux granulés, selon Service Public. Ils restent pris en compte dans une rénovation d’ampleur et peuvent ouvrir droit aux primes CEE et à la TVA à 5,5 %, selon votre situation."
 sources:
   - label: "ADEME : Se chauffer au bois, les bons gestes pour moins consommer et moins polluer (décembre 2025)"
     url: "https://agirpourlatransition.ademe.fr/particuliers/amenager-maison/chauffer/chauffage-bois-moins-consommer-moins-polluer"
@@ -57,7 +57,7 @@ Le poêle à bûches se charge à la main et se règle par ses arrivées d’air
 | Électricité | Indispensable | Pas nécessaire pour un modèle classique |
 | Combustible | Sacs de granulés, au sec et surélevés | Bûches sous abri aéré, bien sèches |
 | Entretien courant | Creuset à nettoyer tous les jours ou tous les deux jours | Cendrier à vider fréquemment |
-| Entretien et ramonage par un pro | Au moins une fois par an | Au moins une fois par an |
+| Entretien et ramonage par un pro | Au moins une fois par an (ramonage : 2 fois par an dans le Nord) | Au moins une fois par an (ramonage : 2 fois par an dans le Nord) |
 
 ### Autonomie et programmation
 
@@ -71,14 +71,14 @@ Un poêle à granulés doit être branché : l’ADEME précise que l’électri
 
 ### Stockage du combustible
 
-- **Granulés** : les sacs sont très sensibles à l’humidité. L’ADEME recommande de les stocker à l’intérieur, dans un endroit sec et aéré, de préférence surélevé sur une palette.
-- **Bûches** : il faut de la place et un peu de manutention. Le bois doit avoir un taux d’humidité inférieur à 23 %. S’il n’est pas encore sec, laissez-le sécher au moins 18 mois après la coupe, à l’abri de la pluie, dans un endroit aéré et sans contact avec le sol.
+- **Granulés** : les sacs sont très sensibles à l’humidité. L’ADEME recommande de les stocker à l’intérieur, dans un endroit sec et aéré, de préférence surélevé sur une palette (voir notre guide [bien choisir ses granulés](/conseils/bien-choisir-ses-granules-de-bois/)).
+- **Bûches** : il faut de la place et un peu de manutention. Le bois doit avoir un taux d’humidité de 23 % au plus, idéalement 20 %. S’il n’est pas encore sec, laissez-le sécher au moins 18 mois après la coupe, à l’abri de la pluie, dans un endroit aéré et sans contact avec le sol (voir notre guide [bois humide](/conseils/humidite-du-bois-et-combustion/)).
 
 ### Entretien
 
 Pour un poêle à granulés, l’ADEME conseille de nettoyer le creuset tous les jours (ou tous les deux jours selon la qualité des granulés) et de vider le réservoir en fin de saison. Pour un poêle à bûches, on vide et nettoie régulièrement le cendrier.
 
-Dans les deux cas, l’entretien annuel de l’appareil par un professionnel qualifié et le ramonage du conduit au moins une fois par an sont **obligatoires**. L’ADEME recommande deux ramonages par an en cas de forte consommation (au-delà de 6 m³ de bois ou 2,5 tonnes de granulés). Notre page [entretien et ramonage](/entretien-ramonage/) détaille ces interventions.
+Dans les deux cas, l’entretien annuel de l’appareil par un professionnel qualifié et le ramonage du conduit sont **obligatoires** : au moins une fois par an, et deux fois par an dans le Nord, où le règlement sanitaire départemental l’impose. Ailleurs, l’ADEME recommande aussi un second ramonage en cas de forte consommation (au-delà de 6 m³ de bois ou 2,5 tonnes de granulés par an). Tout est détaillé dans notre guide [entretien obligatoire](/conseils/entretien-obligatoire-poele-chaudiere-pompe-a-chaleur/) et sur notre page [entretien et ramonage](/entretien-ramonage/).
 
 ### L’ambiance de la flamme
 
@@ -106,7 +106,7 @@ Un poêle chauffe d’abord la pièce où il est installé. Pour une maison à �
 
 ## Flamme Verte et qualité de l’air : les bons réflexes
 
-Le label **Flamme Verte**, lancé en 2000 par l’ADEME et les professionnels du chauffage au bois, est toujours d’actualité en 2026. Depuis le 1er janvier 2020, seuls les appareils de l’ancienne classe 7 étoiles sont labellisés. Il n’y a plus qu’un niveau : la mention « labellisé Flamme Verte » vaut 7 étoiles, et une étiquette sans étoiles est disponible dès 2025, avec des critères renforcés au 1er janvier 2025. L’ADEME conseille de s’y fier pour choisir son appareil.
+Le label **Flamme Verte**, lancé en 2000 par l’ADEME et les professionnels du chauffage au bois, reste la référence en 2026. Depuis le 1er janvier 2020, il n’a plus qu’un niveau, équivalent à l’ancienne classe 7 étoiles, et ses critères ont été renforcés au 1er janvier 2025. L’ADEME conseille de s’y fier pour choisir son appareil.
 
 Pour polluer moins, l’ADEME rappelle aussi :
 
@@ -115,7 +115,7 @@ Pour polluer moins, l’ADEME rappelle aussi :
 - allumez le feu par le haut, ne fermez jamais complètement les arrivées d’air et ne brûlez jamais de bois traité ;
 - un appareil récent mal utilisé peut polluer autant qu’un vieil appareil.
 
-Côté aides, Service Public indique que depuis le 1er septembre 2026, MaPrimeRénov’ par geste ne finance plus les équipements de chauffage indépendants au bois ou à la biomasse. Les poêles à bois figurent toujours parmi les travaux cités par France Rénov’ pour les primes CEE : vérifiez les conditions à jour avant de signer.
+Côté aides, Service Public indique que depuis le 1er septembre 2026, MaPrimeRénov’ par geste ne finance plus les poêles, inserts et chaudières au bois ou aux granulés ; ils restent pris en compte dans une rénovation d’ampleur. Les poêles figurent toujours parmi les travaux cités par France Rénov’ pour les primes CEE et peuvent bénéficier de la TVA à 5,5 % : vérifiez les conditions à jour sur notre page [aides financières](/aides-financieres/) avant de signer.
 
 ## En résumé : lequel pour vous ?
 
@@ -124,7 +124,7 @@ Côté aides, Service Public indique que depuis le 1er septembre 2026, MaPrimeR�
 - Vous voulez une chaleur douce et durable avec peu de rechargements : le **poêle de masse**.
 - Vous hésitez entre les deux : le **poêle mixte**.
 
-Pour la puissance, faites une première estimation avec notre [calculateur de puissance de poêle](/outils/calcul-puissance-poele/), pour le budget avec notre [calcul de consommation de granulés](/outils/consommation-granules/), et pour voir jusqu’où il chauffera, dessinez votre maison avec notre [simulateur plan et poêle](/outils/plan-maison/).
+Pour la puissance, lisez notre guide [quelle puissance de poêle à granulés](/conseils/quelle-puissance-de-poele-a-granules/) et faites une première estimation avec notre [calculateur de puissance de poêle](/outils/calcul-puissance-poele/), pour le budget avec notre [calcul de consommation de granulés](/outils/consommation-granules/), et pour voir jusqu’où il chauffera, dessinez votre maison avec notre [simulateur plan et poêle](/outils/plan-maison/).
 
 ## Avec FK Énergie
 

@@ -1,6 +1,6 @@
 ---
 import Icon from './Icon.astro';
-import { showrooms } from '../data/site';
+import { prepDe, showrooms } from '../data/site';
 import { villes, villeUrl } from '../data/villes';
 
 interface Props {
@@ -17,10 +17,10 @@ const { what, feminine = false } = Astro.props;
     <div>
       <h2 id="secteur-title" class="flex items-center gap-3 text-2xl"><Icon name="pin" class="size-6 shrink-0 text-ember-600" /> {what} {feminine ? 'posées' : 'posés'} dans le Pas-de-Calais et le Nord</h2>
       <p class="mt-2 text-ink-700">
-        Depuis nos showrooms de {showrooms.map((s, i) => (
+        Depuis nos showrooms {showrooms.map((s, i) => (
           <>
             {i > 0 && (i === showrooms.length - 1 ? ' et ' : ', ')}
-            <a href={`/showrooms/${s.slug}/`} class="font-semibold text-ember-700 underline decoration-ember-300 underline-offset-2">{s.city}</a>
+            {prepDe(s.city)}<a href={`/showrooms/${s.slug}/`} class="font-semibold text-ember-700 underline decoration-ember-300 underline-offset-2">{s.city}</a>
           </>
         ))}, et notamment à :
       </p>

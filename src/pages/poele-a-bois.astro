@@ -58,12 +58,13 @@ const faqs: FaqItem[] = [
 >
   <PageHero
     title="Poêles à bois : le charme de la flamme, la performance en plus"
-    lead="Un poêle à bois moderne chauffe beaucoup plus et consomme beaucoup moins qu’une cheminée ouverte. Nous sélectionnons des poêles scandinaves et italiens à haut rendement, installés par nos équipes certifiées QualiBois."
+    lead="Un poêle à bois moderne chauffe beaucoup plus et consomme beaucoup moins qu’une cheminée ouverte. Nous sélectionnons des poêles scandinaves et italiens à haut rendement, installés par nos équipes (RGE QualiBois)."
     crumbs={crumbs}
     imageCaption="Lotus Jubilee 25 · juillet 2025"
     image={hero}
     imageAlt="Poêle à bois Lotus Jubilee installé par FK Énergie"
     rge={['qualibois']}
+    ctaHref="/contact/?projet=bois"
   />
 
   <section class="container-page grid gap-12 py-20 lg:grid-cols-12">
@@ -79,7 +80,7 @@ const faqs: FaqItem[] = [
       </p>
       <ul>
         <li><strong>Économique</strong> : le bois reste l’une des énergies les moins chères.</li>
-        <li><strong>Neutre en carbone</strong> : le CO₂ émis correspond à celui absorbé par l’arbre pendant sa croissance.</li>
+        <li><strong>Renouvelable</strong> : le CO₂ émis à la combustion est celui que l’arbre a absorbé pendant sa croissance, à condition que la forêt soit gérée durablement.</li>
         <li><strong>Confortable</strong> : une chaleur douce et enveloppante, et l’ambiance unique du feu de bois.</li>
       </ul>
     </div>
@@ -141,5 +142,5 @@ const faqs: FaqItem[] = [
   <RelatedGuides path="/poele-a-bois/" />
   <Faq faqs={faqs} title="Vos questions sur les poêles à bois" />
   <ServiceArea what="Poêles à bois" />
-  <CtaBand title="Trouvons ensemble votre poêle à bois" />
+  <CtaBand title="Trouvons ensemble votre poêle à bois" ctaHref="/contact/?projet=bois" />
 </BaseLayout>

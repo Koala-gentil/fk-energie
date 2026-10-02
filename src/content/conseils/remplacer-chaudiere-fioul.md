@@ -108,9 +108,9 @@ Pour une première idée, notre [comparateur du coût de chauffage](/outils/comp
 
 ## Les aides possibles en 2026
 
-Les montants évoluent souvent : faites une simulation sur [france-renov.gouv.fr](https://france-renov.gouv.fr/aides/simulation) ou rapprochez-vous d’un conseiller France Rénov’. Voici les principaux dispositifs.
+Les montants évoluent souvent : faites une simulation sur [france-renov.gouv.fr](https://france-renov.gouv.fr/aides/simulation) ou rapprochez-vous d’un conseiller France Rénov’. Voici les principaux dispositifs, détaillés aussi sur notre page [aides financières](/aides-financieres/).
 
-- **MaPrimeRénov’ par geste** : en 2026, France Rénov’ indique qu’elle finance l’installation d’une pompe à chaleur air/eau ou géothermique, sous conditions de revenus. Pour remplacer un chauffage au fioul, le logement doit avoir au moins 2 ans (15 ans dans les autres cas).
+- **MaPrimeRénov’ par geste** : en 2026, elle ne finance plus que la pompe à chaleur air/eau ou géothermique, sous conditions de revenus. Depuis le 1er septembre 2026, les chaudières à granulés ou à bûches n’y sont plus éligibles : elles restent possibles dans une rénovation d’ampleur et au titre des primes CEE. Pour remplacer un chauffage au fioul, le logement doit avoir au moins 2 ans (15 ans dans les autres cas).
 - **MaPrimeRénov’ rénovation d’ampleur** : pour un projet plus global, avec un gain d’au moins deux classes énergétiques, accompagné par un Accompagnateur Rénov’.
 - **Les primes CEE**, versées par les fournisseurs d’énergie, dont le **Coup de pouce Chauffage**, qui concerne notamment le remplacement d’une chaudière au charbon, au fioul ou au gaz par une chaudière biomasse ou une pompe à chaleur air/eau.
 - **L’éco-prêt à taux zéro**, la **TVA à taux réduit de 5,5 %** et les aides des collectivités locales, cumulables sous conditions.
@@ -125,7 +125,7 @@ Deux règles à ne pas oublier :
 1. **La visite technique** : état des radiateurs, place disponible, conduit de fumée, habitudes de chauffage.
 2. **Le devis détaillé**, établi par une entreprise RGE, avec la solution conseillée.
 3. **Les demandes d’aides**, dans le bon ordre, avant toute signature quand le dispositif l’exige.
-4. **La dépose de la cuve à fioul** : France Rénov’ indique qu’elle doit être retirée avant d’installer le nouvel équipement, après vidange, nettoyage, dégazage et neutralisation par un professionnel.
+4. **La cuve à fioul** : une cuve qui ne sert plus doit être vidée, nettoyée et dégazée par un professionnel, puis retirée ou, à défaut, neutralisée. Mieux vaut le prévoir avant la pose du nouvel équipement.
 5. **La pose et la mise en service**, avec les explications pour bien utiliser votre appareil.
 6. **Le suivi** : demande de paiement des aides une fois les travaux finis, puis entretien régulier.
 
