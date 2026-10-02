@@ -3,10 +3,21 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
+import PlanMiniature from '../../components/PlanMiniature.astro';
 import { outils, outilUrl } from '../../data/outils';
 import { site } from '../../data/site';
+import { modeles } from '../../lib/plan/modeles';
 
 const crumbs = [{ label: 'Outils', href: '/outils/' }];
+const vedette = outils.find((o) => o.vedette)!;
+const autres = outils.filter((o) => !o.vedette);
+const planVedette = modeles.find((m) => m.id === 'etage')!.plan();
+const atouts = [
+  'Dessinez vos pièces, fenêtres et portes, ou partez d’un modèle de maison',
+  'Puissance nécessaire dans chaque pièce, d’après la méthode du DPE',
+  'Température de chaque pièce avec votre poêle, vos radiateurs, une chaudière ou une pompe à chaleur',
+  'Nombre d’éléments de radiateur par pièce, puis envoi du plan pour une étude gratuite',
+];
 const list = {
   '@type': 'ItemList',
   itemListElement: outils.map((o, i) => ({
@@ -20,7 +31,7 @@ const list = {
 
 <BaseLayout
   title="Calculateurs chauffage : puissance, conso, coût"
-  description="Outils gratuits : puissance de poêle, consommation de granulés, coût du chauffage, pompe à chaleur, bois, et simulateur de plan avec votre poêle."
+  description="Simulateur de chauffage sur plan et outils gratuits : puissance de poêle, consommation de granulés, coût du chauffage, pompe à chaleur, bois."
   pageType="CollectionPage"
   pageExtra={{ mainEntity: list }}
   breadcrumbs={crumbs}
@@ -28,15 +39,47 @@ const list = {
   <PageHero
     eyebrow="faites le calcul"
     title="Nos outils pour préparer votre projet de chauffage"
-    lead="Les calculs que nous faisons en showroom, à faire vous-même : puissance, consommation, coût annuel, et simulation pièce par pièce avec votre poêle. Gratuits, avec la méthode et les sources expliquées."
+    lead="Les calculs que nous faisons en showroom, à faire vous-même : simulation de votre maison pièce par pièce, puissance, consommation et coût annuel. Gratuits, avec la méthode et les sources expliquées."
     crumbs={crumbs}
     cta={false}
   />
 
-  <section class="container-page py-16">
+  <section class="container-page pt-16" aria-labelledby="titre-vedette">
+    <article class="grid overflow-hidden rounded-[2rem] border-2 border-ink-900 bg-ink-900 text-ink-100 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+      <div class="flex flex-col gap-6 p-8 sm:p-12">
+        <p class="eyebrow text-ember-300">notre outil le plus complet</p>
+        <div class="flex flex-col gap-3">
+          <h2 id="titre-vedette" class="text-3xl text-white sm:text-4xl">{vedette.name}</h2>
+          <p class="text-lg text-ink-200">{vedette.question} Dessinez votre maison et voyez-le, pièce par pièce, avant de choisir.</p>
+        </div>
+        <ul class="flex flex-col gap-3">
+          {
+            atouts.map((a) => (
+              <li class="flex items-start gap-3">
+                <span class="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-ember-600 text-white">
+                  <Icon name="check" class="size-3.5" />
+                </span>
+                <span>{a}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="mt-auto flex flex-wrap items-center gap-x-6 gap-y-3 pt-2">
+          <a href={`${outilUrl(vedette)}simulateur/`} class="btn-primary">Ouvrir le simulateur <Icon name="arrow" class="size-4" /></a>
+          <a href={outilUrl(vedette)} class="inline-flex items-center gap-2 font-bold text-white underline decoration-ink-500 underline-offset-4 hover:decoration-ember-400">Comment ça marche</a>
+        </div>
+      </div>
+      <a href={`${outilUrl(vedette)}simulateur/`} class="group grid place-items-center bg-white p-6 sm:p-10" aria-label="Ouvrir le simulateur avec un exemple de maison à étage">
+        <PlanMiniature plan={planVedette} noms label="Exemple de plan dessiné dans le simulateur : rez-de-chaussée et étage" class="w-full transition group-hover:scale-[1.02]" />
+      </a>
+    </article>
+  </section>
+
+  <section class="container-page py-16" aria-labelledby="titre-autres">
+    <h2 id="titre-autres" class="mb-8 text-3xl sm:text-4xl">Les calculs rapides</h2>
     <ul class="grid gap-6 md:grid-cols-2">
       {
-        outils.map((o) => (
+        autres.map((o) => (
           <li>
             <a href={outilUrl(o)} class="group flex h-full flex-col gap-5 rounded-3xl border border-ink-200 bg-white p-7 transition hover:border-ember-300 hover:shadow-xl hover:shadow-ink-900/5">
               <span class="grid size-14 place-items-center rounded-2xl bg-ember-100 text-ember-800 transition group-hover:bg-ember-600 group-hover:text-white">

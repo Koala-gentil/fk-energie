@@ -10,9 +10,19 @@ export type Outil = {
   icon: IconName;
   /** Pages du site où l'outil est proposé. */
   related: string[];
+  /** Outil mis en avant : premier, en grand sur `/outils/` et dans les listes d'outils. */
+  vedette?: boolean;
 };
 
 export const outils: Outil[] = [
+  {
+    slug: 'plan-maison',
+    name: 'Simulateur de chauffage sur plan',
+    question: 'Quelle température dans chaque pièce avec votre poêle, vos radiateurs ou votre pompe à chaleur ?',
+    icon: 'home',
+    related: ['/poele-a-granules/', '/poele-a-bois/', '/inserts-cheminees/', '/pompes-a-chaleur/', '/chaudieres/'],
+    vedette: true,
+  },
   {
     slug: 'calcul-puissance-poele',
     name: 'Puissance de poêle',
@@ -40,13 +50,6 @@ export const outils: Outil[] = [
     question: 'Quelle puissance de pompe à chaleur, et mes radiateurs conviennent-ils ?',
     icon: 'thermometer',
     related: ['/pompes-a-chaleur/', '/chaudieres/'],
-  },
-  {
-    slug: 'plan-maison',
-    name: 'Simulateur plan et poêle',
-    question: 'Votre poêle chauffera-t-il toute la maison ? Dessinez votre plan pour le voir.',
-    icon: 'home',
-    related: ['/poele-a-granules/', '/poele-a-bois/', '/inserts-cheminees/', '/pompes-a-chaleur/'],
   },
   {
     slug: 'convertisseur-bois-stere',
