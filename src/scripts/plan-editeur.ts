@@ -62,6 +62,8 @@ const ROWS = 44;
 /** Marge (en cases) que la vue peut montrer autour de la grille, pour cadrer la maison sous les éléments posés sur le plan. */
 const MARGE = 16;
 const STOCKAGE = 'fk-plan-maquette';
+/** Remplissage d'un appareil à fond (il ne peut pas donner plus). */
+const ROUGE_A_FOND = 'var(--color-danger-300)';
 const NS = 'http://www.w3.org/2000/svg';
 
 type Outil = 'selection' | 'piece' | TypeOuverture | 'mitoyen' | 'escalier' | 'poele' | 'radiateur' | 'chaudiere' | 'pac';
@@ -117,7 +119,7 @@ const aidesTelephone: Record<Outil, string> = {
 const accueil =
   'Voici une maison d’exemple : cliquez sur une pièce pour la modifier, ou partez d’un modèle plus proche de chez vous (menu « ⋯ »).';
 /** Aide de l'outil « Choisir » à l'étape du chauffage. */
-const aideChauffage = 'Cliquez sur un appareil pour le régler, sur une porte pour l’ouvrir ou la fermer. Sous chaque appareil : puissance moyenne fournie à la température dehors choisie / puissance maximale, en rouge s’il est à fond.';
+const aideChauffage = 'Cliquez sur un appareil pour le régler, sur une porte pour l’ouvrir ou la fermer. À côté de chaque appareil : la puissance qu’il fournit en moyenne ; en rouge, il est à fond.';
 
 const couleurs: Record<TypePiece, string> = {
   sejour: 'var(--color-ember-100)',
@@ -479,8 +481,9 @@ if (racine) {
     return r?.capacite !== undefined && r.puissance >= r.capacite - 1 && (sim.temperatures.get(e.piece) ?? Infinity) < e.consigne - 0.5;
   };
   /**
-   * Puissance moyenne fournie sur la journée / puissance maximale de chaque appareil (kW), et de la chaudière ; « à fond »
-   * quand l'appareil ne peut pas donner plus (pour un radiateur à eau : avec l'eau de ce jour-là, moins chaude que 75 °C).
+   * Puissance moyenne fournie sur la journée par chaque appareil (kW), et par la chaudière ; « à fond » quand l'appareil ne
+   * peut pas donner plus (pour un radiateur à eau : avec l'eau de ce jour-là, moins chaude que 75 °C). Sa puissance maximale
+   * est dans son détail.
    */
   const etiquettesAppareils = (jour: Jour, sim: Simulation | null) => {
     const k = (w: number) => nf1.format(w / 1000);
@@ -490,11 +493,11 @@ if (racine) {
       const moy = moyenne(jour.puissances.get(e.id) ?? []);
       if (e.genre === 'poele' && e.nature === 'hydro') eauHydro += (moy * e.partEau) / 100;
       const aFond = !!sim && (e.genre === 'radiateur' ? radiateurAFond(e, sim) : sim.emetteurs.get(e.id)?.regime === 'maximum');
-      textes.set(e.id, { texte: `${k(moy)} / ${k(e.genre === 'poele' ? e.puissance * 1000 : e.puissance)} kW${aFond ? ' · à fond' : ''}`, aFond });
+      textes.set(e.id, { texte: `${k(moy)} kW`, aFond });
     }
     if (plan.central.generateur !== 'aucun') {
       const aFond = !!sim?.generateurLimite;
-      textes.set('central', { texte: `${k(Math.max(0, moyenne(jour.puissanceCentral) - eauHydro))} / ${k(plan.central.puissance * 1000)} kW${aFond ? ' · à fond' : ''}`, aFond });
+      textes.set('central', { texte: `${k(Math.max(0, moyenne(jour.puissanceCentral) - eauHydro))} kW`, aFond });
     }
     return textes;
   };
@@ -603,15 +606,19 @@ if (racine) {
     const c = plan.central;
     if (c.piece && c.generateur !== 'aucun' && pieceDe(c.piece)?.niveau === n) {
       const g = el('g', iAppareils ? { 'data-generateur': '', class: 'cursor-pointer' } : { 'pointer-events': 'none' });
-      dessinChaudiere(g, c.x!, c.y!, c.generateur, iAppareils && selection?.genre === 'generateur');
+      dessinChaudiere(g, c.x!, c.y!, c.generateur, iAppareils && selection?.genre === 'generateur', o.etiquettes?.get('central')?.aFond ? ROUGE_A_FOND : undefined);
       cible.append(g);
     }
     for (const e of plan.emetteurs) {
       if (pieceDe(e.piece)?.niveau !== n) continue;
       const sel = iAppareils && selection?.genre === 'emetteur' && selection.id === e.id;
       const g = el('g', iAppareils ? { 'data-emetteur': e.id, class: 'cursor-pointer' } : { 'pointer-events': 'none' });
-      if (e.genre === 'poele') dessinPoele(g, e.x, e.y, sel, undefined, e.nature === 'hydro');
-      else dessinRadiateur(g, e.x, e.y, e.sens, e.nature, sel);
+      // Appareil à fond : teinté de rouge (le poêle, sombre, est cerclé de rouge)
+      const aFond = !!o.etiquettes?.get(e.id)?.aFond;
+      if (e.genre === 'poele') {
+        dessinPoele(g, e.x, e.y, sel, undefined, e.nature === 'hydro');
+        if (aFond && !sel) g.append(el('rect', { x: e.x - 0.85, y: e.y - 0.85, width: 1.7, height: 1.7, rx: 0.42, fill: 'none', stroke: 'var(--color-danger-500)', 'stroke-width': 0.14, 'pointer-events': 'none' }));
+      } else dessinRadiateur(g, e.x, e.y, e.sens, e.nature, sel, aFond ? ROUGE_A_FOND : undefined);
       cible.append(g);
     }
 
@@ -626,17 +633,16 @@ if (racine) {
         const etq = o.etiquettes!.get(id);
         if (!etq) return;
         const texte = etq.texte;
-        const largeur = texte.length * 0.27 + 0.3;
-        const boite = (pl: Place) => ({ gauche: pl.ancre === 'start' ? pl.x - 0.15 : pl.ancre === 'end' ? pl.x - largeur + 0.15 : pl.x - largeur / 2, haut: pl.y - 0.48 });
+        const largeur = texte.length * 0.25 + 0.1;
+        const boite = (pl: Place) => ({ gauche: pl.ancre === 'start' ? pl.x : pl.ancre === 'end' ? pl.x - largeur : pl.x - largeur / 2, haut: pl.y - 0.42 });
         const dedans = (pl: Place) => {
           const b = boite(pl);
-          return b.gauche >= piece.x + 0.15 && b.gauche + largeur <= piece.x + piece.w - 0.15 && b.haut >= piece.y + 0.15 && b.haut + 0.66 <= piece.y + piece.h - 0.15;
+          return b.gauche >= piece.x + 0.15 && b.gauche + largeur <= piece.x + piece.w - 0.15 && b.haut >= piece.y + 0.15 && b.haut + 0.55 <= piece.y + piece.h - 0.15;
         };
         const choisie = places.find(dedans) ?? places[0];
-        const b = boite(choisie);
-        // Appareil à fond : pastille rouge
-        cible.append(el('rect', { x: b.gauche, y: b.haut, width: largeur, height: 0.66, rx: 0.33, fill: etq.aFond ? 'var(--color-danger-50)' : 'var(--color-white)', 'fill-opacity': 0.94, stroke: etq.aFond ? 'var(--color-danger-700)' : 'var(--color-ink-300)', 'stroke-width': etq.aFond ? 0.05 : 0.03, 'pointer-events': 'none' }));
-        cible.append(el('text', { x: choisie.x, y: choisie.y, 'text-anchor': choisie.ancre, 'font-size': 0.48, 'font-weight': 700, fill: etq.aFond ? 'var(--color-danger-700)' : 'var(--color-ink-800)', 'pointer-events': 'none' }, texte));
+        cible.append(
+          el('text', { x: choisie.x, y: choisie.y, 'text-anchor': choisie.ancre, 'font-size': 0.45, 'font-weight': 700, fill: etq.aFond ? 'var(--color-danger-700)' : 'var(--color-ink-700)', stroke: 'var(--color-white)', 'stroke-width': 0.16, 'stroke-linejoin': 'round', 'paint-order': 'stroke', 'pointer-events': 'none' }, texte),
+        );
       };
       const pieceC = c.piece ? pieceDe(c.piece) : undefined;
       if (pieceC && c.generateur !== 'aucun' && pieceC.niveau === n) {
@@ -663,8 +669,8 @@ if (racine) {
         else if (e.sens === 'h') {
           const interieur = e.y > p.y + p.h / 2 ? e.y - 0.55 : e.y + 0.95;
           etiquette(e.id, p, [
-            { x: e.x + 1.05, y: e.y + 0.17, ancre: 'start' },
-            { x: e.x - 1.05, y: e.y + 0.17, ancre: 'end' },
+            { x: e.x + 0.95, y: e.y + 0.16, ancre: 'start' },
+            { x: e.x - 0.95, y: e.y + 0.16, ancre: 'end' },
             { x: e.x, y: interieur, ancre: 'middle' },
             { x: Math.max(p.x + 0.2, e.x - 0.8), y: interieur, ancre: 'start' },
             { x: Math.min(p.x + p.w - 0.2, e.x + 0.8), y: interieur, ancre: 'end' },
@@ -1897,7 +1903,7 @@ if (racine) {
     cible.append(el('text', { x: vb.x + 1, y: vb.y + 1.6, 'font-size': Math.min(1.1, (vb.w - 2) / (titre.length * 0.55)), 'font-weight': 700, fill: 'var(--color-ink-900)' }, titre));
     // Les puissances des appareils dépendent du temps qu'il fait : on le dit sous le titre
     if (avecTemperatures) {
-      const legende = `Sous chaque appareil : puissance moyenne fournie par ${degres(tExt)} dehors / puissance maximale (en rouge : à fond). La puissance à prévoir se lit par grand froid (${tBaseTexte}).`;
+      const legende = `À côté de chaque appareil : puissance moyenne fournie par ${degres(tExt)} dehors ; en rouge, appareil à fond. La puissance à prévoir se lit par grand froid (${tBaseTexte}).`;
       cible.append(el('text', { x: vb.x + 1, y: vb.y + 2.7, 'font-size': Math.min(0.62, (vb.w - 2) / (legende.length * 0.5)), fill: 'var(--color-ink-700)' }, legende));
     }
     const source = resoudreCouleurs(new XMLSerializer().serializeToString(cible));

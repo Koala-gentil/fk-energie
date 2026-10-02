@@ -146,6 +146,7 @@ const legende = [
   { classe: 'size-4 rounded bg-[repeating-linear-gradient(45deg,var(--color-ink-200)_0_3px,var(--color-ink-400)_3px_4px)]', texte: 'Pièce non chauffée' },
   { classe: 'size-4 rounded bg-ink-900', texte: 'Poêle (goutte bleue : poêle hydro, qui chauffe l’eau des radiateurs)' },
   { classe: 'h-2 w-6 rounded-sm border border-ink-700 bg-white', texte: 'Radiateur à eau (gris : électrique)' },
+  { classe: 'h-2 w-6 rounded-sm border border-ink-700 bg-danger-300', texte: 'Appareil en rouge : à fond, il ne peut pas donner plus (chiffre à côté : puissance fournie en moyenne)' },
   { classe: 'h-5 w-4 rounded-sm border-2 border-ink-800 bg-white', texte: 'Chaudière (avec une goutte bleue)' },
   { classe: 'h-4 w-6 rounded-sm border-2 border-ink-800 bg-white', texte: 'Pompe à chaleur (avec son ventilateur)' },
   { classe: 'h-5 w-4 rounded-sm border border-ink-700', texte: 'Escalier (en pointillé à l’étage)' },
@@ -280,13 +281,13 @@ const dialogueLarge =
         </div>
 
         <!-- Température dehors, à l'étape du chauffage -->
-        <div data-haut data-dehors hidden class="pointer-events-none absolute inset-x-3 top-[3.75rem] flex justify-end lg:inset-x-auto lg:top-3 lg:right-3">
+        <div data-haut data-dehors hidden class="pointer-events-none absolute inset-x-3 top-[3.75rem] flex justify-end lg:inset-x-auto lg:right-3 xl:top-3">
           <div class:list={[flottant, 'flex w-full items-center gap-2 py-1 pr-1 pl-4 sm:w-auto sm:gap-3']}>
             <label for="t-exterieure" class="text-sm font-bold">Dehors</label>
-            <input id="t-exterieure" type="range" name="tExterieure" form="pan-poele" min="-15" max="15" step="0.5" value={String(tJanvier)} class="min-w-0 flex-1 accent-ember-600 sm:w-36 sm:flex-none" />
+            <input id="t-exterieure" type="range" name="tExterieure" form="pan-poele" min="-15" max="15" step="0.5" value={String(tJanvier)} class="min-w-0 flex-1 accent-ember-600 sm:w-36 sm:flex-none lg:w-24 2xl:w-36" />
             <output for="t-exterieure" class="w-[4.75rem] text-right font-bold whitespace-nowrap tabular-nums" data-texterieure>3 °C</output>
             <div class="flex gap-1">
-              <button type="button" data-preset-text={String(tJanvier)} class="hidden min-h-9 rounded-full px-3 text-[13px] font-bold whitespace-nowrap text-ink-700 hover:bg-ink-100 aria-pressed:bg-ink-900 aria-pressed:text-white sm:block" title={`Moyenne de janvier : ${tJanvier} °C`} aria-pressed="false">Janvier</button>
+              <button type="button" data-preset-text={String(tJanvier)} class="hidden min-h-9 rounded-full px-3 text-[13px] font-bold whitespace-nowrap text-ink-700 hover:bg-ink-100 aria-pressed:bg-ink-900 aria-pressed:text-white sm:block lg:hidden 2xl:block" title={`Moyenne de janvier : ${tJanvier} °C`} aria-pressed="false">Janvier</button>
               <button type="button" data-preset-text={String(climat.tBase)} class="min-h-9 rounded-full px-3 text-[13px] font-bold whitespace-nowrap text-ink-700 hover:bg-ink-100 aria-pressed:bg-ink-900 aria-pressed:text-white" title={`Température de base : ${tBaseTexte}`} aria-pressed="false">Grand froid</button>
             </div>
           </div>
@@ -296,7 +297,7 @@ const dialogueLarge =
         <p
           data-aide
           aria-live="polite"
-          class="pointer-events-none absolute inset-x-3 top-[3.75rem] mx-auto max-w-2xl rounded-2xl bg-white/95 px-4 py-2.5 text-sm text-ink-700 shadow-[0_2px_10px_rgba(42,32,26,0.1)] empty:hidden lg:top-auto lg:bottom-3 lg:left-1/2 lg:w-max lg:max-w-[min(34rem,calc(100%-24rem))] lg:-translate-x-1/2"
+          class="pointer-events-none absolute inset-x-3 top-[3.75rem] mx-auto max-w-2xl rounded-2xl bg-white/95 px-4 py-2.5 text-sm text-ink-700 shadow-[0_2px_10px_rgba(42,32,26,0.1)] empty:hidden lg:top-auto lg:bottom-3 lg:left-1/2 lg:w-max lg:max-w-[min(34rem,calc(100%-18rem))] lg:-translate-x-1/2"
         ></p>
 
         <div data-masquable class="pointer-events-none absolute inset-x-3 bottom-3 flex items-end justify-between gap-2">
