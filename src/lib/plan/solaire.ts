@@ -41,10 +41,10 @@ export const apportsSolaires = (plan: Plan, vitrage: string, d: DonneesSoleil) =
   const apports = new Map<string, number>();
   for (let n = 0; n < plan.niveaux; n++)
     for (const o of ouverturesDuNiveau(plan, n)) {
-      if (o.type === 'porte') continue;
+      if (o.type === 'porte' || o.type === 'passage') continue;
       const r = orientationOuverture(plan, o);
       if (!r) continue;
-      const sw = d.sw[o.type as Exclude<TypeOuverture, 'porte'>][vitrage] ?? d.sw[o.type as Exclude<TypeOuverture, 'porte'>]['double-ancien'];
+      const sw = d.sw[o.type as Exclude<TypeOuverture, 'porte' | 'passage'>][vitrage] ?? d.sw[o.type as Exclude<TypeOuverture, 'porte' | 'passage'>]['double-ancien'];
       const surface = o.longueur * PAS * o.hauteur;
       const watts = (surface * sw * d.c1[r.orientation] * d.eSud * 1000) / d.heures;
       apports.set(r.piece.id, (apports.get(r.piece.id) ?? 0) + watts);

@@ -72,7 +72,7 @@ type Etape = 'plan' | 'maison' | 'chauffage' | 'resultat';
 const ETAPES: Etape[] = ['plan', 'maison', 'chauffage', 'resultat'];
 /** Outils de chaque étape (les autres étapes n'en ont pas : on y choisit seulement les pièces). */
 const outilsEtape: Record<Etape, Outil[]> = {
-  plan: ['selection', 'piece', 'fenetre', 'porte-fenetre', 'porte', 'escalier', 'mitoyen'],
+  plan: ['selection', 'piece', 'fenetre', 'porte-fenetre', 'porte', 'passage', 'escalier', 'mitoyen'],
   maison: ['selection'],
   chauffage: ['selection', 'poele', 'radiateur', 'split', 'chaudiere', 'pac'],
   resultat: ['selection'],
@@ -95,6 +95,7 @@ const aides: Record<Outil, string> = {
   fenetre: 'Approchez le pointeur d’un mur extérieur (trait épais) jusqu’à voir l’aperçu vert, puis cliquez pour poser une fenêtre. Sur téléphone, touchez le mur.',
   'porte-fenetre': 'Approchez le pointeur d’un mur extérieur (trait épais) jusqu’à voir l’aperçu vert, puis cliquez pour poser une porte-fenêtre. Sur téléphone, touchez le mur.',
   porte: 'Cliquez sur un mur pour poser une porte : porte d’entrée, ou porte entre deux pièces.',
+  passage: 'Cliquez sur une cloison entre deux pièces pour les ouvrir l’une sur l’autre (cuisine ouverte…) : toute la cloison commune disparaît. Réduisez sa largeur dans le détail si besoin.',
   mitoyen: 'Cliquez sur un mur extérieur pour le déclarer mitoyen (collé au voisin), et recliquez pour annuler.',
   escalier: 'Cliquez-glissez (ou faites glisser le doigt) dans une pièce pour dessiner la trémie de l’escalier qui monte à l’étage.',
   poele: 'Placez le poêle dans une pièce chauffée (aperçu vert), puis cliquez. Vous pouvez en mettre plusieurs.',
@@ -110,6 +111,7 @@ const aidesTelephone: Record<Outil, string> = {
   fenetre: 'Touchez un mur extérieur pour poser une fenêtre.',
   'porte-fenetre': 'Touchez un mur extérieur pour poser une porte-fenêtre.',
   porte: 'Touchez un mur pour poser une porte.',
+  passage: 'Touchez une cloison pour ouvrir deux pièces l’une sur l’autre.',
   mitoyen: 'Touchez un mur extérieur pour le déclarer mitoyen.',
   escalier: 'Faites glisser le doigt dans une pièce pour dessiner la trémie de l’escalier.',
   poele: 'Touchez une pièce chauffée pour y installer un poêle.',
@@ -169,7 +171,8 @@ if (racine) {
   let etape: Etape = 'plan';
   let glisser: Glisser = null;
   type ApercuAppareil = { appareil: 'poele' | 'radiateur' | 'split' | 'chaudiere' | 'pac'; x: number; y: number; sens: 'h' | 'v'; ok: boolean };
-  let survol: (Omit<Ouverture, 'id'> & { ok: boolean }) | { mitoyen: string[] } | ApercuAppareil | null = null;
+  /** `remplace` : portes absorbées par une ouverture complète posée sur la même cloison. */
+  let survol: (Omit<Ouverture, 'id'> & { ok: boolean; remplace?: string[] }) | { mitoyen: string[] } | ApercuAppareil | null = null;
   let vue: Vue = { x: 0, y: 0, w: COLS, h: ROWS };
   /** L'utilisateur a-t-il zoomé ou déplacé la vue ? Sinon, elle se recadre sur la maison quand le plan change de taille. */
   let vueManuelle = false;
@@ -335,7 +338,9 @@ if (racine) {
     return /^\p{Lu}{2}/u.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1);
   };
   const messageOuverture = (type: TypeOuverture) =>
-    type === 'porte'
+    type === 'passage'
+      ? 'Une ouverture complète se fait sur une cloison entre deux pièces chauffées, là où il n’y a ni porte ni autre ouverture.'
+      : type === 'porte'
       ? 'Une porte se pose sur un mur, sans chevaucher une fenêtre ou une autre porte, ni deux pièces à la fois.'
       : 'Une fenêtre se pose sur un mur extérieur (trait épais), sans chevaucher une autre ouverture ni deux pièces à la fois.';
   const messageEscalier = () => (plan.niveaux === 1 ? 'Ajoutez d’abord un étage : l’escalier relie deux niveaux.' : 'L’escalier se dessine au niveau d’où il monte.');
@@ -749,8 +754,22 @@ if (racine) {
     }
   }
 
+  /** Ouverture complète : la cloison s'efface, un pointillé marque seulement la limite entre les deux pièces. */
+  function dessinPassage(o: Ouverture, sel: boolean, couleur: string | undefined, interactif: boolean) {
+    const g = el('g', interactif ? { 'data-ouverture': o.id, class: 'cursor-pointer' } : { 'pointer-events': 'none' });
+    const x2 = o.sens === 'h' ? o.x + o.longueur : o.x;
+    const y2 = o.sens === 'v' ? o.y + o.longueur : o.y;
+    if (interactif) g.append(el('line', { x1: o.x, y1: o.y, x2, y2, stroke: 'transparent', 'stroke-width': 1 }));
+    // On masque la cloison (sans toucher aux murs qui la croisent aux extrémités)
+    const r = 0.08;
+    g.append(el('line', { x1: o.x + (o.sens === 'h' ? r : 0), y1: o.y + (o.sens === 'v' ? r : 0), x2: x2 - (o.sens === 'h' ? r : 0), y2: y2 - (o.sens === 'v' ? r : 0), stroke: couleur ?? 'var(--color-ink-50)', 'stroke-opacity': couleur ? 0.5 : 1, 'stroke-width': 0.2 }));
+    g.append(el('line', { x1: o.x, y1: o.y, x2, y2, stroke: sel ? 'var(--color-ember-600)' : couleur ?? 'var(--color-ink-400)', 'stroke-width': sel ? 0.12 : 0.06, 'stroke-dasharray': '0.25 0.18' }));
+    return g;
+  }
+
   /** `interactif` : choisie au clic (étape du plan), ou « bascule » : porte intérieure qui s'ouvre ou se ferme au clic. */
   function dessinOuverture(o: Ouverture, sel: boolean, couleur?: string, interactif: boolean | 'bascule' = true) {
+    if (o.type === 'passage') return dessinPassage(o, sel, couleur, interactif === true);
     const g = el(
       'g',
       interactif === 'bascule' ? { 'data-porte-bascule': o.id, class: 'cursor-pointer' } : interactif ? { 'data-ouverture': o.id, class: 'cursor-pointer' } : { 'pointer-events': 'none' },
@@ -1375,12 +1394,13 @@ if (racine) {
       }
     } else if (ouverture) {
       panneau.innerHTML = `
-        <p class="font-display text-xl font-semibold">Ouverture</p>
+        <p class="font-display text-xl font-semibold">${ouverture.type === 'passage' ? 'Ouverture entre deux pièces' : 'Ouverture'}</p>
         <label class="flex flex-col gap-1.5"><span class="text-sm font-bold">Type</span><select data-f="type-ouverture" class="${champ}">${typesOuverture.map((t) => `<option value="${t.value}">${t.label}</option>`).join('')}</select></label>
         <div class="grid grid-cols-2 gap-3">
           <label class="flex flex-col gap-1.5"><span class="text-sm font-bold">Largeur (m)</span><input data-f="longueur" type="number" step="0.5" min="0.5" class="${champ}" /></label>
-          <label class="flex flex-col gap-1.5"><span class="text-sm font-bold">Hauteur (m)</span><input data-f="hauteur" type="number" step="0.05" min="0.3" max="3" class="${champ}" /></label>
+          <label class="flex flex-col gap-1.5" ${ouverture.type === 'passage' ? 'hidden' : ''}><span class="text-sm font-bold">Hauteur (m)</span><input data-f="hauteur" type="number" step="0.05" min="0.3" max="3" class="${champ}" /></label>
         </div>
+        <p class="-mt-1 text-sm text-ink-600" ${ouverture.type === 'passage' ? '' : 'hidden'}>Pas de cloison sur cette largeur, du sol au plafond : l’air circule librement entre les deux pièces.</p>
         <label class="flex items-center gap-3 font-semibold" data-porte-interieure hidden><input data-f="ouverte" type="checkbox" class="size-5 accent-ember-600" /> Porte laissée ouverte</label>
         <button type="button" data-action="supprimer" class="btn-secondary min-h-11 self-start text-danger-700">Supprimer</button>`;
       const type = panneau.querySelector<HTMLSelectElement>('[data-f="type-ouverture"]')!;
@@ -2238,10 +2258,41 @@ if (racine) {
       survol = { mitoyen: bordMitoyen(mur.sens, mur.ligne, mur.pos) };
       return;
     }
+    if (outil === 'passage') {
+      survol = passageSur(mur.sens, mur.ligne, Math.floor(mur.pos));
+      return;
+    }
     const longueur = typesOuverture.find((t) => t.value === outil)!.longueur;
     const debut = Math.round(mur.pos - longueur / 2);
     const o: Omit<Ouverture, 'id'> = { type: outil, niveau, sens: mur.sens, x: mur.sens === 'h' ? debut : mur.ligne, y: mur.sens === 'h' ? mur.ligne : debut, longueur, hauteur: hauteurParDefaut(outil) };
     survol = { ...o, ok: ouverturePossible(plan, o) };
+  }
+
+  /**
+   * Ouverture complète : toute la cloison commune aux deux mêmes pièces, autour du segment visé. Les portes de cette cloison
+   * disparaissent avec elle (elles sont remplacées) ; une fenêtre ou une autre ouverture complète l'arrête.
+   */
+  function passageSur(sens: 'h' | 'v', ligne: number, pos: number): Omit<Ouverture, 'id'> & { ok: boolean; remplace: string[] } {
+    const murs = classerMurs(plan, niveau);
+    const occupant = new Map<string, Ouverture>();
+    for (const o of ouverturesDuNiveau(plan, niveau)) for (const k of segmentsOuverture(o)) occupant.set(k, o);
+    const k = (i: number) => (sens === 'h' ? `h:${i}:${ligne}` : `v:${ligne}:${i}`);
+    const paire = (i: number) => (murs.get(k(i))?.pieces ?? []).map((p) => p.id).sort().join('|');
+    const reference = paire(pos);
+    const libre = (i: number) => murs.get(k(i))?.classe === 'interieur' && paire(i) === reference && (occupant.get(k(i))?.type ?? 'porte') === 'porte';
+    let debut = pos;
+    let fin = pos;
+    if (libre(pos)) {
+      while (libre(debut - 1)) debut--;
+      while (libre(fin + 1)) fin++;
+    }
+    const o = { type: 'passage' as const, niveau, sens, x: sens === 'h' ? debut : ligne, y: sens === 'h' ? ligne : debut, longueur: fin - debut + 1, hauteur: hauteurParDefaut('passage') };
+    // Portes entièrement sur cette cloison : remplacées (une porte qui déborde l'arrêterait, elle est gardée)
+    const remplace = [...new Set(segmentsOuverture(o).map((x) => occupant.get(x)).filter((x): x is Ouverture => !!x))];
+    const dedans = new Set(segmentsOuverture(o));
+    const debordent = remplace.some((p) => segmentsOuverture(p).some((x) => !dedans.has(x)));
+    const sans = { ...plan, ouvertures: plan.ouvertures.filter((x) => !remplace.includes(x)) };
+    return { ...o, ok: libre(pos) && !debordent && ouverturePossible(sans, o), remplace: remplace.map((x) => x.id) };
   }
 
   /** Action d'un outil « au clic » (poêle, ouvertures, murs mitoyens), appliquée au relâchement du pointeur. */
@@ -2274,10 +2325,11 @@ if (racine) {
       signaler(messageOuverture(vise.type));
       return rendre();
     }
-    const { ok: _ok, ...o } = vise;
+    const { ok: _ok, remplace = [], ...o } = vise;
     const nouvelle = { ...o, id: nouvelId('o') };
     selection = { genre: 'ouverture', id: nouvelle.id };
-    modifier({ ...plan, ouvertures: [...plan.ouvertures, nouvelle] });
+    modifier({ ...plan, ouvertures: [...plan.ouvertures.filter((x) => !remplace.includes(x.id)), nouvelle] });
+    if (remplace.length) signaler(`${remplace.length > 1 ? `Les ${remplace.length} portes de cette cloison sont remplacées` : 'La porte de cette cloison est remplacée'} par l’ouverture.`);
   }
 
   // --- Pointeur ----------------------------------------------------------------------------------------------------

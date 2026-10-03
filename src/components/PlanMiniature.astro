@@ -62,7 +62,7 @@ const niveauDe = new Map(plan.pieces.map((p) => [p.id, p.niveau]));
         {ouverturesDuNiveau(plan, n).map((o) => {
           const x2 = o.sens === 'h' ? o.x + o.longueur : o.x;
           const y2 = o.sens === 'v' ? o.y + o.longueur : o.y;
-          return o.type === 'porte' ? (
+          return o.type === 'porte' || o.type === 'passage' ? (
             <line x1={o.x} y1={o.y} x2={x2} y2={y2} stroke="var(--color-white)" stroke-width="0.44" />
           ) : (
             <line x1={o.x} y1={o.y} x2={x2} y2={y2} stroke="#bcd9ea" stroke-width="0.3" />

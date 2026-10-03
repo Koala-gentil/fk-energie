@@ -29,6 +29,7 @@ const outils = [
   { value: 'fenetre', label: 'Fenêtre', etapes: 'plan', d: 'M4 5h16v14H4zM12 5v14M4 12h16' },
   { value: 'porte-fenetre', label: 'Porte-fenêtre', etapes: 'plan', d: 'M5 3h14v18H5zM12 3v18M9.5 12h.01M14.5 12h.01' },
   { value: 'porte', label: 'Porte', etapes: 'plan', d: 'M6 21V4h12v17M3 21h18M14.5 12.5h.01' },
+  { value: 'passage', label: 'Ouverture', etapes: 'plan', d: 'M3 4h18v16H3zM12 4v4M12 16v4M9.5 12h5' },
   { value: 'escalier', label: 'Escalier', etapes: 'plan', d: 'M4 20h4v-4h4v-4h4V8h4V4' },
   { value: 'mitoyen', label: 'Mur mitoyen', etapes: 'plan', d: 'M3 4h18v16H3zM3 10l6-6M3 16L15 4M7 20L21 6M13 20l8-8' },
   { value: 'poele', label: 'Poêle', etapes: 'chauffage', d: 'M12 2v3M6 5h12v12H6zM7.5 17v4M16.5 17v4M12 8.5c1.5 1.4 2.2 2.5 2.2 3.5a2.2 2.2 0 01-4.4 0c0-1 .7-2.1 2.2-3.5z' },
@@ -144,6 +145,7 @@ const legende = [
   { classe: 'h-1 w-7 rounded bg-ink-700', texte: 'Mur vers une pièce non chauffée' },
   { classe: 'h-0.5 w-7 rounded bg-ink-600', texte: 'Cloison intérieure' },
   { classe: 'h-1.5 w-7 rounded bg-[#bcd9ea]', texte: 'Fenêtre' },
+  { classe: 'h-0 w-7 border-t-2 border-dotted border-ink-400', texte: 'Ouverture complète entre deux pièces (pas de cloison)' },
   { classe: 'size-4 rounded bg-[repeating-linear-gradient(45deg,var(--color-ink-200)_0_3px,var(--color-ink-400)_3px_4px)]', texte: 'Pièce non chauffée' },
   { classe: 'size-4 rounded bg-ink-900', texte: 'Poêle (goutte bleue : poêle hydro, qui chauffe l’eau des radiateurs)' },
   { classe: 'h-2 w-6 rounded-sm border border-ink-700 bg-white', texte: 'Radiateur à eau (gris : électrique)' },
@@ -548,7 +550,7 @@ const dialogueLarge =
           <div class="flex flex-col gap-3">
             <h3 class="font-bold">En quatre étapes</h3>
             <ol class="flex list-decimal flex-col gap-2 pl-5 text-ink-700">
-              <li>Plan : outil « Pièce », cliquez-glissez sur la grille ; outil « Fenêtre, porte », approchez le pointeur d’un mur, puis cliquez.</li>
+              <li>Plan : outil « Pièce », cliquez-glissez sur la grille ; outils « Fenêtre », « Porte-fenêtre », « Porte », approchez le pointeur d’un mur, puis cliquez ; outil « Ouverture », cliquez sur une cloison pour ouvrir deux pièces l’une sur l’autre (cuisine ouverte…).</li>
               <li>Maison : époque, murs, isolation, fenêtres, ventilation. Chaque pièce affiche la puissance qu’il lui faut.</li>
               <li>Chauffage : outils « Poêle », « Radiateur », « PAC air/air » (unités murales qui soufflent de l’air chaud), « Chaudière » et « PAC air/eau » (qui chauffe l’eau des radiateurs), puis réglez chaque appareil. La température de chaque pièce s’affiche sur le plan ; réglez la température dehors au-dessus du plan.</li>
               <li>Résultat : le bilan pièce par pièce, et l’envoi de votre plan pour une étude.</li>

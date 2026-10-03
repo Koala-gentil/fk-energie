@@ -161,7 +161,8 @@ function reseau(
   for (let niveau = 0; niveau < plan.niveaux; niveau++) {
   const murs = classerMurs(plan, niveau);
   const segPortes = new Map<string, (typeof plan.ouvertures)[number]>();
-  for (const o of ouverturesDuNiveau(plan, niveau)) if (o.type === 'porte') for (const k of segmentsOuverture(o)) segPortes.set(k, o);
+  // Portes, et ouvertures complètes (toujours ouvertes, sur toute la hauteur sous plafond)
+  for (const o of ouverturesDuNiveau(plan, niveau)) if (o.type === 'porte' || o.type === 'passage') for (const k of segmentsOuverture(o)) segPortes.set(k, o);
   for (const [k, mur] of murs) {
     if (mur.classe !== 'interieur' || mur.pieces.length < 2) continue;
     const [pa, pb] = mur.pieces;
@@ -174,12 +175,13 @@ function reseau(
       continue;
     }
     // Segment de porte : la partie au-dessus de la porte reste une cloison
-    l.fixe += phy.uCloison * PAS * Math.max(0, hauteurPlafond - porte.hauteur);
+    const hauteurPorte = porte.type === 'passage' ? hauteurPlafond : Math.min(porte.hauteur, hauteurPlafond);
+    l.fixe += phy.uCloison * PAS * Math.max(0, hauteurPlafond - hauteurPorte);
     if (portesVues.has(porte.id)) continue;
     portesVues.add(porte.id);
     const largeur = porte.longueur * PAS;
-    if (porte.ouverte === false) l.fixe += phy.uPorte * largeur * porte.hauteur;
-    else l.portesOuvertes.push({ largeur, hauteur: porte.hauteur });
+    if (porte.type === 'porte' && porte.ouverte === false) l.fixe += phy.uPorte * largeur * porte.hauteur;
+    else l.portesOuvertes.push({ largeur, hauteur: hauteurPorte });
   }
   }
 

@@ -64,3 +64,11 @@ Maison à étage (escalier dans l'entrée) : chambres 12,1-12,4 °C → 12,9-13,
   `research/stratification-poele.md`). Les autres pièces restent supposées à température uniforme.
 - Ni soleil ni inertie ; valeurs d'isolation par défaut du DPE quand l'isolant est inconnu.
 - À confirmer par des mesures dans des maisons équipées par FK Énergie (température de chaque pièce et réglage du poêle).
+
+## Ouverture complète entre deux pièces (ajoutée le 3 octobre 2026)
+
+Outil « Ouverture » : la cloison commune à deux pièces chauffées disparaît (cuisine ouverte sur le séjour…). Un clic ouvre
+toute la cloison commune aux deux mêmes pièces ; les portes de cette cloison sont remplacées. Calcul : comme une porte
+ouverte (débit d'air dans chaque sens Cd/3 · L · √(g·h³·ΔT/T), Cd 0,43), avec la largeur de l'ouverture et toute la hauteur
+sous plafond, sans cloison au-dessus. Simplification : les deux pièces gardent chacune leur température (l'écart calculé
+entre elles est faible dès que l'ouverture est large).

@@ -34,12 +34,14 @@ export const estChauffee = (t: TypePiece) => typesPiece.find((x) => x.value === 
 export type Rect = { x: number; y: number; w: number; h: number };
 export type Piece = Rect & { id: string; nom: string; type: TypePiece; niveau: number };
 
-export type TypeOuverture = 'fenetre' | 'porte-fenetre' | 'porte';
+/** `passage` : ouverture complète entre deux pièces chauffées (cloison supprimée sur cette longueur, toute hauteur). */
+export type TypeOuverture = 'fenetre' | 'porte-fenetre' | 'porte' | 'passage';
 /** Largeur par défaut (cases) et hauteur proposée (m), modifiables pour chaque ouverture. */
 export const typesOuverture: { value: TypeOuverture; label: string; longueur: number; hauteur: number }[] = [
   { value: 'fenetre', label: 'Fenêtre', longueur: 2, hauteur: 1.25 },
   { value: 'porte-fenetre', label: 'Porte-fenêtre', longueur: 4, hauteur: 2.15 },
   { value: 'porte', label: 'Porte', longueur: 2, hauteur: 2.15 },
+  { value: 'passage', label: 'Ouverture entre deux pièces', longueur: 4, hauteur: 2.5 },
 ];
 export const hauteurParDefaut = (t: TypeOuverture) => typesOuverture.find((x) => x.value === t)!.hauteur;
 
@@ -296,7 +298,10 @@ export const classerMurs = (plan: Plan, niveau: number): Murs => {
 export const segmentsOuverture = (o: Pick<Ouverture, 'sens' | 'x' | 'y' | 'longueur'>) =>
   Array.from({ length: o.longueur }, (_, i) => (o.sens === 'h' ? cle('h', o.x + i, o.y) : cle('v', o.x, o.y + i)));
 
-/** Une ouverture peut-elle être posée ici ? Fenêtres sur mur extérieur uniquement, portes aussi entre pièces. */
+/**
+ * Une ouverture peut-elle être posée ici ? Fenêtres sur mur extérieur uniquement, portes aussi entre pièces, ouverture
+ * complète seulement entre deux pièces chauffées.
+ */
 export const ouverturePossible = (plan: Plan, o: Pick<Ouverture, 'type' | 'niveau' | 'sens' | 'x' | 'y' | 'longueur'>, ignorer?: string) => {
   const murs = classerMurs(plan, o.niveau);
   const occupes = new Set(ouverturesDuNiveau(plan, o.niveau).filter((x) => x.id !== ignorer).flatMap(segmentsOuverture));
@@ -307,6 +312,7 @@ export const ouverturePossible = (plan: Plan, o: Pick<Ouverture, 'type' | 'nivea
   return segs.every((k) => {
     const mur = murs.get(k);
     if (!mur || occupes.has(k) || mur.classe === 'mitoyen') return false;
+    if (o.type === 'passage') return mur.classe === 'interieur';
     return o.type === 'porte' || mur.classe === 'exterieur';
   });
 };
