@@ -7,6 +7,7 @@ import { climat } from '../../../data/thermique';
 import { showrooms, site } from '../../../data/site';
 import { modeles } from '../../../lib/plan/modeles';
 import { gammesRadiateurs } from '../../../data/radiateurs';
+import Turnstile from '../../../components/Turnstile.astro';
 
 /**
  * Simulateur de chauffage en plein écran : plan de la maison, puissance par pièce, températures avec poêles et radiateurs,
@@ -666,6 +667,7 @@ const dialogueLarge =
               <input type="checkbox" name="consent" required class="mt-0.5 size-5 shrink-0 accent-ember-600" />
               J’accepte que FK Énergie utilise ces informations pour me recontacter au sujet de mon projet.
             </label>
+            <Turnstile />
             <p role="alert" hidden data-envoi-erreur class="rounded-2xl bg-danger-50 px-4 py-3 font-semibold text-danger-700"></p>
             <button type="submit" class="btn-primary w-full" data-envoi-bouton>Envoyer ma demande d’étude</button>
             <p class="text-sm text-ink-600">Vous préférez nous appeler ? <a href={site.phoneHref} class="font-bold text-ember-700 underline underline-offset-2">{site.phone}</a></p>

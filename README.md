@@ -28,12 +28,20 @@ npx astro check    # vérification TypeScript
 | `RESEND_API_KEY` | oui, pour le formulaire | clé API [Resend](https://resend.com), qui envoie les e-mails du formulaire |
 | `CONTACT_EMAIL_TO` | non | destinataire(s), séparés par des virgules (défaut : `fkenergie@orange.fr`) |
 | `CONTACT_EMAIL_FROM` | non | expéditeur (défaut : `Site FK Énergie <site@fk-energie-chauffage.fr>`). Le domaine doit être validé dans Resend. |
+| `PUBLIC_TURNSTILE_SITE_KEY` et `TURNSTILE_SECRET_KEY` | non, recommandé | anti-robot [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) (gratuit), invisible pour la plupart des visiteurs. Les deux clés ensemble, puis redéployer : la clé publique est intégrée au build. |
 
 3. *Settings > Domains* : ajouter `www.fk-energie-chauffage.fr` (principal) et `fk-energie-chauffage.fr` (redirigé vers www), plus
    `fkenergie-chauffage.fr` et `www.fkenergie-chauffage.fr` (redirigés). Mettre à jour les DNS chez OVH, ou dans Cloudflare
    s'il reste devant, avec le mode SSL **Full (strict)** ou le proxy désactivé.
 
 Sans `RESEND_API_KEY`, le formulaire affiche un message invitant à appeler le 03 21 88 88 60 : rien n'est perdu silencieusement.
+
+### Protection du formulaire contre le spam
+
+`/api/contact` combine un champ pot de miel, l'anti-robot Turnstile (variables ci-dessus, à activer) et une limite de 2 envois par heure et
+3 par jour pour une même adresse IP (seuls les envois réussis comptent). Ce compteur vit en mémoire de l'instance Vercel : efficace contre
+les rafales, pas partagé entre instances. Pour un compteur partagé, dans Vercel, *Firewall > Configure > New Rule* : si *Request Path*
+égal à `/api/contact/` et *Method* égal à `POST`, alors *Rate Limit* (par exemple 10 requêtes par minute et par IP).
 
 ## Structure
 

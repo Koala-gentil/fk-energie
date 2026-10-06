@@ -2028,7 +2028,7 @@ if (racine) {
     boutonEnvoi.disabled = true;
     boutonEnvoi.textContent = 'Envoi en cours…';
     try {
-      const reponse = await fetch('/api/contact', { method: 'POST', body: donnees, headers: { Accept: 'application/json' } });
+      const reponse = await fetch('/api/contact/', { method: 'POST', body: donnees, headers: { Accept: 'application/json' } });
       const resultat = (await reponse.json().catch(() => null)) as { ok?: boolean; message?: string } | null;
       if (!reponse.ok || !resultat?.ok) throw new Error(resultat?.message || 'L’envoi a échoué. Réessayez, ou appelez-nous.');
       $('[data-envoi-formulaire]').hidden = true;
@@ -2040,6 +2040,8 @@ if (racine) {
     } finally {
       boutonEnvoi.disabled = false;
       boutonEnvoi.textContent = 'Envoyer ma demande d’étude';
+      // Jeton anti-robot à usage unique : un nouveau pour un éventuel second envoi
+      (window as Window & { turnstile?: { reset(): void } }).turnstile?.reset();
     }
   });
   racine.querySelectorAll('[data-cta]').forEach((b) =>

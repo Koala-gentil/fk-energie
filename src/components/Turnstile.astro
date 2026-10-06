@@ -1,0 +1,14 @@
+---
+// Vérification anti-robot Cloudflare Turnstile, placée dans un formulaire envoyé à /api/contact.
+// Invisible pour la plupart des visiteurs ; n'affiche rien tant que PUBLIC_TURNSTILE_SITE_KEY n'est pas définie.
+import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
+---
+
+{
+  PUBLIC_TURNSTILE_SITE_KEY && (
+    <>
+      <div class="cf-turnstile" data-sitekey={PUBLIC_TURNSTILE_SITE_KEY} data-language="fr" data-appearance="interaction-only" data-size="flexible" />
+      <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+    </>
+  )
+}

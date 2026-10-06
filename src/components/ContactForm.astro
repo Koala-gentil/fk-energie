@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import Icon, { type IconName } from './Icon.astro';
 import { site, showrooms } from '../data/site';
 import { communes } from '../data/communes';
+import Turnstile from './Turnstile.astro';
 
 const projects: { value: string; label: string; icon: IconName }[] = [
   { value: 'granules', label: 'Poêle à granulés', icon: 'pellets' },
@@ -239,6 +240,7 @@ const req = 'size-2 rounded-full bg-ember-500';
             J’accepte d’être recontacté au sujet de cette demande <span class={`${req} inline-block align-middle`} aria-hidden="true"></span><span class="sr-only">(obligatoire)</span> · <a href="/confidentialite/" class="font-semibold underline underline-offset-2">Confidentialité</a>
           </span>
         </label>
+        <Turnstile />
       </fieldset>
       </div>
 
@@ -657,6 +659,8 @@ const req = 'size-2 rounded-full bg-ember-500';
         formError.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } finally {
         setBusy(false);
+        // Jeton anti-robot à usage unique : un nouveau pour un éventuel second envoi
+        (window as Window & { turnstile?: { reset(): void } }).turnstile?.reset();
       }
     });
 

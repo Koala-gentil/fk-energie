@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { RESEND_API_KEY, CONTACT_EMAIL_TO, CONTACT_EMAIL_FROM } from 'astro:env/server';
-import { showrooms } from '../../data/site';
+import { RESEND_API_KEY, CONTACT_EMAIL_TO, CONTACT_EMAIL_FROM, TURNSTILE_SECRET_KEY } from 'astro:env/server';
+import { site, showrooms } from '../../data/site';
 
 // Fonction serverless (Vercel) : le reste du site est statique.
 export const prerender = false;
@@ -16,14 +16,63 @@ const PROJECTS: Record<string, string> = {
 const MAX_PHOTOS = 6;
 const MAX_TOTAL_BYTES = 4_200_000; // limite de corps des fonctions Vercel : 4,5 Mo
 
+// Limite par adresse IP, gardée en mémoire de l'instance : Vercel réutilise ses instances (Fluid compute), ce qui arrête
+// les rafales d'un même robot. Seuls les envois réussis comptent, pour qu'une erreur puisse être corrigée et renvoyée.
+const PER_IP = [
+  { ms: 3_600_000, max: 2 },
+  { ms: 24 * 3_600_000, max: 3 },
+];
+const sentByIp = new Map<string, number[]>();
+
+const recentSends = (ip: string, now: number) => (sentByIp.get(ip) ?? []).filter((t) => now - t < PER_IP[PER_IP.length - 1].ms);
+const overLimit = (ip: string, now = Date.now()) => {
+  const list = recentSends(ip, now);
+  return PER_IP.some(({ ms, max }) => list.filter((t) => now - t < ms).length >= max);
+};
+const recordSend = (ip: string, now = Date.now()) => {
+  if (sentByIp.size > 5000) sentByIp.clear(); // garde-fou mémoire face à beaucoup d'adresses différentes
+  sentByIp.set(ip, [...recentSends(ip, now), now]);
+};
+
+// Vérification Cloudflare Turnstile, active seulement si TURNSTILE_SECRET_KEY est définie
+const humanVerified = async (token: FormDataEntryValue | null, ip: string) => {
+  if (!TURNSTILE_SECRET_KEY) return true;
+  if (typeof token !== 'string' || !token) return false;
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body: new URLSearchParams({ secret: TURNSTILE_SECRET_KEY, response: token, ...(ip ? { remoteip: ip } : {}) }),
+      signal: AbortSignal.timeout(5000),
+    });
+    return ((await res.json()) as { success?: boolean }).success === true;
+  } catch (e) {
+    // Cloudflare injoignable : on ne perd pas la demande, la limite par adresse IP reste active
+    console.error('[contact] Turnstile injoignable', e);
+    return true;
+  }
+};
+
 const clean = (v: FormDataEntryValue | null, max = 160) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, max) : '');
 
-export const POST: APIRoute = async ({ request, redirect }) => {
+export const POST: APIRoute = async ({ request, redirect, clientAddress }) => {
   const wantsJson = request.headers.get('accept')?.includes('application/json');
   const reply = (ok: boolean, message: string, status = ok ? 200 : 400) =>
     wantsJson
       ? new Response(JSON.stringify({ ok, message }), { status, headers: { 'Content-Type': 'application/json' } })
       : redirect(ok ? '/contact/merci/' : `/contact/?erreur=${encodeURIComponent(message)}#devis-form`, 303);
+
+  let ip = '';
+  try {
+    ip = clientAddress;
+  } catch {
+    /* adresse indisponible (dev) */
+  }
+  if (overLimit(ip || 'inconnue')) return reply(false, `Votre demande a déjà été envoyée. Pour la compléter, appelez-nous au ${site.phone}.`, 429);
+
+  // Corps refusé avant lecture s'il dépasse ce que le formulaire peut envoyer
+  if (Number(request.headers.get('content-length')) > MAX_TOTAL_BYTES + 300_000) {
+    return reply(false, 'Formulaire invalide ou photos trop lourdes.', 413);
+  }
 
   let form: FormData;
   try {
@@ -58,6 +107,10 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   if (d.commune.length < 2) return reply(false, 'Indiquez votre commune.');
   if (!d.consent) return reply(false, 'Merci d’accepter d’être recontacté.');
 
+  if (!(await humanVerified(form.get('cf-turnstile-response'), ip))) {
+    return reply(false, `La vérification anti-robot a échoué. Rechargez la page et réessayez, ou appelez-nous au ${site.phone}.`, 403);
+  }
+
   // Photos jointes (déjà compressées dans le navigateur)
   const attachments: { filename: string; content: string }[] = [];
   let total = 0;
@@ -72,7 +125,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   if (!RESEND_API_KEY) {
     console.error('[contact] RESEND_API_KEY manquante : demande non envoyée', { commune: d.commune, project: d.project });
-    return reply(false, 'L’envoi est momentanément indisponible. Appelez-nous au 03 21 88 88 60.', 503);
+    return reply(false, `L’envoi est momentanément indisponible. Appelez-nous au ${site.phone}.`, 503);
   }
 
   const line = (label: string, value: string | number | null) => `${label} : ${value || '-'}`;
@@ -111,8 +164,9 @@ export const POST: APIRoute = async ({ request, redirect }) => {
 
   if (!res.ok) {
     console.error('[contact] échec Resend', res.status, await res.text());
-    return reply(false, 'L’envoi a échoué. Réessayez ou appelez-nous au 03 21 88 88 60.', 502);
+    return reply(false, `L’envoi a échoué. Réessayez ou appelez-nous au ${site.phone}.`, 502);
   }
 
+  recordSend(ip || 'inconnue');
   return reply(true, 'Merci, votre demande a bien été envoyée.');
 };

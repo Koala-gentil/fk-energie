@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import { site } from '../data/site';
+import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
 
 const crumbs = [{ label: 'Politique de confidentialité', href: '/confidentialite/' }];
 ---
@@ -33,6 +34,15 @@ const crumbs = [{ label: 'Politique de confidentialité', href: '/confidentialit
         d’envoi d’e-mails (Resend) et notre hébergeur (Vercel). Elles sont conservées 3 ans à compter du dernier contact, sauf si vous devenez client
         (durée légale de conservation des documents commerciaux).
       </p>
+      {
+        PUBLIC_TURNSTILE_SITE_KEY && (
+          <p>
+            Pour bloquer les envois automatisés, les formulaires utilisent Cloudflare Turnstile, qui analyse des informations techniques sur votre
+            navigateur et votre adresse IP au moment de l’envoi (base légale : notre intérêt légitime à protéger le site contre les abus). Ce service
+            ne sert ni à la publicité ni au suivi de votre navigation.
+          </p>
+        )
+      }
 
       <h2>Cookies et mesure d’audience</h2>
       <p>Ce site ne dépose aucun cookie publicitaire ni traceur tiers. Aucun bandeau de consentement n’est donc nécessaire.</p>
