@@ -14,16 +14,18 @@ interface Props {
   /** Hauteur du logo, en classe Tailwind (ex. « h-14 »). */
   class?: string;
   eager?: boolean;
+  /** Largeur affichée (attribut sizes), à garder cohérente avec la hauteur : largeur = hauteur × 1,46. */
+  sizes?: string;
 }
-const { tone = 'dark', class: className = 'h-14', eager = false } = Astro.props;
+const { tone = 'dark', class: className = 'h-14', eager = false, sizes = '120px' } = Astro.props;
 const src = tone === 'light' ? logoSombre : logoClair;
 ---
 
 <Image
   src={src}
   alt="FK Énergie"
-  widths={[120, 180, 240, 360]}
-  sizes="180px"
+  widths={[90, 140, 180, 240, 360]}
+  {sizes}
   class:list={['w-auto', className]}
   loading={eager ? 'eager' : 'lazy'}
 />

@@ -5,9 +5,11 @@ Nouveau site de **FK Énergie** (poêles, chaudières, pompes à chaleur, Aire-s
 
 - **Stack** : [Astro 7](https://astro.build) + Tailwind CSS 4, déployé sur **Vercel**
 - **Rendu** : 100 % statique (HTML pré-généré, quasi sans JavaScript), sauf `/api/contact/` (fonction serverless)
-- **Images** : optimisées au build (WebP, `srcset` responsive) via `astro:assets`
+- **Images** : optimisées au build (WebP, AVIF pour les photos d'en-tête, `srcset` responsive) via `astro:assets`
 - **Charte « Au coin du feu »** : papier chaud, encre brun-noir, orange braise (`src/styles/global.css`) ; Fraunces (titres),
   Figtree (texte), Caveat (notes manuscrites). Exploration et maquettes : https://claude.ai/artifact/Qjx768RxVkEQZtkzznH1Ys
+- **Polices** : auto-hébergées dans `src/assets/fonts/`, allégées (graisses et caractères du français seulement) par
+  `scripts/subset-fonts.sh` à partir des paquets Fontsource. À relancer si l'on ajoute une graisse ou un style.
 
 ## Démarrer
 
@@ -110,7 +112,7 @@ research/                 ← fiche entreprise et recherches (brief du projet)
 - Chaque page : titre ≤ 60 caractères et description ≤ 160 (le build affiche `[seo]` en cas de dépassement), canonical, image
   Open Graph propre à la page (recadrée en 1200 × 630 au build), nœud `WebPage` relié à l'organisation et au fil d'Ariane.
 - Carnet de poses balisé en `ImageGallery` (date, commune et auteur de chaque photo) pour Google Images.
-- `sitemap-index.xml` généré automatiquement, `robots.txt`, polices du titre et du texte préchargées.
+- `sitemap-index.xml` généré automatiquement, `robots.txt`, polices visibles dès l'ouverture préchargées.
 - Après la mise en ligne : déclarer le sitemap dans Google Search Console, mettre à jour les fiches Google Business Profile
   (lien vers la page du showroom concerné) et créer la fiche de Rexpoëde.
 

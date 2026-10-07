@@ -47,7 +47,8 @@ const list = {
                 widths={[400, 640, 900]}
                 sizes="(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw"
                 class="aspect-[16/10] w-full object-cover"
-                loading={i < 3 ? 'eager' : 'lazy'}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                fetchpriority={i === 0 ? 'high' : undefined}
               />
               <div class="flex flex-1 flex-col gap-3 p-6">
                 <p class="text-sm font-semibold text-ember-700">{g.data.category}</p>

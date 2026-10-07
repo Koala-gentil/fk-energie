@@ -6,9 +6,12 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
 import { organizationSchema, websiteSchema, breadcrumbSchema, webPageSchema, type Crumb, type PageType } from '../lib/schema';
-// Polices du titre (LCP) et du texte : préchargées pour éviter le saut de mise en page.
-import frauncesUrl from '@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url';
-import figtreeUrl from '@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2?url';
+// Polices visibles dès l'ouverture (titre, texte, sur-titre manuscrit) : préchargées pour qu'elles arrivent avec la
+// page plutôt qu'après la lecture du CSS, et éviter le saut de mise en page.
+import frauncesUrl from '../assets/fonts/fraunces-opsz-400-700.woff2?url';
+import frauncesItalicUrl from '../assets/fonts/fraunces-opsz-italic-400.woff2?url';
+import figtreeUrl from '../assets/fonts/figtree-400-800.woff2?url';
+import caveatUrl from '../assets/fonts/caveat-600.woff2?url';
 
 interface Props {
   /** Titre SEO (sans le nom de l'entreprise, ajouté automatiquement). */
@@ -28,6 +31,8 @@ interface Props {
   pageExtra?: Record<string, unknown>;
   /** og:type « article » pour les guides. */
   article?: { published: Date; modified?: Date; section?: string };
+  /** Précharge Fraunces italique, quand le titre de la page en contient (<em>). */
+  preloadItalic?: boolean;
 }
 
 const {
@@ -42,6 +47,7 @@ const {
   pageType,
   pageExtra = {},
   article,
+  preloadItalic = false,
 } = Astro.props;
 
 const pageTitle = fullTitle ? title : `${title} | FK Énergie`;
@@ -88,6 +94,8 @@ const graph = {
     {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
     <link rel="preload" href={frauncesUrl} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={figtreeUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={caveatUrl} as="font" type="font/woff2" crossorigin />
+    {preloadItalic && <link rel="preload" href={frauncesItalicUrl} as="font" type="font/woff2" crossorigin />}
 
     <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />

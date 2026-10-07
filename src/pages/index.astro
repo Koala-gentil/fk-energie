@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, Picture } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon, { type IconName } from '../components/Icon.astro';
 import ShowroomCard from '../components/ShowroomCard.astro';
@@ -48,6 +48,7 @@ const timeline = [
   description={`Entreprise familiale depuis ${site.foundingYear} : vente, pose et entretien de poêles, chaudières et pompes à chaleur. Showrooms à Aire-sur-la-Lys, Ardres et Rexpoëde.`}
   ogImage={heroImg}
   ogImageAlt="Poêle à bûches HETA Scan-Line 1000 installé par FK Énergie"
+  preloadItalic
 >
   <!-- Hero -->
   <section class="container-page grid items-center gap-12 py-12 lg:grid-cols-2 lg:gap-16 lg:py-20">
@@ -60,7 +61,7 @@ const timeline = [
         Nous conseillons, posons et entretenons nous-mêmes votre chauffage dans le Pas-de-Calais et le Nord, de Calais à Aire-sur-la-Lys.
       </p>
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 lg:hidden">
-        <RgeLogos size="h-12 w-auto" class="!gap-3" />
+        <RgeLogos size="h-12 w-auto" sizes="145px" class="!gap-3" />
         <p class="text-sm font-semibold text-ink-700">Installateur qualifié RGE</p>
       </div>
 
@@ -88,8 +89,10 @@ const timeline = [
 
     <div class="relative min-h-[420px] sm:min-h-[560px]">
       <figure class="absolute top-0 right-0 w-[82%]">
-        <Image
+        <Picture
           src={heroImg}
+          formats={['avif']}
+          fallbackFormat="webp"
           alt="Poêle à bûches HETA Scan-Line 1000 installé par FK Énergie"
           widths={[480, 720, 960]}
           sizes="(min-width: 1024px) 480px, 80vw"
@@ -102,12 +105,12 @@ const timeline = [
         </figcaption>
       </figure>
       <figure class="absolute bottom-0 left-0 w-[46%] -rotate-3 rounded-lg bg-white p-2.5 pb-10 shadow-2xl shadow-ink-900/20">
-        <Image src={polaroidImg} alt="Poêle Lotus Orbis 2 posé à Aire-sur-la-Lys" widths={[240, 400]} sizes="240px" class="aspect-[4/5] w-full rounded object-cover" loading="eager" />
+        <Image src={polaroidImg} alt="Poêle Lotus Orbis 2 posé à Aire-sur-la-Lys" widths={[240, 400]} sizes="240px" class="aspect-[4/5] w-full rounded object-cover" />
         <figcaption class="absolute bottom-2 left-3 font-hand text-lg sm:text-2xl">Aire-sur-la-Lys, mars 2026</figcaption>
       </figure>
       <div class="absolute right-4 bottom-6 hidden w-48 rotate-3 rounded-2xl bg-white p-4 shadow-xl shadow-ink-900/20 lg:block">
         <p class="text-center text-xs font-bold tracking-wide text-ink-600 uppercase">Installateur qualifié RGE</p>
-        <RgeLogos size="w-full h-auto" class="mt-2 flex-col !gap-2.5 [&>li]:w-full" />
+        <RgeLogos size="w-full h-auto" sizes="160px" class="mt-2 flex-col !gap-2.5 [&>li]:w-full" />
       </div>
     </div>
   </section>

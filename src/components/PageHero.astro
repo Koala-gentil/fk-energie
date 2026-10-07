@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import Icon from './Icon.astro';
 import RgeLogos, { type Certification } from './RgeLogos.astro';
@@ -61,7 +61,7 @@ const lead = nbsp(rawLead);
       {
         rge && (
           <div class="flex flex-wrap items-center gap-x-5 gap-y-3">
-            <RgeLogos certs={rge} size="h-14 w-auto sm:h-16" />
+            <RgeLogos certs={rge} size="h-14 w-auto sm:h-16" sizes="(min-width: 640px) 193px, 169px" />
             <p class="max-w-56 text-[15px] leading-snug text-ink-700">
               Entreprise qualifiée RGE : la condition pour bénéficier des{' '}
               {Astro.url.pathname === '/aides-financieres/' ? (
@@ -91,8 +91,10 @@ const lead = nbsp(rawLead);
     {
       image && (
         <figure class="relative lg:col-span-5">
-          <Image
+          <Picture
             src={image}
+            formats={['avif']}
+            fallbackFormat="webp"
             alt={imageAlt}
             widths={[480, 720, 960]}
             sizes="(min-width: 1024px) 460px, 92vw"
