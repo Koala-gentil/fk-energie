@@ -1,7 +1,7 @@
 # FK Énergie : site vitrine
 
-Nouveau site de **FK Énergie** (poêles, chaudières, pompes à chaleur, Aire-sur-la-Lys / Ardres / Rexpoëde), destiné à remplacer
-`www.fk-energie-chauffage.fr`.
+Nouveau site de **FK Énergie** (poêles, chaudières, pompes à chaleur, Aire-sur-la-Lys / Ardres / Rexpoëde), publié sur
+`www.fk-energie.fr` (remplace `www.fk-energie-chauffage.fr`).
 
 - **Stack** : [Astro 7](https://astro.build) + Tailwind CSS 4, déployé sur **Vercel**
 - **Rendu** : 100 % statique (HTML pré-généré, quasi sans JavaScript), sauf `/api/contact/` (fonction serverless)
@@ -28,13 +28,14 @@ npx astro check    # vérification TypeScript
 | Variable | Obligatoire | Rôle |
 |---|---|---|
 | `RESEND_API_KEY` | oui, pour le formulaire | clé API [Resend](https://resend.com), qui envoie les e-mails du formulaire |
-| `CONTACT_EMAIL_TO` | non | destinataire(s), séparés par des virgules (défaut : `fkenergie@orange.fr`) |
-| `CONTACT_EMAIL_FROM` | non | expéditeur (défaut : `Site FK Énergie <site@fk-energie-chauffage.fr>`). Le domaine doit être validé dans Resend. |
+| `CONTACT_EMAIL_TO` | non | destinataire(s) quand le showroom n'est pas identifié, séparés par des virgules (défaut : `agence.fkenergie@gmail.com`). Sinon, la demande part à l'e-mail du showroom choisi ou de la commune (`site.ts`, `communes.ts`). |
+| `CONTACT_EMAIL_FROM` | non | expéditeur (défaut : `Site FK Énergie <site@fk-energie.fr>`). Le domaine doit être validé dans Resend. |
 | `PUBLIC_TURNSTILE_SITE_KEY` et `TURNSTILE_SECRET_KEY` | non, recommandé | anti-robot [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) (gratuit), invisible pour la plupart des visiteurs. Les deux clés ensemble, puis redéployer : la clé publique est intégrée au build. |
 
-3. *Settings > Domains* : ajouter `www.fk-energie-chauffage.fr` (principal) et `fk-energie-chauffage.fr` (redirigé vers www), plus
-   `fkenergie-chauffage.fr` et `www.fkenergie-chauffage.fr` (redirigés). Mettre à jour les DNS chez OVH, ou dans Cloudflare
-   s'il reste devant, avec le mode SSL **Full (strict)** ou le proxy désactivé.
+3. *Settings > Domains* : ajouter `www.fk-energie.fr` (principal) et `fk-energie.fr` (redirigé vers www). Si l'on récupère les
+   anciens domaines, les ajouter aussi en redirection vers `www.fk-energie.fr` : `fk-energie-chauffage.fr`, `www.fk-energie-chauffage.fr`,
+   `fkenergie-chauffage.fr` et `www.fkenergie-chauffage.fr`. Vercel conserve le chemin, puis les 301 de `redirects.json` s'appliquent.
+   Mettre à jour les DNS chez OVH, ou dans Cloudflare s'il reste devant, avec le mode SSL **Full (strict)** ou le proxy désactivé.
 
 Sans `RESEND_API_KEY`, le formulaire affiche un message invitant à appeler le 03 21 88 88 60 : rien n'est perdu silencieusement.
 
@@ -118,18 +119,13 @@ research/                 ← fiche entreprise et recherches (brief du projet)
 
 ## À valider avec le client avant la mise en ligne
 
-- [ ] Outils de calcul : mettre à jour les prix de l'énergie chaque trimestre dans `src/data/thermique.ts` (`energies`, `granules`).
-- [ ] Prix du bois bûche (CEEB) : le bulletin interdit la rediffusion sans autorisation ; demander l'accord ou changer de source.
+- [ ] Domaine `fk-energie.fr` : à récupérer, puis mettre à jour les liens des fiches Google Business Profile.
+- [ ] Simulateur sur plan : le garder (en insistant sur la visite et l'étude) ou le retirer.
+- [ ] Nouvelle photo de la façade d'Aire-sur-la-Lys (l'actuelle montre l'ancienne enseigne) et photo de l'équipe (accueil).
+- [ ] Photos de poses sans date (envoyées en octobre 2026) : date approximative pour les ajouter au carnet.
+- [ ] Logo : fichier vectoriel (le PNG fourni en octobre 2026 est utilisé, recadré sans le slogan, dans `src/assets/brand/`).
 
-- [ ] Logo : le logo officiel (photo de profil Facebook 2026, 1254 px) est **détouré** dans `src/assets/brand/` (versions fond clair, fond sombre et badge rond). Récupérer le fichier source vectoriel si possible.
-- [ ] Rexpoëde : horaires (actuellement identiques aux autres showrooms), e-mail, photo de la façade.
-- [ ] E-mails publiés : `fkenergie@orange.fr` et `ardres.fkenergie@gmail.com`.
-- [ ] Nom de la directrice de publication (mentions légales : « Sylvie Faltin », selon l'ancien site).
-- [ ] Médiateur de la consommation (obligatoire pour les ventes aux particuliers) : à ajouter aux mentions légales.
-- [ ] Villes de la zone d'intervention (`areaServed` et `nearby` dans `site.ts`) et rattachement commune → showroom (`communes.ts`).
-- [ ] Pages villes (`villes.ts`) : confirmer les 5 villes ciblées et leurs communes voisines ; idéalement ajouter dans
-  `realisations.ts` la commune des poses (champ `place`), qui s'affichent alors en tête de la page de la ville.
-- [ ] Relire les guides `/conseils/` (réglementation sourcée, mais à valider par un professionnel de l'entreprise).
-- [ ] Photo de l'équipe (section « Une entreprise de famille » de l'accueil, actuellement la façade d'Aire) et communes des poses sans lieu.
-- [ ] Renouvellement QualiBois « Eau » (expire le 08/12/2026).
-- [ ] Autorisation d'utiliser les photos de chantiers clients (issues de la page Facebook).
+## Maintenance
+
+- Outils de calcul : mettre à jour les prix de l'énergie chaque trimestre dans `src/data/thermique.ts` (`energies`, `granules`).
+- Renouvellement QualiBois « Eau » (expire le 08/12/2026), suivi par le client.

@@ -7,7 +7,7 @@ import ShowroomCard from '../../components/ShowroomCard.astro';
 import RealisationsGrid from '../../components/RealisationsGrid.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
-import { deVille, showrooms, site, mapsUrl, productNav, type Showroom } from '../../data/site';
+import { deVille, showrooms, site, mapsUrl, productNav, showroomHours, type Showroom } from '../../data/site';
 import { poses } from '../../data/realisations';
 import { villes, villeUrl } from '../../data/villes';
 import { showroomSchema } from '../../lib/schema';
@@ -24,7 +24,6 @@ const crumbs = [
   { label: s.city, href: `/showrooms/${s.slug}/` },
 ];
 const others = showrooms.filter((o) => o.slug !== s.slug);
-const email = s.email ?? site.email;
 const schemaImage = s.image ? await absoluteImage(s.image) : undefined;
 // Poses du secteur d'abord, puis les plus récentes.
 const area = [s.city, ...s.nearby];
@@ -64,12 +63,12 @@ const localVilles = villes.filter((v) => v.showroom === s.slug);
     </div>
     <div class="rounded-3xl bg-white p-8 border border-ink-200">
       <h2 class="flex items-center gap-3 text-2xl"><Icon name="clock" class="size-6 text-ember-600" /> Horaires</h2>
-      <HoursList class="mt-2" />
+      <HoursList class="mt-2" hours={showroomHours(s)} />
     </div>
     <div class="rounded-3xl bg-ember-100 p-8">
       <h2 class="flex items-center gap-3 text-2xl"><Icon name="phone" class="size-6 text-ember-700" /> Contact</h2>
       <a href={site.phoneHref} class="mt-4 block font-display text-3xl font-semibold hover:text-ember-700">{site.phone}</a>
-      <a href={`mailto:${email}`} class="mt-2 block break-all text-ink-700 hover:text-ember-700">{email}</a>
+      <a href={`mailto:${s.email}`} class="mt-2 block break-all text-ink-700 hover:text-ember-700">{s.email}</a>
       <a href="/contact/" class="btn-primary mt-6">Demander un devis gratuit</a>
     </div>
   </section>

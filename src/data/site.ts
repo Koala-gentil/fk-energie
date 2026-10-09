@@ -1,12 +1,12 @@
 import type { ImageMetadata } from 'astro';
 import facadeAire from '../assets/images/showrooms/facade-aire-sur-la-lys.jpg';
 import facadeArdres from '../assets/images/showrooms/facade-ardres.jpg';
-import showroomPac from '../assets/images/produits/showroom-pompe-a-chaleur-atlantic.jpg';
+import facadeRexpoede from '../assets/images/showrooms/facade-rexpoede.jpg';
 
 export const site = {
   name: 'FK Énergie',
   legalName: 'FK ENERGIE',
-  url: 'https://www.fk-energie-chauffage.fr',
+  url: 'https://www.fk-energie.fr',
   phone: '03 21 88 88 60',
   phoneHref: 'tel:+33321888860',
   phoneIntl: '+33 3 21 88 88 60',
@@ -25,6 +25,13 @@ export const site = {
     naf: '43.22B',
     headOffice: '176 rue du Bois Villain, 62131 Drouvin-le-Marais',
     director: 'Sylvie Faltin',
+    /** Médiateur de la consommation (obligatoire pour les ventes aux particuliers, art. L612-1 du code de la consommation). */
+    mediator: {
+      name: 'CNPM Médiation Consommation',
+      address: 'Immeuble L’Horizon, Esplanade de France, 3 rue J. Constant Milleret, 42000 Saint-Étienne',
+      email: 'contact-admin@cnpm-mediation-consommation.eu',
+      url: 'https://cnpm-mediation-consommation.eu',
+    },
   },
   certifications: ['RGE QualiBois', 'RGE QualiPAC'],
   areaServed: [
@@ -55,7 +62,7 @@ export const yearsOfExperience = (() => {
 
 export type OpeningHours = { days: string; dayCodes: string[]; slots: [string, string][] };
 
-/** Horaires communs aux trois showrooms (flyers 2026). */
+/** Horaires des showrooms (flyers 2026), sauf ceux qui ont les leurs (`Showroom.hours`). */
 export const openingHours: OpeningHours[] = [
   { days: 'Lundi', dayCodes: ['Monday'], slots: [['10:00', '12:00'], ['14:00', '18:00']] },
   {
@@ -66,6 +73,9 @@ export const openingHours: OpeningHours[] = [
   { days: 'Samedi', dayCodes: ['Saturday'], slots: [['09:00', '12:00'], ['14:00', '17:00']] },
   { days: 'Dimanche', dayCodes: [], slots: [] },
 ];
+
+/** Rexpoëde : mêmes horaires, mais fermé le lundi (confirmé par FK Énergie, octobre 2026). */
+const closedMonday: OpeningHours[] = openingHours.map((h) => (h.dayCodes.includes('Monday') ? { ...h, slots: [] } : h));
 
 export const formatSlot = ([from, to]: [string, string]) =>
   `${from.replace(':00', 'h').replace(/^0/, '')} – ${to.replace(':00', 'h').replace(/^0/, '')}`;
@@ -80,7 +90,12 @@ export type Showroom = {
   department: string;
   landmark?: string;
   isNew?: boolean;
-  email?: string;
+  /** Reçoit aussi les demandes du formulaire pour ce showroom. */
+  email: string;
+  /** Horaires propres, sinon `openingHours`. */
+  hours?: OpeningHours[];
+  /** Écart aux horaires communs, affiché sous ceux-ci (« fermé le lundi »). */
+  hoursNote?: string;
   intro: string;
   highlights: string[];
   nearby: string[];
@@ -101,12 +116,12 @@ export const showrooms: Showroom[] = [
     postalCode: '62120',
     department: 'Pas-de-Calais',
     landmark: 'à côté de Delalleau',
-    email: 'fkenergie@orange.fr',
+    email: 'agence.fkenergie@gmail.com',
     intro:
       "Notre magasin historique : 300 m² d'exposition entièrement dédiés au chauffage au bois et aux granulés. Vous y découvrez des poêles en fonctionnement, dont un système de poêle à granulés canalisable qui chauffe tout le magasin.",
     highlights: [
       '300 m² d’exposition dédiés au bois et aux granulés',
-      'Poêles Palazzetti, HETA, Lotus et Contura en démonstration',
+      'Poêles Palazzetti, Stovax, Lotus et Contura en démonstration',
       'Pompes à chaleur et climatisation Atlantic',
       'Système canalisable en fonctionnement',
     ],
@@ -133,7 +148,7 @@ export const showrooms: Showroom[] = [
       'Conseil et étude personnalisée de votre projet',
       'Accompagnement pour les aides financières',
     ],
-    nearby: ['Calais', 'Guînes', 'Licques', 'Audruicq', 'Saint-Omer', 'Marck', 'Oye-Plage'],
+    nearby: ['Calais', 'Guînes', 'Licques', 'Audruicq', 'Saint-Omer', 'Marck', 'Oye-Plage', 'Lumbres', 'Bourbourg', 'Gravelines', 'Nordausques', 'Louches'],
     image: facadeArdres,
     imageAlt: 'Façade du showroom FK Énergie à Ardres (Bois-en-Ardres)',
     mapsQuery: 'FK Energie 677 avenue de la Censé Hébron 62610 Ardres',
@@ -148,6 +163,9 @@ export const showrooms: Showroom[] = [
     postalCode: '59122',
     department: 'Nord',
     isNew: true,
+    email: 'rexpoede.fkenergie@gmail.com',
+    hours: closedMonday,
+    hoursNote: 'fermé le lundi',
     intro:
       "Notre nouvelle agence, ouverte en 2026 au cœur de Rexpoëde, pour accompagner les habitants de la Flandre maritime et des Hauts de Flandre dans leurs projets de pompe à chaleur et de poêle à granulés.",
     highlights: [
@@ -156,8 +174,8 @@ export const showrooms: Showroom[] = [
       'Étude gratuite et accompagnement aux aides',
     ],
     nearby: ['Bergues', 'Hondschoote', 'Wormhout', 'Dunkerque', 'Bourbourg', 'Cassel', 'Hazebrouck'],
-    image: showroomPac,
-    imageAlt: 'Pompes à chaleur Atlantic et poêles Palazzetti exposés dans un showroom FK Énergie',
+    image: facadeRexpoede,
+    imageAlt: 'Façade du showroom FK Énergie, 8 place de la Mairie à Rexpoëde',
     mapsQuery: 'FK Energie 8 place de la Mairie 59122 Rexpoëde',
     geo: { lat: 50.938994, lng: 2.540296 },
   },
@@ -166,6 +184,16 @@ export const showrooms: Showroom[] = [
 /** « de » élidé devant une voyelle : « d’Aire-sur-la-Lys », « d’Ardres », « de Rexpoëde ». */
 export const prepDe = (ville: string) => (/^[aeiouyàâéèêîôû]/i.test(ville) ? 'd’' : 'de ');
 export const deVille = (ville: string) => `${prepDe(ville)}${ville}`;
+
+export const showroomHours = (s: Showroom) => s.hours ?? openingHours;
+
+/** Jours d'ouverture en toutes lettres : « du lundi au samedi ». */
+export const openDays = (hours: OpeningHours[]) => {
+  const open = hours.filter((h) => h.slots.length);
+  const first = open[0].days.split(' – ')[0].toLowerCase();
+  const last = open[open.length - 1].days.split(' – ').at(-1)!.toLowerCase();
+  return `du ${first} au ${last}`;
+};
 
 export const mapsUrl = (s: Showroom) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.mapsQuery)}`;

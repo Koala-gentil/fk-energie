@@ -1,17 +1,19 @@
 ---
-import { openingHours } from '../data/site';
+import { openingHours, type OpeningHours } from '../data/site';
 
 interface Props {
   class?: string;
   /** « long » : « Ouvert · pause de 12h à 14h » ; « short » : « Ouvert » / « Pause déjeuner » / « Fermé ». */
   variant?: 'long' | 'short';
+  /** Horaires d'un showroom (`showroomHours`), sinon les horaires communs. */
+  hours?: OpeningHours[];
 }
-const { class: className = '', variant = 'long' } = Astro.props;
+const { class: className = '', variant = 'long', hours = openingHours } = Astro.props;
 
 // Créneaux par jour ISO (0 = dimanche), lus par le script côté client à l'heure de Paris
 const schedule = Array.from({ length: 7 }, (_, day) => {
   const code = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day];
-  return openingHours.find((h) => h.dayCodes.includes(code))?.slots ?? [];
+  return hours.find((h) => h.dayCodes.includes(code))?.slots ?? [];
 });
 ---
 

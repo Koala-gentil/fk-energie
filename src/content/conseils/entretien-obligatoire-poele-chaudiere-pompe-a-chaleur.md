@@ -1,7 +1,7 @@
 ---
 title: "Entretien obligatoire du poêle, de la chaudière et de la PAC : la loi"
 seoTitle: "Entretien obligatoire : poêle, chaudière, PAC"
-description: "Ramonage, entretien du poêle, de la chaudière ou de la pompe à chaleur : fréquences légales dans le Nord et le Pas-de-Calais, attestation, assurance."
+description: "Ramonage, entretien du poêle, de la chaudière ou de la pompe à chaleur : fréquences légales, attestation, assurance. Ce que disent les textes."
 pubDate: 2026-10-01
 category: "Entretien"
 related: ["/entretien-ramonage/", "/poele-a-granules/", "/chaudieres/", "/pompes-a-chaleur/"]
@@ -10,8 +10,8 @@ imageAlt: "Poêle à bûches HETA Scan-Line 1000 installé par FK Énergie"
 faq:
   - q: "L’entretien annuel d’un poêle à bois ou à granulés est-il obligatoire ?"
     a: "Oui. Depuis le 1er octobre 2023, le code de la santé publique impose l’entretien des appareils de chauffage à combustion au moins tous les douze mois, en plus du ramonage du conduit. Seules les cheminées à foyer ouvert sont dispensées d’entretien, mais leur conduit doit quand même être ramoné."
-  - q: "Combien de ramonages par an dans le Nord et dans le Pas-de-Calais ?"
-    a: "La règle nationale impose au moins un ramonage tous les douze mois. Le règlement sanitaire départemental du Nord prévoit deux ramonages par an, dont un pendant la période d’utilisation ; celui du Pas-de-Calais prévoit au moins un ramonage par an."
+  - q: "Combien de ramonages par an ?"
+    a: "La règle nationale impose au moins un ramonage tous les douze mois, qui peut être fait lors de l’entretien annuel. Au-delà, tout dépend de votre consommation : un appareil qui tourne beaucoup s’encrasse plus vite et peut demander un passage de plus en cours de saison. Nous vous conseillons lors de l’entretien."
   - q: "L’entretien d’une pompe à chaleur est-il obligatoire ?"
     a: "Oui, pour les pompes à chaleur dont la puissance nominale est comprise entre 4 et 70 kW : deux entretiens ne doivent pas être séparés de plus de deux ans. Le professionnel vous remet une attestation dans les quinze jours."
   - q: "Je suis locataire : qui doit faire faire l’entretien et le ramonage ?"
@@ -27,10 +27,6 @@ sources:
     url: "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000047873344"
   - label: "ARS Hauts-de-France : les règlements sanitaires départementaux du Nord et du Pas-de-Calais"
     url: "https://www.hauts-de-france.ars.sante.fr/les-reglements-sanitaires-departementaux-0"
-  - label: "ARS Hauts-de-France : règlement sanitaire départemental du Nord, article 31.6 (PDF)"
-    url: "https://www.hauts-de-france.ars.sante.fr/sites/default/files/2017-02/RSD_59.pdf"
-  - label: "ARS Hauts-de-France : règlement sanitaire départemental du Pas-de-Calais, article 34 (PDF, partie 1)"
-    url: "https://www.hauts-de-france.ars.sante.fr/media/8492/download?inline"
   - label: "Légifrance : code de l’environnement, articles R224-41-4 à R224-41-9 (entretien annuel des chaudières de 4 à 400 kW)"
     url: "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006074220/LEGISCTA000020725503/"
   - label: "Légifrance : arrêté du 15 septembre 2009 relatif à l’entretien annuel des chaudières"
@@ -49,7 +45,7 @@ sources:
     url: "https://www.hauts-de-france.ars.sante.fr/les-risques-lies-au-monoxyde-de-carbone"
 ---
 
-Entretenir son chauffage est une obligation légale, et pas seulement pour la chaudière. Depuis le 1er octobre 2023, un poêle à bois ou à granulés doit être entretenu au moins une fois par an et son conduit ramoné ; une chaudière (fioul, gaz, bois ou granulés) doit être entretenue chaque année ; une pompe à chaleur de 4 à 70 kW au moins tous les deux ans. Voici ce que disent les textes, appareil par appareil, avec les règles propres au Nord et au Pas-de-Calais.
+Entretenir son chauffage est une obligation légale, et pas seulement pour la chaudière. Depuis le 1er octobre 2023, un poêle à bois ou à granulés doit être entretenu au moins une fois par an et son conduit ramoné ; une chaudière (fioul, gaz, bois ou granulés) doit être entretenue chaque année ; une pompe à chaleur de 4 à 70 kW au moins tous les deux ans. Voici ce que disent les textes, appareil par appareil.
 
 ## Depuis 2023, des règles nationales d’entretien et de ramonage
 
@@ -63,21 +59,11 @@ Elles s’appliquent aux foyers et appareils de chauffage, de cuisine au combust
 
 Pour un appareil individuel, c’est à l’occupant de faire réaliser ces opérations, sauf stipulation contraire du bail.
 
-## Ramonage : combien de fois par an dans le Nord et le Pas-de-Calais ?
+## Ramonage : combien de fois par an ?
 
-Le code de la santé publique fixe un minimum national : un ramonage **au moins tous les douze mois**. Il précise que les arrêtés préfectoraux, c’est-à-dire les règlements sanitaires départementaux (RSD), peuvent exiger plusieurs ramonages par an, dont un pendant la période de chauffe. La règle dépend donc de votre département.
+Le code de la santé publique fixe la règle : un ramonage du conduit **au moins tous les douze mois**. Il peut être fait lors de la même visite que l’entretien annuel de l’appareil.
 
-### Dans le Nord : deux ramonages par an
-
-Le règlement sanitaire départemental du Nord (arrêté préfectoral du 12 avril 1979 modifié), publié par l’ARS Hauts-de-France, prévoit à son article 31.6 que les conduits de fumée habituellement en fonctionnement dans un logement soient ramonés **deux fois par an, dont une fois pendant la période d’utilisation**. Certains conduits d’appareils au gaz peuvent n’être ramonés qu’une fois par an.
-
-Le même article demande qu’un certificat de ramonage soit remis à l’usager, précisant les conduits ramonés et attestant de leur vacuité sur toute leur longueur.
-
-### Dans le Pas-de-Calais : au moins un ramonage par an
-
-Le règlement sanitaire départemental du Pas-de-Calais (arrêté préfectoral du 12 février 1966 modifié), lui aussi publié par l’ARS Hauts-de-France, prévoit à son article 34 et dans ses instructions techniques un ramonage des conduits desservant des foyers individuels **au moins une fois par an**.
-
-Si vous chauffez beaucoup au bois, un passage supplémentaire peut rester utile : votre ramoneur vous conseillera selon votre usage. En cas de doute sur la règle applicable chez vous, votre mairie peut vous renseigner.
+Au-delà, la bonne fréquence dépend surtout de **votre consommation**. Un poêle qui tourne tout l’hiver s’encrasse plus vite qu’un appareil d’appoint : selon votre usage, un passage de plus en cours de saison peut être utile. Nous faisons le point avec vous lors de l’entretien.
 
 ### Ce que doit être un vrai ramonage
 
@@ -125,7 +111,7 @@ Les appareils destinés uniquement à produire l’eau chaude d’un seul logeme
 
 | Appareil | Ramonage du conduit | Entretien de l’appareil | Document remis |
 | --- | --- | --- | --- |
-| Poêle ou insert à bois, poêle à granulés | Nord : 2 fois par an dont 1 en période d’utilisation. Pas-de-Calais : au moins 1 fois par an | Au moins tous les 12 mois | Attestation sous 15 jours ouvrés, à garder 2 ans |
+| Poêle ou insert à bois, poêle à granulés | Au moins 1 fois par an, plus selon la consommation | Au moins tous les 12 mois | Attestation sous 15 jours ouvrés, à garder 2 ans |
 | Cheminée à foyer ouvert | Comme ci-dessus | Pas d’entretien obligatoire, foyer à tenir propre | Attestation de ramonage |
 | Chaudière fioul, bois ou granulés (4 à 400 kW) | Comme ci-dessus | Chaque année civile | Attestation sous 15 jours, à garder 2 ans |
 | Pompe à chaleur (4 à 70 kW) | Sans objet | Au plus tous les 2 ans | Attestation sous 15 jours |

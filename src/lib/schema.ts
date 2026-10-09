@@ -1,4 +1,4 @@
-import { site, showrooms, openingHours, mapsUrl, productNav, type Showroom } from '../data/site';
+import { site, showrooms, mapsUrl, productNav, showroomHours, type OpeningHours, type Showroom } from '../data/site';
 
 const abs = (path: string) => new URL(path, site.url).toString();
 
@@ -7,7 +7,7 @@ export const websiteId = `${site.url}/#website`;
 export const showroomId = (slug: string) => `${site.url}/showrooms/${slug}/#business`;
 export const serviceId = (path: string) => `${abs(path)}#service`;
 
-const hoursSpec = openingHours.flatMap((h) =>
+const hoursSpec = (hours: OpeningHours[]) => hours.flatMap((h) =>
   h.slots.map(([opens, closes]) => ({
     '@type': 'OpeningHoursSpecification',
     dayOfWeek: h.dayCodes.map((d) => `https://schema.org/${d}`),
@@ -40,7 +40,7 @@ export const showroomSchema = (s: Showroom, image?: string) => ({
   image: image ?? abs('/og-default.jpg'),
   logo: abs('/icon-512.png'),
   telephone: site.phoneIntl,
-  ...(s.email ? { email: s.email } : {}),
+  email: s.email,
   priceRange: '€€',
   currenciesAccepted: 'EUR',
   address: {
@@ -53,7 +53,7 @@ export const showroomSchema = (s: Showroom, image?: string) => ({
   },
   geo: { '@type': 'GeoCoordinates', latitude: s.geo.lat, longitude: s.geo.lng },
   hasMap: mapsUrl(s),
-  openingHoursSpecification: hoursSpec,
+  openingHoursSpecification: hoursSpec(showroomHours(s)),
   areaServed: [s.city, ...s.nearby].map((name) => ({ '@type': 'City', name })),
   hasOfferCatalog: offerCatalog(),
   parentOrganization: { '@id': organizationId },

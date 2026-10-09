@@ -7,7 +7,7 @@ import RealisationsGrid from '../../components/RealisationsGrid.astro';
 import Faq from '../../components/Faq.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
-import { deVille, showrooms, site, mapsUrl, productNav } from '../../data/site';
+import { deVille, showrooms, site, mapsUrl, productNav, showroomHours, openDays } from '../../data/site';
 import { poses } from '../../data/realisations';
 import { villes, villeUrl, type Ville } from '../../data/villes';
 import { faqSchema, serviceSchema, showroomId, type Faq as FaqItem } from '../../lib/schema';
@@ -37,7 +37,7 @@ const description = `Poêle à granulés ou à bois, insert, chaudière, pompe �
 
 const productText: Record<string, string> = {
   '/poele-a-granules/': 'Palazzetti : air, canalisables, gain de place ou hydro.',
-  '/poele-a-bois/': 'HETA, Lotus, Contura : bûches, poêles de masse, mixtes.',
+  '/poele-a-bois/': 'Stovax, Lotus, Contura : bûches, poêles de masse, mixtes.',
   '/pompes-a-chaleur/': 'Atlantic air/eau ou air/air, climatisation réversible.',
   '/chaudieres/': 'Granulés ou bûches, pour remplacer une chaudière fioul ou gaz.',
   '/inserts-cheminees/': 'Pour transformer une cheminée ouverte en vrai chauffage.',
@@ -50,7 +50,7 @@ const faqs: FaqItem[] = [
   },
   {
     q: `Où voir des poêles en fonctionnement près de ${v.name} ?`,
-    a: `Dans notre showroom ${deVille(s.city)}, ${s.street}, à environ ${v.km} km de ${v.name} (${v.minutes} minutes de route). Il est ouvert du lundi au samedi, sans rendez-vous.`,
+    a: `Dans notre showroom ${deVille(s.city)}, ${s.street}, à environ ${v.km} km de ${v.name} (${v.minutes} minutes de route). Il est ouvert ${openDays(showroomHours(s))}, sans rendez-vous.`,
   },
   {
     q: 'L’étude et le devis sont-ils payants ?',
@@ -112,7 +112,7 @@ const faqs: FaqItem[] = [
     </div>
     <div class="rounded-3xl border border-ink-200 bg-white p-8">
       <h2 class="flex items-center gap-3 text-2xl"><Icon name="clock" class="size-6 text-ember-600" /> Horaires</h2>
-      <HoursList class="mt-2" />
+      <HoursList class="mt-2" hours={showroomHours(s)} />
     </div>
   </section>
 

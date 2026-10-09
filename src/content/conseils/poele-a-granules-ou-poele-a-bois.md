@@ -57,7 +57,7 @@ Le poêle à bûches se charge à la main et se règle par ses arrivées d’air
 | Électricité | Indispensable | Pas nécessaire pour un modèle classique |
 | Combustible | Sacs de granulés, au sec et surélevés | Bûches sous abri aéré, bien sèches |
 | Entretien courant | Creuset à nettoyer tous les jours ou tous les deux jours | Cendrier à vider fréquemment |
-| Entretien et ramonage par un pro | Au moins une fois par an (ramonage : 2 fois par an dans le Nord) | Au moins une fois par an (ramonage : 2 fois par an dans le Nord) |
+| Entretien et ramonage par un pro | Au moins une fois par an, plus selon la consommation | Au moins une fois par an, plus selon la consommation |
 
 ### Autonomie et programmation
 
@@ -78,7 +78,7 @@ Un poêle à granulés doit être branché : l’ADEME précise que l’électri
 
 Pour un poêle à granulés, l’ADEME conseille de nettoyer le creuset tous les jours (ou tous les deux jours selon la qualité des granulés) et de vider le réservoir en fin de saison. Pour un poêle à bûches, on vide et nettoie régulièrement le cendrier.
 
-Dans les deux cas, l’entretien annuel de l’appareil par un professionnel qualifié et le ramonage du conduit sont **obligatoires** : au moins une fois par an, et deux fois par an dans le Nord, où le règlement sanitaire départemental l’impose. Ailleurs, l’ADEME recommande aussi un second ramonage en cas de forte consommation (au-delà de 6 m³ de bois ou 2,5 tonnes de granulés par an). Tout est détaillé dans notre guide [entretien obligatoire](/conseils/entretien-obligatoire-poele-chaudiere-pompe-a-chaleur/) et sur notre page [entretien et ramonage](/entretien-ramonage/).
+Dans les deux cas, l’entretien annuel de l’appareil par un professionnel qualifié et le ramonage du conduit sont **obligatoires** : au moins une fois par an. Au-delà, tout dépend de votre consommation : l’ADEME conseille un passage de plus en cas de forte utilisation (au-delà de 6 m³ de bois ou 2,5 tonnes de granulés par an). Tout est détaillé dans notre guide [entretien obligatoire](/conseils/entretien-obligatoire-poele-chaudiere-pompe-a-chaleur/) et sur notre page [entretien et ramonage](/entretien-ramonage/).
 
 ### L’ambiance de la flamme
 

@@ -10,7 +10,7 @@ const year = new Date().getFullYear();
 <footer class="bg-ink-900 text-ink-300">
   <div class="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
     <div class="flex flex-col gap-5 lg:col-span-4">
-      <a href="/" class="self-start" aria-label="FK Énergie, accueil"><Logo tone="light" class="h-20" sizes="117px" /></a>
+      <a href="/" class="self-start" aria-label="FK Énergie, accueil"><Logo tone="light" class="h-14" sizes="216px" /></a>
       <p class="font-hand text-2xl leading-tight text-ember-300">Votre confort est notre priorité.</p>
       <a href={site.phoneHref} class="font-display text-3xl text-ember-300 hover:text-ember-200">{site.phone}</a>
       <div class="flex flex-col gap-2">
@@ -58,6 +58,7 @@ const year = new Date().getFullYear();
             ))
           }
         </dl>
+        {showrooms.filter((s) => s.hoursNote).map((s) => <p class="mt-3 text-sm">{s.city} : {s.hoursNote}.</p>)}
       </div>
       <ul class="grid gap-3 text-[15px]">
         {

@@ -17,10 +17,10 @@ import side from '../assets/images/realisations/poele-bois-heta-serie-8.jpg';
 
 const crumbs = [{ label: 'Poêles à bois', href: '/poele-a-bois/' }];
 const description =
-  'Poêles à bois, poêles de masse et poêles mixtes HETA, Lotus, Contura : vente et pose par un installateur RGE QualiBois dans le Pas-de-Calais et le Nord.';
+  'Poêles à bois, poêles de masse et poêles mixtes Stovax, Lotus, Contura : vente et pose par un installateur RGE QualiBois dans le Pas-de-Calais et le Nord.';
 
 const brands = [
-  { name: 'HETA', origin: 'Danemark', text: 'Des poêles à bûches au design scandinave épuré, comme les séries Scan-Line et Série 8, avec d’excellents rendements.' },
+  { name: 'Stovax', origin: 'Royaume-Uni', text: 'Des poêles à bûches aux styles variés, des modèles classiques en fonte aux lignes contemporaines (Riva, Vogue…).' },
   { name: 'Lotus', origin: 'Danemark', text: 'Des poêles élégants, souvent habillés de pierre ollaire qui accumule et restitue la chaleur (Jubilee, Orbis…).' },
   { name: 'Contura', origin: 'Suède', text: 'Des poêles suédois compacts et lumineux, avec vitres latérales, idéaux pour les petits espaces.' },
   { name: 'Palazzetti', origin: 'Italie', text: 'Des poêles à bois au design moderne et la gamme Multifire, qui accepte bûches et granulés.' },
@@ -41,7 +41,7 @@ const faqs: FaqItem[] = [
   },
   {
     q: 'Faut-il faire ramoner son conduit ?',
-    a: 'Oui. Depuis le 1er octobre 2023, le conduit doit être ramoné au moins une fois tous les 12 mois, et le règlement sanitaire départemental peut en imposer davantage : dans le Nord, deux fois par an dont une pendant la période de chauffe. L’entretien annuel du poêle par un professionnel est lui aussi obligatoire. Nous assurons l’entretien et le ramonage.',
+    a: 'Oui. Depuis le 1er octobre 2023, le conduit doit être ramoné au moins une fois tous les 12 mois, et plus souvent si vous consommez beaucoup de bois. L’entretien annuel du poêle par un professionnel est lui aussi obligatoire. Nous assurons l’entretien et le ramonage.',
   },
 ];
 ---
@@ -52,7 +52,7 @@ const faqs: FaqItem[] = [
   description={description}
   breadcrumbs={crumbs}
   jsonLd={[
-    serviceSchema({ name: 'Installation de poêles à bois', description, path: '/poele-a-bois/', serviceType: 'Installation de poêle à bois', brands: ['HETA', 'Lotus', 'Contura', 'Palazzetti'] }),
+    serviceSchema({ name: 'Installation de poêles à bois', description, path: '/poele-a-bois/', serviceType: 'Installation de poêle à bois', brands: ['Stovax', 'Lotus', 'Contura', 'Palazzetti'] }),
     faqSchema(faqs),
   ]}
 >

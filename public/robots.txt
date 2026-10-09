@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://www.fk-energie-chauffage.fr/sitemap-index.xml
+Sitemap: https://www.fk-energie.fr/sitemap-index.xml

@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { RESEND_API_KEY, CONTACT_EMAIL_TO, CONTACT_EMAIL_FROM, TURNSTILE_SECRET_KEY } from 'astro:env/server';
 import { site, showrooms } from '../../data/site';
+import { communes } from '../../data/communes';
 
 // Fonction serverless (Vercel) : le reste du site est statique.
 export const prerender = false;
@@ -52,6 +53,13 @@ const humanVerified = async (token: FormDataEntryValue | null, ip: string) => {
   }
 };
 
+const norm = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]+/g, ' ').trim();
+
+/** Showroom destinataire : celui choisi dans le formulaire, sinon celui de la commune (`communes.ts`). */
+const showroomFor = (slug: string, commune: string) =>
+  showrooms.find((s) => s.slug === slug) ??
+  showrooms.find((s) => s.slug === communes.find((c) => norm(c.name) === norm(commune))?.showroom);
+
 const clean = (v: FormDataEntryValue | null, max = 160) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, max) : '');
 
 export const POST: APIRoute = async ({ request, redirect, clientAddress }) => {
@@ -90,7 +98,6 @@ export const POST: APIRoute = async ({ request, redirect, clientAddress }) => {
     surface: Number(clean(form.get('surface'), 4)) || null,
     current: clean(form.get('current'), 40),
     when: clean(form.get('when'), 40),
-    showroom: showrooms.find((s) => s.slug === clean(form.get('showroom'), 40))?.city ?? '',
     name: clean(form.get('name'), 120),
     phone: clean(form.get('phone'), 40),
     email: clean(form.get('email'), 160),
@@ -106,6 +113,7 @@ export const POST: APIRoute = async ({ request, redirect, clientAddress }) => {
   if (d.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return reply(false, 'L’adresse e-mail semble invalide.');
   if (d.commune.length < 2) return reply(false, 'Indiquez votre commune.');
   if (!d.consent) return reply(false, 'Merci d’accepter d’être recontacté.');
+  const showroom = showroomFor(clean(form.get('showroom'), 40), d.commune);
 
   if (!(await humanVerified(form.get('cf-turnstile-response'), ip))) {
     return reply(false, `La vérification anti-robot a échoué. Rechargez la page et réessayez, ou appelez-nous au ${site.phone}.`, 403);
@@ -130,7 +138,7 @@ export const POST: APIRoute = async ({ request, redirect, clientAddress }) => {
 
   const line = (label: string, value: string | number | null) => `${label} : ${value || '-'}`;
   const text = [
-    'Nouvelle demande d’étude depuis fk-energie-chauffage.fr',
+    `Nouvelle demande d’étude depuis ${new URL(site.url).hostname}`,
     '',
     line('Projet', d.project),
     line('Logement', [d.home, d.surface ? `${d.surface} m²` : ''].filter(Boolean).join(' · ')),
@@ -141,7 +149,7 @@ export const POST: APIRoute = async ({ request, redirect, clientAddress }) => {
     line('Téléphone', d.phone),
     line('E-mail', d.email),
     line('Commune', d.commune),
-    line('Showroom', d.showroom),
+    line('Showroom', showroom?.city ?? ''),
     line('Rappel de préférence', d.callback),
     line('Photos jointes', attachments.length),
     '',
@@ -154,7 +162,8 @@ export const POST: APIRoute = async ({ request, redirect, clientAddress }) => {
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       from: CONTACT_EMAIL_FROM,
-      to: CONTACT_EMAIL_TO.split(',').map((s) => s.trim()),
+      // Demande envoyée au showroom concerné ; à défaut (commune hors liste, pas de choix), à CONTACT_EMAIL_TO
+      to: showroom ? [showroom.email] : CONTACT_EMAIL_TO.split(',').map((s) => s.trim()),
       ...(d.email ? { reply_to: d.email } : {}),
       subject: `Demande d’étude : ${d.project} · ${d.commune} (${d.name})`,
       text,

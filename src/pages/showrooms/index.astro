@@ -4,10 +4,12 @@ import PageHero from '../../components/PageHero.astro';
 import ShowroomCard from '../../components/ShowroomCard.astro';
 import HoursList from '../../components/HoursList.astro';
 import Icon from '../../components/Icon.astro';
-import { showrooms, site } from '../../data/site';
+import { showrooms, site, openingHours, openDays, showroomHours } from '../../data/site';
 import { showroomSchema } from '../../lib/schema';
 import { absoluteImage } from '../../lib/images';
 
+const exceptions = showrooms.filter((s) => s.hours).map((s) => `${openDays(showroomHours(s))} à ${s.city}`);
+const accueil = `${openDays(openingHours)}${exceptions.length ? ` (${exceptions.join(', ')})` : ''}`;
 const crumbs = [{ label: 'Nos showrooms', href: '/showrooms/' }];
 const schemas = await Promise.all(showrooms.map(async (s) => showroomSchema(s, s.image ? await absoluteImage(s.image) : undefined)));
 ---
@@ -22,7 +24,7 @@ const schemas = await Promise.all(showrooms.map(async (s) => showroomSchema(s, s
 >
   <PageHero
     title="3 showrooms pour voir, comparer et choisir"
-    lead="Venez découvrir nos appareils en exposition et échanger avec nos conseillers. Nous vous accueillons du lundi au samedi, sans rendez-vous."
+    lead={`Venez découvrir nos appareils en exposition et échanger avec nos conseillers. Nous vous accueillons ${accueil}, sans rendez-vous.`}
     crumbs={crumbs}
     cta={false}
   />

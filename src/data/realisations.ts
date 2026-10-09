@@ -1,12 +1,12 @@
 import type { ImageMetadata } from 'astro';
 
-export type Category = 'granules' | 'bois';
+export type Category = 'granules' | 'bois' | 'chaudiere' | 'pac';
 
 export type Realisation = {
   image: ImageMetadata;
   title: string;
   category: Category;
-  /** Date de publication de la pose (AAAA-MM-JJ), issue de la page Facebook. */
+  /** Date de la pose (AAAA-MM-JJ) : publication sur la page Facebook, ou prise de vue des photos envoyées par FK Énergie. */
   date: string;
   brand?: string;
   place?: string;
@@ -29,8 +29,16 @@ const r = (file: string, title: string, category: Category, date: string, extra:
   ...extra,
 });
 
-/** Poses réalisées par les équipes FK Énergie (photos et dates issues de la page Facebook). Du plus récent au plus ancien. */
+/**
+ * Poses réalisées par les équipes FK Énergie : photos de la page Facebook, puis photos envoyées par FK Énergie
+ * (octobre 2026, datées par leur prise de vue). Du plus récent au plus ancien.
+ */
 export const realisations: Realisation[] = [
+  r('climatisation-atlantic-interieure', 'Climatisation Atlantic, unité intérieure', 'pac', '2026-07-16', { brand: 'Atlantic' }),
+  r('climatisation-atlantic-exterieure', 'Climatisation Atlantic, unité extérieure', 'pac', '2026-07-16', { brand: 'Atlantic' }),
+  r('chaudiere-granules-rtb-phoenix', 'Chaudière à granulés RTB Phoenix', 'chaudiere', '2026-06-04', { brand: 'RTB' }),
+  r('poele-granules-blanc-noir', 'Poêle à granulés blanc', 'granules', '2026-04-03'),
+  r('cuisiniere-bois', 'Cuisinière à bois', 'bois', '2026-02-02'),
   r('poele-granules-palazzetti-anna-pro-3', 'Palazzetti Anna Pro 3', 'granules', '2026-09-29', { brand: 'Palazzetti' }),
   r('poele-bois-rond-blanc', 'Poêle à bois habillage blanc', 'bois', '2026-07-24'),
   r('poele-bois-pierre-ollaire', 'Poêle à bois en pierre ollaire', 'bois', '2026-07-21'),
@@ -59,6 +67,10 @@ export const realisations: Realisation[] = [
   r('poele-bois-rond-noir', 'Poêle à bois rond', 'bois', '2024-07-18'),
   r('poele-bois-habillage-bois', 'Poêle à bois d’angle', 'bois', '2024-07-05'),
   r('poele-bois-habillage-bois-2', 'Poêle à bois habillage pierre', 'bois', '2024-07-05'),
+  r('poele-granules-cheminee', 'Poêle à granulés dans une cheminée', 'granules', '2023-11-27'),
+  r('chaudiere-granules-rtb-phoenix-16', 'Chaudière à granulés RTB Phoenix 16 et ballon d’eau chaude', 'chaudiere', '2022-07-20', { brand: 'RTB' }),
+  r('chaudiere-granules-rtb-phoenix-silo', 'Chaudière à granulés RTB Phoenix et sa réserve', 'chaudiere', '2022-07-15', { brand: 'RTB' }),
+  r('poele-granules-colonne-noir', 'Poêle à granulés colonne', 'granules', '2021-09-30'),
 ];
 
 /** Carnet : une photo par pose, la plus récente d'abord. */

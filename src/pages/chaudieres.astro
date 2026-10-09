@@ -8,6 +8,8 @@ import RelatedGuides from '../components/RelatedGuides.astro';
 import RelatedTools from '../components/RelatedTools.astro';
 import ServiceArea from '../components/ServiceArea.astro';
 import Icon from '../components/Icon.astro';
+import RealisationsGrid from '../components/RealisationsGrid.astro';
+import { byCategory } from '../data/realisations';
 import { faqSchema, serviceSchema, type Faq as FaqItem } from '../lib/schema';
 import hero from '../assets/images/produits/chaudiere-granules-rtb-installation.jpg';
 
@@ -89,6 +91,15 @@ const faqs: FaqItem[] = [
       </div>
       <a href="/pompes-a-chaleur/" class="btn-secondary shrink-0">Voir les pompes à chaleur <Icon name="arrow" class="size-4" /></a>
     </div>
+  </section>
+
+  <section class="container-page py-20" aria-labelledby="real-title">
+    <div class="max-w-2xl">
+      <p class="eyebrow">Nos poses</p>
+      <h2 id="real-title" class="mt-3 text-3xl sm:text-4xl">Chaudières installées par nos équipes</h2>
+    </div>
+    <div class="mt-10"><RealisationsGrid items={byCategory('chaudiere').slice(0, 8)} /></div>
+    <a href="/realisations/" class="btn-secondary mt-8">Voir toutes nos réalisations <Icon name="arrow" class="size-4" /></a>
   </section>
 
   <RelatedTools path="/chaudieres/" />

@@ -1,6 +1,6 @@
 /**
  * Communes proposées dans le formulaire, avec le showroom le plus proche (estimation par distance routière).
- * À compléter ou corriger avec FK Énergie.
+ * Validé avec FK Énergie (octobre 2026) : Lumbres, Bourbourg et Gravelines sont rattachées à Ardres.
  */
 export type Commune = { name: string; cp: string; showroom: 'aire-sur-la-lys' | 'ardres' | 'rexpoede' };
 
@@ -15,7 +15,6 @@ export const communes: Commune[] = [
   c('Saint-Omer', '62500', 'aire-sur-la-lys'),
   c('Arques', '62510', 'aire-sur-la-lys'),
   c('Longuenesse', '62219', 'aire-sur-la-lys'),
-  c('Lumbres', '62380', 'aire-sur-la-lys'),
   c('Fruges', '62310', 'aire-sur-la-lys'),
   c('Norrent-Fontes', '62120', 'aire-sur-la-lys'),
   c('Béthune', '62400', 'aire-sur-la-lys'),
@@ -31,14 +30,17 @@ export const communes: Commune[] = [
   c('Coquelles', '62231', 'ardres'),
   c('Tournehem-sur-la-Hem', '62890', 'ardres'),
   c('Éperlecques', '62910', 'ardres'),
+  c('Nordausques', '62890', 'ardres'),
+  c('Louches', '62610', 'ardres'),
+  c('Lumbres', '62380', 'ardres'),
+  c('Bourbourg', '59630', 'ardres'),
+  c('Gravelines', '59820', 'ardres'),
   c('Rexpoëde', '59122', 'rexpoede'),
   c('Hondschoote', '59122', 'rexpoede'),
   c('Bergues', '59380', 'rexpoede'),
   c('Wormhout', '59470', 'rexpoede'),
   c('Dunkerque', '59140', 'rexpoede'),
-  c('Bourbourg', '59630', 'rexpoede'),
   c('Cassel', '59670', 'rexpoede'),
   c('Esquelbecq', '59470', 'rexpoede'),
   c('Bierne', '59380', 'rexpoede'),
-  c('Gravelines', '59820', 'rexpoede'),
 ];

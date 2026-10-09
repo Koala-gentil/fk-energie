@@ -13,19 +13,21 @@ const filters = [
   { key: 'all', label: 'Toutes' },
   { key: 'granules', label: 'Granulés' },
   { key: 'bois', label: 'Bois' },
+  { key: 'chaudiere', label: 'Chaudières' },
+  { key: 'pac', label: 'Pompes à chaleur' },
 ];
 ---
 
 <div data-gallery>
   {
     filterable && (
-      <div class="mb-8 inline-flex rounded-full bg-ink-100 p-1" role="group" aria-label="Filtrer les poses">
+      <div class="mb-8 inline-flex max-w-full overflow-x-auto rounded-full bg-ink-100 p-1" role="group" aria-label="Filtrer les poses">
         {filters.map((f, i) => (
           <button
             type="button"
             data-filter={f.key}
             aria-pressed={i === 0 ? 'true' : 'false'}
-            class="min-h-11 rounded-full px-5 font-semibold text-ink-600 transition hover:text-ink-900 aria-pressed:bg-white aria-pressed:text-ink-900 aria-pressed:shadow-sm"
+            class="min-h-11 shrink-0 rounded-full px-5 font-semibold whitespace-nowrap text-ink-600 transition hover:text-ink-900 aria-pressed:bg-white aria-pressed:text-ink-900 aria-pressed:shadow-sm"
           >
             {f.label}
           </button>

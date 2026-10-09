@@ -10,7 +10,7 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://www.fk-energie-chauffage.fr',
+  site: 'https://www.fk-energie.fr',
   trailingSlash: 'always',
 
   vite: {
@@ -31,11 +31,12 @@ export default defineConfig({
   env: {
     schema: {
       RESEND_API_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
-      CONTACT_EMAIL_TO: envField.string({ context: 'server', access: 'secret', default: 'fkenergie@orange.fr' }),
+      // Destinataire quand le showroom n'est pas identifié (sinon : e-mail du showroom, src/data/site.ts)
+      CONTACT_EMAIL_TO: envField.string({ context: 'server', access: 'secret', default: 'agence.fkenergie@gmail.com' }),
       CONTACT_EMAIL_FROM: envField.string({
         context: 'server',
         access: 'secret',
-        default: 'Site FK Énergie <site@fk-energie-chauffage.fr>',
+        default: 'Site FK Énergie <site@fk-energie.fr>',
       }),
       // Anti-robot Cloudflare Turnstile : actif seulement si les deux clés sont définies
       PUBLIC_TURNSTILE_SITE_KEY: envField.string({ context: 'client', access: 'public', optional: true }),

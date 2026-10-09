@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import OpenStatus from './OpenStatus.astro';
-import { type Showroom, mapsUrl } from '../data/site';
+import { type Showroom, mapsUrl, showroomHours } from '../data/site';
 
 interface Props {
   showroom: Showroom;
@@ -30,7 +30,7 @@ const Heading = headingLevel;
       <Heading class="text-3xl">
         <a href={`/showrooms/${s.slug}/`} class="hover:text-ember-700">{s.city}</a>
       </Heading>
-      {s.isNew ? <span class="rounded-full bg-ember-100 px-3 py-1 text-sm font-bold text-ember-800">Nouveau</span> : <OpenStatus variant="short" />}
+      {s.isNew ? <span class="rounded-full bg-ember-100 px-3 py-1 text-sm font-bold text-ember-800">Nouveau</span> : <OpenStatus variant="short" hours={showroomHours(s)} />}
     </div>
     <address class="text-ink-700 not-italic">
       {s.street}, {s.postalCode} {s.city}

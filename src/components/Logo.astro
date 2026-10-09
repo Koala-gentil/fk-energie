@@ -1,9 +1,9 @@
 ---
 /**
- * Logo officiel FK Énergie (photo de profil 2026), détouré sur fond transparent.
- * - tone « dark » : pour les fonds clairs (texte « NERGIE » en encre)
- * - tone « light » : pour les fonds sombres (texte blanc, version d'origine)
- * Sources : src/assets/brand/, générées depuis assets/raw/facebook/profil_01.jpg.
+ * Logo officiel FK Énergie (fichier fourni par l'entreprise, octobre 2026), sans la ligne de slogan.
+ * - tone « dark » : pour les fonds clairs (version d'origine, « Energie » en gris anthracite)
+ * - tone « light » : pour les fonds sombres (« Energie » et l'arc supérieur passés en blanc)
+ * Sources : src/assets/brand/, recadrées depuis le PNG d'origine (2001 × 751 px).
  */
 import { Image } from 'astro:assets';
 import logoClair from '../assets/brand/logo-fond-clair.png';
@@ -14,17 +14,17 @@ interface Props {
   /** Hauteur du logo, en classe Tailwind (ex. « h-14 »). */
   class?: string;
   eager?: boolean;
-  /** Largeur affichée (attribut sizes), à garder cohérente avec la hauteur : largeur = hauteur × 1,46. */
+  /** Largeur affichée (attribut sizes), à garder cohérente avec la hauteur : largeur = hauteur × 3,85. */
   sizes?: string;
 }
-const { tone = 'dark', class: className = 'h-14', eager = false, sizes = '120px' } = Astro.props;
+const { tone = 'dark', class: className = 'h-14', eager = false, sizes = '216px' } = Astro.props;
 const src = tone === 'light' ? logoSombre : logoClair;
 ---
 
 <Image
   src={src}
   alt="FK Énergie"
-  widths={[90, 140, 180, 240, 360]}
+  widths={[120, 160, 240, 320, 480]}
   {sizes}
   class:list={['w-auto', className]}
   loading={eager ? 'eager' : 'lazy'}

@@ -4,9 +4,10 @@ import PageHero from '../components/PageHero.astro';
 import { site } from '../data/site';
 
 const crumbs = [{ label: 'Mentions légales', href: '/mentions-legales/' }];
+const m = site.legal.mediator;
 ---
 
-<BaseLayout title="Mentions légales" description="Mentions légales du site fk-energie-chauffage.fr, édité par FK ENERGIE." breadcrumbs={crumbs}>
+<BaseLayout title="Mentions légales" description={`Mentions légales du site ${new URL(site.url).hostname.replace(/^www\./, '')}, édité par FK ENERGIE.`} breadcrumbs={crumbs}>
   <PageHero title="Mentions légales" crumbs={crumbs} cta={false} />
   <section class="container-page py-16">
     <div class="prose-fk max-w-3xl">
@@ -32,11 +33,18 @@ const crumbs = [{ label: 'Mentions légales', href: '/mentions-legales/' }];
         l’annuaire <a href="https://france-renov.gouv.fr/annuaires-professionnels/artisan-rge-architecte" target="_blank" rel="noopener">France Rénov’</a>.
       </p>
 
+      <h2>Médiation de la consommation</h2>
+      <p>
+        Conformément aux articles L611-1 et suivants du code de la consommation, en cas de litige non résolu avec FK ENERGIE après une réclamation
+        écrite, vous pouvez recourir gratuitement au médiateur de la consommation : <strong>{m.name}</strong>, {m.address}, e-mail :
+        <a href={`mailto:${m.email}`}>{m.email}</a>, site : <a href={m.url} target="_blank" rel="noopener">{m.url.replace('https://', '')}</a>.
+      </p>
+
       <h2>Propriété intellectuelle</h2>
       <p>
         L’ensemble des contenus de ce site (textes, photographies, logos) est la propriété de FK ENERGIE ou de ses partenaires. Toute reproduction sans
         autorisation préalable est interdite. Les photographies de réalisations ont été prises par FK ENERGIE chez ses clients. Les noms et marques cités
-        (Palazzetti, HETA, Lotus, Contura, Atlantic, RTB…) appartiennent à leurs propriétaires respectifs.
+        (Palazzetti, Stovax, HETA, Lotus, Contura, Atlantic, RTB…) appartiennent à leurs propriétaires respectifs.
       </p>
 
       <h2>Données personnelles</h2>
